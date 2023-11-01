@@ -1,4 +1,5 @@
 #include "loop.h"
+#include <algorithm>
 
 CLoop::CLoop ()
 {
@@ -40,6 +41,7 @@ void CLoop::WaitEnd()
     }
 }
 
+/// @brief 
 void CLoop::mainLoop()
 {
     // Main Loop

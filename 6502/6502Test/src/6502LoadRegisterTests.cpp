@@ -83,7 +83,7 @@ TEST_F( M6502LoadRegisterTests, CPUCanExecuteMoreCyclesThanRequestedIfRequiredBy
 	using namespace m6502;
 	mem[0xFFFC] = CPU::INS_LDA_IM;
 	mem[0xFFFD] = 0x84;
-	CPU CPUCopy = cpu;
+	//CPU CPUCopy = cpu;
 	constexpr s32 NUM_CYCLES = 1;
 
 	//when:

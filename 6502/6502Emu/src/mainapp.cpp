@@ -3,6 +3,11 @@
 
 CMainApp::CMainApp()
 {
+    using namespace m6502;
+	cpu.Reset( 0xFF00, mem );
+	mem[0xFF00] = CPU::INS_JSR;
+	mem[0xFF01] = 0x00;
+	mem[0xFF02] = 0x80;
 }
 
 CMainApp::~CMainApp()

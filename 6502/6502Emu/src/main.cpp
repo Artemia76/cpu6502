@@ -1,8 +1,9 @@
 #include <iostream>
-#include "m6502.h"
 #include "loop.h"
 #include "mainapp.h"
 
+/// @brief 
+/// @return 
 int main() {
     CLoop Loop;
     CMainApp MainApp;

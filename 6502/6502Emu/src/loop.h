@@ -21,11 +21,9 @@ class CProcessEvent
     public:
                 CProcessEvent(CLoop& pParent);
                 ~CProcessEvent();
+                CLoop&      m_parent;
     protected:
     virtual void OnProcess(const period& pInterval)=0;
-
-    private:
-    CLoop&      m_parent;
 };
 typedef std::vector<CProcessEvent*> v_subscribers;
 
@@ -44,12 +42,14 @@ class CLoop
     void            WaitEnd();
     void            Subscribe (CProcessEvent* pSubscriber);
     void            UnSubscribe (CProcessEvent* pSubscriber);
+    period          GetLastSleep ();
 
     private:
     std::thread*    m_thread;
     hrc::time_point m_start;
     hrc::time_point m_end;
     period          m_period;
+    period          m_lastSleep;
     std::atomic<bool> m_running;
     v_subscribers   m_subscribers;
     std::mutex      m_mutex;

@@ -71,8 +71,10 @@ void CLoop::mainLoop()
         m_end = hrc::now();
         // Calculate spent time
         period TimeSpent = std::chrono::duration_cast<std::chrono::microseconds>(m_end-m_start);
+        m_lastSleep = m_period-TimeSpent;
         //Sleep the rest of time period
-        std::this_thread::sleep_for(m_period-TimeSpent);
+        if (m_lastSleep.count() > 0)
+            std::this_thread::sleep_for(m_lastSleep);
     }
 }
 
@@ -91,4 +93,9 @@ void CLoop::UnSubscribe(CProcessEvent* pSubscriber)
     m_mutex.lock();
     m_subscribers.erase(std::remove(m_subscribers.begin(), m_subscribers.end(), pSubscriber), m_subscribers.end());
     m_mutex.unlock();
+}
+
+period CLoop::GetLastSleep()
+{
+    return m_lastSleep;
 }

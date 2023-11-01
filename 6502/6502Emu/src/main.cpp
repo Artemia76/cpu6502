@@ -7,7 +7,7 @@
 int main() {
     CLoop Loop;
     CMainApp MainApp(Loop);
-    Loop.Start(20);
+    Loop.Start(2);
     std::cout << "Wait touch press..." << std::endl;
     std::getchar();
     Loop.Stop();

@@ -279,7 +279,7 @@ struct m6502::CPU
     /** @return the address that the program was loading into, or 0 if no program */
 	Word LoadPrg( const Byte* Program, u32 NumBytes, Mem& memory ) const;
 
-    s32 Execute( s32 Cycles, Mem& memory);
+    s32 Execute( s32 Cycles, Mem& memory, u32 SleepNanoSec= 0);
 
     /** Addressing mode - Zero page */
 	Word AddrZeroPage( s32& Cycles, const Mem& memory );

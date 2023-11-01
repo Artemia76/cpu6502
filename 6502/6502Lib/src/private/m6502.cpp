@@ -1,8 +1,11 @@
 #include "m6502.h"
 
+#include <chrono>
+#include <thread>
+
 #define ASSERT( Condition, Text ) { if ( !Condition ) { throw -1; } }
 
-m6502::s32 m6502::CPU::Execute( s32 Cycles, Mem & memory )
+m6502::s32 m6502::CPU::Execute( s32 Cycles, Mem & memory, u32 SleepNanoSec )
 {
     /** Load a Register with the value from the memory address */
     auto LoadRegister = 
@@ -12,7 +15,7 @@ m6502::s32 m6502::CPU::Execute( s32 Cycles, Mem & memory )
         Register = ReadByte ( Cycles, Address, memory);
         SetZeroAndNegativeFlags( Register );
     };
-
+    s32 ACycles = Cycles;
 	const s32 CyclesRequested = Cycles;
     while ( Cycles > 0)
     {
@@ -308,6 +311,13 @@ m6502::s32 m6502::CPU::Execute( s32 Cycles, Mem & memory )
                 throw - 1;
             } break;
         }
+        //Make sleep between instuction to save host cpu
+        if (SleepNanoSec > 0)
+        {
+            u32 NbCycleUsed = ACycles - Cycles;
+            std::this_thread::sleep_for(std::chrono::nanoseconds(NbCycleUsed * SleepNanoSec));
+        }
+        ACycles = Cycles;
     }
     const s32 NumCyclesUsed = CyclesRequested - Cycles;
 	return NumCyclesUsed;

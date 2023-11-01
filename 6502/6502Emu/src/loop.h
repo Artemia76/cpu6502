@@ -6,20 +6,34 @@
 #include <vector>
 #include <mutex>
 
-class CLoop;
-
-class CEvent
-{
-    friend CLoop;
-    protected:
-    virtual void OnUpdate()=0;
-};
-
-
 typedef std::chrono::high_resolution_clock hrc;
 typedef std::chrono::microseconds period;
-typedef std::vector<CEvent*> v_subscribers;
 
+class CLoop;
+
+/**
+ * @brief Abstract class for process callback
+ * 
+ */
+class CProcessEvent
+{
+    friend CLoop;
+    public:
+                CProcessEvent(CLoop& pParent);
+                ~CProcessEvent();
+    protected:
+    virtual void OnProcess(const period& pInterval)=0;
+
+    private:
+    CLoop&      m_parent;
+};
+typedef std::vector<CProcessEvent*> v_subscribers;
+
+/**
+ * @brief Loop Class Ensure Main loop management 
+ * 
+ * 
+ */
 class CLoop
 {
     public:
@@ -28,8 +42,8 @@ class CLoop
     void            Start (int pPeriod=10);
     void            Stop ();
     void            WaitEnd();
-    void            Subscribe (CEvent* pSubscriber);
-    void            UnSubscribe (CEvent* pSubscriber);
+    void            Subscribe (CProcessEvent* pSubscriber);
+    void            UnSubscribe (CProcessEvent* pSubscriber);
 
     private:
     std::thread*    m_thread;

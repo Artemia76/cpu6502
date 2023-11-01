@@ -6,9 +6,8 @@
 /// @return 
 int main() {
     CLoop Loop;
-    CMainApp MainApp;
-    Loop.Subscribe (&MainApp);
-    Loop.Start(200);
+    CMainApp MainApp(Loop);
+    Loop.Start(20);
     std::cout << "Wait touch press..." << std::endl;
     std::getchar();
     Loop.Stop();

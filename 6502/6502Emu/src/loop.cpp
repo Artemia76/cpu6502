@@ -1,6 +1,16 @@
 #include "loop.h"
 #include <algorithm>
 
+CProcessEvent::CProcessEvent(CLoop& pParent) : m_parent(pParent)
+{
+    m_parent.Subscribe(this);
+}
+
+CProcessEvent::~CProcessEvent()
+{
+    m_parent.UnSubscribe(this);
+}
+
 CLoop::CLoop ()
 {
     m_running=false;
@@ -54,7 +64,7 @@ void CLoop::mainLoop()
         {
             if (Subcriber != nullptr)
             {
-                Subcriber->OnUpdate();
+                Subcriber->OnProcess(m_period);
             }
         }
         m_mutex.unlock();
@@ -66,7 +76,7 @@ void CLoop::mainLoop()
     }
 }
 
-void CLoop::Subscribe(CEvent* pSubscriber)
+void CLoop::Subscribe(CProcessEvent* pSubscriber)
 {
     if (std::find(m_subscribers.begin(), m_subscribers.end(),pSubscriber) == m_subscribers.end())
     {
@@ -76,16 +86,9 @@ void CLoop::Subscribe(CEvent* pSubscriber)
     }
 }
 
-void CLoop::UnSubscribe(CEvent* pSubscriber)
+void CLoop::UnSubscribe(CProcessEvent* pSubscriber)
 {
-    for (v_subscribers::iterator it ; it != m_subscribers.end(); ++it)
-    {
-        if (pSubscriber == (*it))
-        {
-            m_mutex.lock();
-            m_subscribers.erase(it);
-            m_mutex.unlock();
-        }
-    }
-
+    m_mutex.lock();
+    m_subscribers.erase(std::remove(m_subscribers.begin(), m_subscribers.end(), pSubscriber), m_subscribers.end());
+    m_mutex.unlock();
 }

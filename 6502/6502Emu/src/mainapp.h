@@ -3,17 +3,18 @@
 #include <chrono>
 #include "m6502.h"
 
-class CMainApp : public CEvent
+class CMainApp : public CProcessEvent
 {
     public:
-        CMainApp ();
+        CMainApp (CLoop& pParent);
         ~CMainApp ();
 
     private:
         hrc::time_point m_timePoint;
-	    m6502::Mem mem;
-	    m6502::CPU cpu;
+	    m6502::Mem      mem;
+	    m6502::CPU      cpu;
+        int             m_clock; // Clock in Mhz
 
     protected:
-        void OnUpdate();
+        void OnProcess(const period& pInterval);
 };

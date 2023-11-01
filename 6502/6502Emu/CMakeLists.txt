@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-project( M6502Lib )
+project( M6502Emu )
 
 if(MSVC)
 	add_compile_options(/MP)				#Use multiple processors when building
@@ -10,14 +10,13 @@ else()
 endif()
 
 set  (M6502_SOURCES
-    "src/public/m6502.h"
-	"src/private/m6502.cpp")
+    "src/main.cpp"
+	"src/loop.cpp"
+	"src/mainapp.cpp")
 		
 source_group("src" FILES ${M6502_SOURCES})
 		
-add_library( M6502Lib ${M6502_SOURCES} )
-
-target_include_directories ( M6502Lib PUBLIC "${PROJECT_SOURCE_DIR}/src/public")
-target_include_directories ( M6502Lib PRIVATE "${PROJECT_SOURCE_DIR}/src/private")
-
+add_executable( M6502Emu ${M6502_SOURCES} )
+add_dependencies( M6502Emu M6502Lib )
+target_link_libraries(M6502Emu M6502Lib)
 #set_target_properties(M6502Lib PROPERTIES FOLDER "M6502Lib")

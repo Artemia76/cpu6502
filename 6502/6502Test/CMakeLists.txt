@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-project( M6502Emu )
+project( M6502Test )
 
 set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DM6502_DEBUG" )	#so we can add the DEBUG preprocessor define and other flags to stay in debug mode - see https://cmake.org/Wiki/CMake_Useful_Variables#Compilers_and_Tools
 set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DM6502_DEBUG" )
@@ -40,7 +40,7 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 # source for the test executable
 set  (M6502_SOURCES
 		"src/main_6502.cpp"
-#		"src/6502LoadRegisterTests.cpp"
+		"src/6502LoadRegisterTests.cpp"
 #		"src/6502StoreRegisterTests.cpp"
 		"src/6502JumpsAndCallsTests.cpp"
 #		"src/6502StackOperationsTests.cpp"

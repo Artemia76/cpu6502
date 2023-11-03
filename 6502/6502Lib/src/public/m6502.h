@@ -1,27 +1,38 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstdint>
+#include <iostream>
 
 namespace m6502
 {
-    using SByte = char;
-    using Byte = unsigned char;
-    using Word = unsigned short;
+    using SByte = std::int8_t;
+    using Byte = std::uint8_t;
+    using Word = std::uint16_t;
 
-    using u32 = unsigned int;
-	using s32 = signed int;
+    using u32 = std::uint32_t;
+	using s32 = std::int32_t;
 
-    struct Mem;
-    struct CPU;
+    using u64 = std::uint64_t;
+	using s64 = std::int64_t;
+
+    class Mem;
+    class CPU;
     struct StatusFlags;
+	class Registers;
+	enum class Ins : std::uint8_t;
 }
 
-struct m6502::Mem
+class m6502::Mem
 {
-    static constexpr u32 MAX_MEM = 1024*64;
+	public:
+static constexpr u32 MAX_MEM = 1024*64;
     Byte Data[MAX_MEM];
 
-     void Initialise ()
+	Mem();
+	~Mem();
+
+    void Initialise ()
     {
         for ( u32 i = 0; i < MAX_MEM; i++)
         {
@@ -30,18 +41,10 @@ struct m6502::Mem
     }
 
     /** read 1 byte */
-    Byte operator[]( u32 Address) const
-    {
-        // assert here Address is < MAX_MEM
-        return Data[Address];
-    }
+    Byte operator[]( u32 Address) const;
 
     /** write 1 byte */
-    Byte& operator[]( u32 Address)
-    {
-        // assert here Address is < MAX_MEM
-        return Data[Address];
-    }
+    Byte& operator[]( u32 Address);
 };
 
 struct m6502::StatusFlags
@@ -56,150 +59,16 @@ struct m6502::StatusFlags
 	Byte N : 1; //7: Negative
 };
 
-struct m6502::CPU
+class m6502::Registers
 {
-    Word PC;        //program counter
-    Byte SP;        //stack pointer
+	public:
+		Word 		PC;        //program counter
+    	Byte 		SP;        //stack pointer
+		Byte 		A, X, Y;   //registers
+  		Byte 		PS;
+    	StatusFlags	Flags;
 
-    Byte A, X, Y;   //registers
-
-    union // Processor status
-    {
-        Byte PS;
-        StatusFlags Flag;
-    };
-
-    void Reset( Mem& memory)
-    {
-		Reset( 0xFFFC, memory );
-    }
-
-    void Reset( Word ResetVector, Mem& memory)
-    {
-        PC = ResetVector;
-        SP = 0xFF;
-		Flag.C = Flag.Z = Flag.I = Flag.D = Flag.B = Flag.V = Flag.N = 0;
-		A = X = Y = 0;
-		memory.Initialise();
-    }
-
-    Byte FetchByte( s32& Cycles, const Mem& memory)
-    {
-        Byte Data = memory[PC];
-        PC++;
-        Cycles--;
-        return Data;
-    }
-
-    Word FetchWord( s32& Cycles, const Mem& memory)
-    {
-        // 6502 is little endian
-        Word Data = memory[PC];
-        PC++;
-    
-        Data |= (memory[PC] << 8 );
-        PC++;
-    
-        Cycles-=2;
-        return Data;
-    }
-
-    Byte ReadByte(
-        s32& Cycles,
-        Word Address,
-        const Mem& memory)
-    {
-        Byte Data = memory[Address];
-        Cycles--;
-        return Data;
-    }
-
-    Word ReadWord(
-		s32& Cycles,
-		Word Address,
-		const Mem& memory )
-	{
-		Byte LoByte = ReadByte( Cycles, Address, memory );
-		Byte HiByte = ReadByte( Cycles, Address + 1, memory );
-		return LoByte | (HiByte << 8);
-	}
-
-    /** write 1 byte to memory */
-	void WriteByte( Byte Value, s32& Cycles, Word Address, Mem& memory )
-	{
-		memory[Address] = Value;
-		Cycles--;
-	}
-
-	/** write 2 bytes to memory */
-	void WriteWord(	Word Value, s32& Cycles, Word Address, Mem& memory )
-	{
-		memory[Address] = Value & 0xFF;
-		memory[Address + 1] = (Value >> 8);
-		Cycles -= 2;
-	}
-
-/** @return the stack pointer as a full 16-bit address (in the 1st page) */
-	Word SPToAddress() const
-	{
-		return 0x100 | SP;
-	}
-
-    void PushWordToStack( s32& Cycles, Mem& memory, Word Value )
-	{
-		WriteByte( Value >> 8, Cycles, SPToAddress(), memory );
-		SP--;
-		WriteByte( Value & 0xFF, Cycles, SPToAddress(), memory );
-		SP--;
-	}
-
-	/** Push the PC-1 onto the stack */
-	void PushPCMinusOneToStack( s32& Cycles, Mem& memory )
-	{
-		PushWordToStack( Cycles, memory, PC - 1 );
-	}
-
-	/** Push the PC+1 onto the stack */
-	void PushPCPlusOneToStack( s32& Cycles, Mem& memory )
-	{
-		PushWordToStack( Cycles, memory, PC + 1 );
-	}
-
-	/** Push the PC onto the stack */
-	void PushPCToStack( s32& Cycles, Mem& memory )
-	{
-		PushWordToStack( Cycles, memory, PC );
-	}
-
-	void PushByteOntoStack( s32& Cycles, Byte Value, Mem& memory )
-	{
-		const Word SPWord = SPToAddress();
-		memory[SPWord] = Value;
-		Cycles--;
-		SP--;
-		Cycles--;
-	}
-
-	Byte PopByteFromStack( s32& Cycles, Mem& memory )
-	{
-		SP++;
-		Cycles--;
-		const Word SPWord = SPToAddress();
-		Byte Value = memory[SPWord];
-		Cycles--;
-		return Value;
-	}
-
-	/** Pop a 16-bit value from the stack */
-	Word PopWordFromStack( s32& Cycles, Mem& memory )
-	{
-		Word ValueFromStack = ReadWord( Cycles, SPToAddress()+1, memory );
-		SP += 2;
-		Cycles--;
-		return ValueFromStack;
-	}
-
-    // Process status bits
+		    // Process status bits
 	static constexpr Byte
 		NegativeFlagBit = 0b10000000,
 		OverflowFlagBit = 0b01000000,
@@ -207,121 +76,165 @@ struct m6502::CPU
 		UnusedFlagBit = 0b000100000,
 		InterruptDisableFlagBit = 0b000000100,
 		ZeroBit = 0b00000001;
+};
 
-    // opcodes
-    static constexpr Byte
-		//LDA
-		INS_LDA_IM = 0xA9,
-		INS_LDA_ZP = 0xA5,
-		INS_LDA_ZPX = 0xB5,
-		INS_LDA_ABS = 0xAD,
-		INS_LDA_ABSX = 0xBD,
-		INS_LDA_ABSY = 0xB9,
-		INS_LDA_INDX = 0xA1,
-		INS_LDA_INDY = 0xB1,
-		//LDX
-		INS_LDX_IM = 0xA2,
-		INS_LDX_ZP = 0xA6,
-		INS_LDX_ZPY = 0xB6,
-		INS_LDX_ABS = 0xAE,
-		INS_LDX_ABSY = 0xBE,
-		//LDY
-		INS_LDY_IM = 0xA0,
-		INS_LDY_ZP = 0xA4,
-		INS_LDY_ZPX = 0xB4,
-		INS_LDY_ABS = 0xAC,
-		INS_LDY_ABSX = 0xBC,
-        //STA
-		INS_STA_ZP = 0x85,
-		INS_STA_ZPX = 0x95,
-		INS_STA_ABS = 0x8D,
-		INS_STA_ABSX = 0x9D,
-		INS_STA_ABSY = 0x99,
-		INS_STA_INDX = 0x81,
-		INS_STA_INDY = 0x91,
-		//STX
-		INS_STX_ZP = 0x86,
-		INS_STX_ZPY = 0x96,
-		INS_STX_ABS = 0x8E,
-		//STY
-		INS_STY_ZP = 0x84,
-		INS_STY_ZPX = 0x94,
-		INS_STY_ABS = 0x8C,
+ // opcodes
+enum class m6502::Ins : m6502::Byte
+{	
+	//LDA
+	LDA_IM = 0xA9,
+	LDA_ZP = 0xA5,
+	LDA_ZPX = 0xB5,
+	LDA_ABS = 0xAD,
+	LDA_ABSX = 0xBD,
+	LDA_ABSY = 0xB9,
+	LDA_INDX = 0xA1,
+	LDA_INDY = 0xB1,
+	//LDX
+	LDX_IM = 0xA2,
+	LDX_ZP = 0xA6,
+	LDX_ZPY = 0xB6,
+	LDX_ABS = 0xAE,
+	LDX_ABSY = 0xBE,
+	//LDY
+	LDY_IM = 0xA0,
+	LDY_ZP = 0xA4,
+	LDY_ZPX = 0xB4,
+	LDY_ABS = 0xAC,
+	LDY_ABSX = 0xBC,
+    //STA
+	STA_ZP = 0x85,
+	STA_ZPX = 0x95,
+	STA_ABS = 0x8D,
+	STA_ABSX = 0x9D,
+	STA_ABSY = 0x99,
+	STA_INDX = 0x81,
+	STA_INDY = 0x91,
+	//STX
+	STX_ZP = 0x86,
+	STX_ZPY = 0x96,
+	STX_ABS = 0x8E,
+	//STY
+	STY_ZP = 0x84,
+	STY_ZPX = 0x94,
+	STY_ABS = 0x8C,
 
-        //Jumps and calls
-		INS_JMP_ABS = 0x4C,
-		INS_JMP_IND = 0x6C,
-		INS_JSR = 0x20,
-		INS_RTS = 0x60,
+    //Jumps and calls
+	JMP_ABS = 0x4C,
+	JMP_IND = 0x6C,
+	JSR = 0x20,
+	RTS = 0x60,
 
-        //Increments, Decrements
-		INS_INX = 0xE8,
-		INS_INY = 0xC8,
-		INS_DEY = 0x88,
-		INS_DEX = 0xCA,
-		INS_DEC_ZP = 0xC6,
-		INS_DEC_ZPX = 0xD6,
-		INS_DEC_ABS = 0xCE,
-		INS_DEC_ABSX = 0xDE,
-		INS_INC_ZP = 0xE6,
-		INS_INC_ZPX = 0xF6,
-		INS_INC_ABS = 0xEE,
-		INS_INC_ABSX = 0xFE;
+    //Increments, Decrements
+	INX = 0xE8,
+	INY = 0xC8,
+	DEY = 0x88,
+	DEX = 0xCA,
+	DEC_ZP = 0xC6,
+	DEC_ZPX = 0xD6,
+	DEC_ABS = 0xCE,
+	DEC_ABSX = 0xDE,
+	INC_ZP = 0xE6,
+	INC_ZPX = 0xF6,
+	INC_ABS = 0xEE,
+	INC_ABSX = 0xFE
+};
 
-   /** Sets the correct Process status after a load register instruction
-	*	- LDA, LDX, LDY
-	*	@Register The A,X or Y Register */
-	void SetZeroAndNegativeFlags( Byte Register )
-	{
-		Flag.Z = (Register == 0);
-		Flag.N = (Register & NegativeFlagBit) > 0;
-	}
-    /** @return the address that the program was loading into, or 0 if no program */
-	Word LoadPrg( const Byte* Program, u32 NumBytes, Mem& memory ) const;
+/// @brief 
+class m6502::CPU : public Registers
+{
+	public:
+				CPU(Mem& memory);
+				~CPU();
+    	void	Reset( );
+    	void	Reset( Word ResetVector );
+		/** @return the address that the program was loading into, or 0 if no program */
+		Word 	LoadPrg( const Byte* Program, u32 NumBytes) const;
+    	s64 	Execute( s64 Cycles);
 
-    s32 Execute( s32 Cycles, Mem& memory, u32 SleepNanoSec= 0);
+	private:
+		Mem& m_memory;
 
-    /** Addressing mode - Zero page */
-	Word AddrZeroPage( s32& Cycles, const Mem& memory );
+		std::int64_t m_cycles;
 
-	/** Addressing mode - Zero page with X offset */
-	Word AddrZeroPageX( s32& Cycles, const Mem& memory );
+    	Byte FetchByte();
+    	Word FetchWord();
+    	Byte ReadByte( Word Address );
+    	Word ReadWord( Word Address );
 
-    /** Addressing mode - Zero page with Y offset */
-    Word AddrZeroPageY( s32& Cycles, const Mem& Memory );
+		/** write 1 byte to memory */
+		void WriteByte( Byte Value, Word Address );
 
-    /** Addressing mode - Absolute */
-    Word AddrAbsolute( s32& Cycles, const Mem& Memory );
+		/** write 2 bytes to memory */
+		void WriteWord(	Word Value, Word Address );
 
-    /** Addressing mode - Absolute with X offset */
-    Word AddrAbsoluteX( s32& Cycles, const Mem& Memory );
+	/** @return the stack pointer as a full 16-bit address (in the 1st page) */
+		Word SPToAddress() const;
 
-    /** Addressing mode - Absolute with X offset
-     *      - Always takes a cycle for the X page boundary)
-     *      - See "STA Absolute,X" */
-    Word AddrAbsoluteX_5( s32& Cycles, const Mem& memory );
+		void PushWordToStack( Word Value );
 
-    /** Addressing mode - Absolute with Y offset */
-    Word AddrAbsoluteY( s32& Cycles, const Mem& Memory );
+		/** Push the PC-1 onto the stack */
+		void PushPCMinusOneToStack();
 
-	/** Addressing mode - Absolute with Y offset
-	*	- Always takes a cycle for the Y page boundary)
-	*	- See "STA Absolute,Y" */
-	Word AddrAbsoluteY_5( s32& Cycles, const Mem& memory );
+		/** Push the PC+1 onto the stack */
+		void PushPCPlusOneToStack();
 
-    /** Addressing mode - Indirect X | Indexed Indirect */
-	Word AddrIndirectX( s32& Cycles, const Mem& memory );
+		/** Push the PC onto the stack */
+		void PushPCToStack();
 
-	/** Addressing mode - Indirect Y | Indirect Indexed */
-	Word AddrIndirectY( s32& Cycles, const Mem& memory );
+		void PushByteOntoStack( Byte Value );
 
-	/** Addressing mode - Indirect X | Indirect Indexed
-	*	- Always takes a cycle for the Y page boundary)
-	*	- See "STA (Indirect,Y) */
-	Word AddrIndirectX_6( s32& Cycles, const Mem& memory );
+		Byte PopByteFromStack();
 
-    /** Addressing mode - Indirect Y | Indirect Indexed
-	*	- Always takes a cycle for the Y page boundary)
-	*	- See "STA (Indirect,Y) */
-	Word AddrIndirectY_6( s32& Cycles, const Mem& memory );
+		/** Pop a 16-bit value from the stack */
+		Word PopWordFromStack();
+
+	/** Sets the correct Process status after a load register instruction
+		*	- LDA, LDX, LDY
+		*	@Register The A,X or Y Register */
+		void SetZeroAndNegativeFlags( Byte Register );
+
+		/** Addressing mode - Zero page */
+		Word AddrZeroPage();
+
+		/** Addressing mode - Zero page with X offset */
+		Word AddrZeroPageX();
+
+		/** Addressing mode - Zero page with Y offset */
+		Word AddrZeroPageY();
+
+		/** Addressing mode - Absolute */
+		Word AddrAbsolute();
+
+		/** Addressing mode - Absolute with X offset */
+		Word AddrAbsoluteX();
+
+		/** Addressing mode - Absolute with X offset
+		 *      - Always takes a cycle for the X page boundary)
+		 *      - See "STA Absolute,X" */
+		Word AddrAbsoluteX_5();
+
+		/** Addressing mode - Absolute with Y offset */
+		Word AddrAbsoluteY();
+
+		/** Addressing mode - Absolute with Y offset
+		*	- Always takes a cycle for the Y page boundary)
+		*	- See "STA Absolute,Y" */
+		Word AddrAbsoluteY_5();
+
+		/** Addressing mode - Indirect X | Indexed Indirect */
+		Word AddrIndirectX();
+
+		/** Addressing mode - Indirect Y | Indirect Indexed */
+		Word AddrIndirectY();
+
+		/** Addressing mode - Indirect X | Indirect Indexed
+		*	- Always takes a cycle for the Y page boundary)
+		*	- See "STA (Indirect,Y) */
+		Word AddrIndirectX_6();
+
+		/** Addressing mode - Indirect Y | Indirect Indexed
+		*	- Always takes a cycle for the Y page boundary)
+		*	- See "STA (Indirect,Y) */
+		Word AddrIndirectY_6();
 };

@@ -5,13 +5,13 @@ static void VerfifyUnmodifiedFlagsFromStoreRegister(
 	const m6502::CPU& cpu,
 	const m6502::CPU& CPUCopy )
 {
-	EXPECT_EQ( cpu.Flag.C, CPUCopy.Flag.C );
-	EXPECT_EQ( cpu.Flag.I, CPUCopy.Flag.I );
-	EXPECT_EQ( cpu.Flag.D, CPUCopy.Flag.D );
-	EXPECT_EQ( cpu.Flag.B, CPUCopy.Flag.B );
-	EXPECT_EQ( cpu.Flag.V, CPUCopy.Flag.V );
-	EXPECT_EQ( cpu.Flag.Z, CPUCopy.Flag.Z );
-	EXPECT_EQ( cpu.Flag.N, CPUCopy.Flag.N );
+	EXPECT_EQ( cpu.Flags.C, CPUCopy.Flags.C );
+	EXPECT_EQ( cpu.Flags.I, CPUCopy.Flags.I );
+	EXPECT_EQ( cpu.Flags.D, CPUCopy.Flags.D );
+	EXPECT_EQ( cpu.Flags.B, CPUCopy.Flags.B );
+	EXPECT_EQ( cpu.Flags.V, CPUCopy.Flags.V );
+	EXPECT_EQ( cpu.Flags.Z, CPUCopy.Flags.Z );
+	EXPECT_EQ( cpu.Flags.N, CPUCopy.Flags.N );
 }
 
 class M6502StoreRegisterTests : public testing::Test
@@ -19,10 +19,12 @@ class M6502StoreRegisterTests : public testing::Test
 public:	
 	m6502::Mem mem;
 	m6502::CPU cpu;
-
+	M6502StoreRegisterTests() : cpu(mem)
+	{
+	}
 	virtual void SetUp()
 	{
-		cpu.Reset( mem );
+		cpu.Reset();
 	}
 
 	virtual void TearDown()
@@ -30,20 +32,20 @@ public:
 	}
 
 	void TestStoreRegisterZeroPage(
-		m6502::Byte OpcodeToTest,
-		m6502::Byte m6502::CPU::*Register )
+		m6502::Ins OpcodeToTest,
+		m6502::Byte m6502::Registers::*Register )
 	{
 		// given:
 		using namespace m6502;
 		cpu.*Register = 0x2F;
-		mem[0xFFFC] = OpcodeToTest;
+		mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
 		mem[0xFFFD] = 0x80;
 		mem[0x0080] = 0x00;
-		constexpr s32 EXPECTED_CYCLES = 3;
+		constexpr s64 EXPECTED_CYCLES = 3;
 		CPU CPUCopy = cpu;
 
 		// when:
-		const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+		const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
 		// then:
 		EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -52,21 +54,21 @@ public:
 	}
 
 	void TestStoreRegisterAbsolute(
-		m6502::Byte OpcodeToTest,
-		m6502::Byte m6502::CPU::*Register )
+		m6502::Ins OpcodeToTest,
+		m6502::Byte m6502::Registers::*Register )
 	{
 		// given:
 		using namespace m6502;
 		cpu.*Register = 0x2F;
-		mem[0xFFFC] = OpcodeToTest;
+		mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
 		mem[0xFFFD] = 0x00;
 		mem[0xFFFE] = 0x80;
 		mem[0x8000] = 0x00;
-		constexpr s32 EXPECTED_CYCLES = 4;
+		constexpr s64 EXPECTED_CYCLES = 4;
 		CPU CPUCopy = cpu;
 
 		// when:
-		const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+		const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES);
 
 		// then:
 		EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -75,21 +77,21 @@ public:
 	}
 
 	void TestStoreRegisterZeroPageX(
-		m6502::Byte OpcodeToTest,
-		m6502::Byte m6502::CPU::*Register )
+		m6502::Ins OpcodeToTest,
+		m6502::Byte m6502::Registers::*Register )
 	{
 		// given:
 		using namespace m6502;
 		cpu.*Register = 0x42;
 		cpu.X = 0x0F;
-		mem[0xFFFC] = OpcodeToTest;
+		mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
 		mem[0xFFFD] = 0x80;
 		mem[0x008F] = 0x00;
-		constexpr s32 EXPECTED_CYCLES = 4;
+		constexpr s64 EXPECTED_CYCLES = 4;
 		CPU CPUCopy = cpu;
 
 		// when:
-		const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+		const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
 		// then:
 		EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -98,21 +100,21 @@ public:
 	}
 
 	void TestStoreRegisterZeroPageY(
-		m6502::Byte OpcodeToTest,
-		m6502::Byte m6502::CPU::*Register )
+		m6502::Ins OpcodeToTest,
+		m6502::Byte m6502::Registers::*Register )
 	{
 		// given:
 		using namespace m6502;
 		cpu.*Register = 0x42;
 		cpu.Y = 0x0F;
-		mem[0xFFFC] = OpcodeToTest;
+		mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
 		mem[0xFFFD] = 0x80;
 		mem[0x008F] = 0x00;
-		constexpr s32 EXPECTED_CYCLES = 4;
+		constexpr s64 EXPECTED_CYCLES = 4;
 		CPU CPUCopy = cpu;
 
 		// when:
-		const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+		const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
 		// then:
 		EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -124,55 +126,55 @@ public:
 TEST_F( M6502StoreRegisterTests, STAZeroPageCanStoreTheARegisterIntoMemory )
 {
 	using namespace m6502;
-	TestStoreRegisterZeroPage( CPU::INS_STA_ZP, &CPU::A );
+	TestStoreRegisterZeroPage( Ins::STA_ZP, &Registers::A );
 }
 
 TEST_F( M6502StoreRegisterTests, STXZeroPageCanStoreTheXRegisterIntoMemory )
 {
 	using namespace m6502;
-	TestStoreRegisterZeroPage( CPU::INS_STX_ZP, &CPU::X );
+	TestStoreRegisterZeroPage( Ins::STX_ZP, &Registers::X );
 }
 
 TEST_F( M6502StoreRegisterTests, STXZeroPageYCanStoreTheXRegisterIntoMemory )
 {
 	using namespace m6502;
-	TestStoreRegisterZeroPageY( CPU::INS_STX_ZPY, &CPU::X );
+	TestStoreRegisterZeroPageY( Ins::STX_ZPY, &Registers::X );
 }
 
 TEST_F( M6502StoreRegisterTests, STYZeroPageCanStoreTheYRegisterIntoMemory )
 {
 	using namespace m6502;
-	TestStoreRegisterZeroPage( CPU::INS_STY_ZP, &CPU::Y );
+	TestStoreRegisterZeroPage( Ins::STY_ZP, &Registers::Y );
 }
 
 TEST_F( M6502StoreRegisterTests, STAAbsoluteCanStoreTheARegisterIntoMemory )
 {
 	using namespace m6502;
-	TestStoreRegisterAbsolute( CPU::INS_STA_ABS, &CPU::A );
+	TestStoreRegisterAbsolute( Ins::STA_ABS, &Registers::A );
 }
 
 TEST_F( M6502StoreRegisterTests, STXAbsoluteCanStoreTheXRegisterIntoMemory )
 {
 	using namespace m6502;
-	TestStoreRegisterAbsolute( CPU::INS_STX_ABS, &CPU::X );
+	TestStoreRegisterAbsolute( Ins::STX_ABS, &Registers::X );
 }
 
 TEST_F( M6502StoreRegisterTests, STYAbsoluteCanStoreTheYRegisterIntoMemory )
 {
 	using namespace m6502;
-	TestStoreRegisterAbsolute( CPU::INS_STY_ABS, &CPU::Y );
+	TestStoreRegisterAbsolute( Ins::STY_ABS, &Registers::Y );
 }
 
 TEST_F( M6502StoreRegisterTests, STAZeroPageXCanStoreTheARegisterIntoMemory )
 {
 	using namespace m6502;
-	TestStoreRegisterZeroPageX( CPU::INS_STA_ZPX, &CPU::A );
+	TestStoreRegisterZeroPageX( Ins::STA_ZPX, &Registers::A );
 }
 
 TEST_F( M6502StoreRegisterTests, STYZeroPageXCanStoreTheYRegisterIntoMemory )
 {
 	using namespace m6502;
-	TestStoreRegisterZeroPageX( CPU::INS_STY_ZPX, &CPU::Y );
+	TestStoreRegisterZeroPageX( Ins::STY_ZPX, &Registers::Y );
 }
 
 TEST_F( M6502StoreRegisterTests, STAAbsoluteXCanStoreTheARegisterIntoMemory )
@@ -181,14 +183,14 @@ TEST_F( M6502StoreRegisterTests, STAAbsoluteXCanStoreTheARegisterIntoMemory )
 	using namespace m6502;
 	cpu.A = 0x42;
 	cpu.X = 0x0F;
-	mem[0xFFFC] = CPU::INS_STA_ABSX;
+	mem[0xFFFC] = static_cast<Byte> (Ins::STA_ABSX);
 	mem[0xFFFD] = 0x00;
 	mem[0xFFFE] = 0x80;
-	constexpr s32 EXPECTED_CYCLES = 5;
+	constexpr s64 EXPECTED_CYCLES = 5;
 	CPU CPUCopy = cpu;
 
 	// when:
-	const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -202,14 +204,14 @@ TEST_F( M6502StoreRegisterTests, STAAbsoluteYCanStoreTheARegisterIntoMemory )
 	using namespace m6502;
 	cpu.A = 0x42;
 	cpu.Y = 0x0F;
-	mem[0xFFFC] = CPU::INS_STA_ABSY;
+	mem[0xFFFC] = static_cast<Byte> (Ins::STA_ABSY);
 	mem[0xFFFD] = 0x00;
 	mem[0xFFFE] = 0x80;
-	constexpr s32 EXPECTED_CYCLES = 5;
+	constexpr s64 EXPECTED_CYCLES = 5;
 	CPU CPUCopy = cpu;
 
 	// when:
-	const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -223,16 +225,16 @@ TEST_F( M6502StoreRegisterTests, STAIndirectXCanStoreTheARegisterIntoMemory )
 	using namespace m6502;
 	cpu.A = 0x42;
 	cpu.X = 0x0F;
-	mem[0xFFFC] = CPU::INS_STA_INDX;
+	mem[0xFFFC] = static_cast<Byte>(Ins::STA_INDX);
 	mem[0xFFFD] = 0x20;
 	mem[0x0020] = 0x00;
 	mem[0x0021] = 0x80;
 	mem[0x8000 + 0x0F] = 0x00;
-	constexpr s32 EXPECTED_CYCLES = 6;
+	constexpr s64 EXPECTED_CYCLES = 6;
 	CPU CPUCopy = cpu;
 
 	// when:
-	const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -246,16 +248,16 @@ TEST_F( M6502StoreRegisterTests, STAIndirectYCanStoreTheARegisterIntoMemory )
 	using namespace m6502;
 	cpu.A = 0x42;
 	cpu.Y = 0x0F;
-	mem[0xFFFC] = CPU::INS_STA_INDY;
+	mem[0xFFFC] = static_cast<Byte>(Ins::STA_INDY);
 	mem[0xFFFD] = 0x20;
 	mem[0x0020] = 0x00;
 	mem[0x0021] = 0x80;
 	mem[0x8000 + 0x0F] = 0x00;
-	constexpr s32 EXPECTED_CYCLES = 6;
+	constexpr s64 EXPECTED_CYCLES = 6;
 	CPU CPUCopy = cpu;
 
 	// when:
-	const s32 ActualCycles = cpu.Execute( EXPECTED_CYCLES, mem );
+	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );

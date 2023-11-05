@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "m6502.h"
+#include <m6502/System.hpp>
 
 static void VerfifyUnmodifiedFlagsFromStoreRegister(
 	const m6502::CPU& cpu,
@@ -38,7 +38,7 @@ public:
 		// given:
 		using namespace m6502;
 		cpu.*Register = 0x2F;
-		mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+		mem[0xFFFC] = opcode(OpcodeToTest);
 		mem[0xFFFD] = 0x80;
 		mem[0x0080] = 0x00;
 		constexpr s64 EXPECTED_CYCLES = 3;
@@ -60,7 +60,7 @@ public:
 		// given:
 		using namespace m6502;
 		cpu.*Register = 0x2F;
-		mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+		mem[0xFFFC] = opcode(OpcodeToTest);
 		mem[0xFFFD] = 0x00;
 		mem[0xFFFE] = 0x80;
 		mem[0x8000] = 0x00;
@@ -84,7 +84,7 @@ public:
 		using namespace m6502;
 		cpu.*Register = 0x42;
 		cpu.X = 0x0F;
-		mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+		mem[0xFFFC] = opcode(OpcodeToTest);
 		mem[0xFFFD] = 0x80;
 		mem[0x008F] = 0x00;
 		constexpr s64 EXPECTED_CYCLES = 4;
@@ -107,7 +107,7 @@ public:
 		using namespace m6502;
 		cpu.*Register = 0x42;
 		cpu.Y = 0x0F;
-		mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+		mem[0xFFFC] = opcode(OpcodeToTest);
 		mem[0xFFFD] = 0x80;
 		mem[0x008F] = 0x00;
 		constexpr s64 EXPECTED_CYCLES = 4;
@@ -183,7 +183,7 @@ TEST_F( M6502StoreRegisterTests, STAAbsoluteXCanStoreTheARegisterIntoMemory )
 	using namespace m6502;
 	cpu.A = 0x42;
 	cpu.X = 0x0F;
-	mem[0xFFFC] = static_cast<Byte> (Ins::STA_ABSX);
+	mem[0xFFFC] = opcode (Ins::STA_ABSX);
 	mem[0xFFFD] = 0x00;
 	mem[0xFFFE] = 0x80;
 	constexpr s64 EXPECTED_CYCLES = 5;
@@ -204,7 +204,7 @@ TEST_F( M6502StoreRegisterTests, STAAbsoluteYCanStoreTheARegisterIntoMemory )
 	using namespace m6502;
 	cpu.A = 0x42;
 	cpu.Y = 0x0F;
-	mem[0xFFFC] = static_cast<Byte> (Ins::STA_ABSY);
+	mem[0xFFFC] = opcode (Ins::STA_ABSY);
 	mem[0xFFFD] = 0x00;
 	mem[0xFFFE] = 0x80;
 	constexpr s64 EXPECTED_CYCLES = 5;
@@ -225,7 +225,7 @@ TEST_F( M6502StoreRegisterTests, STAIndirectXCanStoreTheARegisterIntoMemory )
 	using namespace m6502;
 	cpu.A = 0x42;
 	cpu.X = 0x0F;
-	mem[0xFFFC] = static_cast<Byte>(Ins::STA_INDX);
+	mem[0xFFFC] = opcode(Ins::STA_INDX);
 	mem[0xFFFD] = 0x20;
 	mem[0x0020] = 0x00;
 	mem[0x0021] = 0x80;
@@ -248,7 +248,7 @@ TEST_F( M6502StoreRegisterTests, STAIndirectYCanStoreTheARegisterIntoMemory )
 	using namespace m6502;
 	cpu.A = 0x42;
 	cpu.Y = 0x0F;
-	mem[0xFFFC] = static_cast<Byte>(Ins::STA_INDY);
+	mem[0xFFFC] = opcode(Ins::STA_INDY);
 	mem[0xFFFD] = 0x20;
 	mem[0x0020] = 0x00;
 	mem[0x0021] = 0x80;

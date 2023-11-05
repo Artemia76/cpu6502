@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "m6502.h"
+#include <m6502/System.hpp>
 
 class M6502LoadRegisterTests : public testing::Test
 {
@@ -87,7 +87,7 @@ TEST_F( M6502LoadRegisterTests, CPUCanExecuteMoreCyclesThanRequestedIfRequiredBy
 {
 	// given:
 	using namespace m6502;
-	mem[0xFFFC] = static_cast<Byte>(Ins::LDA_IM);
+	mem[0xFFFC] = opcode(Ins::LDA_IM);
 	mem[0xFFFD] = 0x84;
 	//CPU CPUCopy = cpu;
 	constexpr s32 NUM_CYCLES = 1;
@@ -105,7 +105,7 @@ void M6502LoadRegisterTests::TestLoadRegisterImmediate(
 {
 	// given:
 	using namespace m6502;
-	mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+	mem[0xFFFC] = opcode(OpcodeToTest);
 	mem[0xFFFD] = 0x84;
 
 	//when:
@@ -144,7 +144,7 @@ void M6502LoadRegisterTests::TestLoadRegisterZeroPage(
 {
 	// given:
 	using namespace m6502;
-	mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+	mem[0xFFFC] = opcode(OpcodeToTest);
 	mem[0xFFFD] = 0x42;
 	mem[0x0042] = 0x37;
 
@@ -183,7 +183,7 @@ TEST_F( M6502LoadRegisterTests, LDAImmediateCanAffectTheZeroFlag )
 	// given:
 	using namespace m6502;
 	cpu.A = 0x44;
-	mem[0xFFFC] = static_cast<Byte>(Ins::LDA_IM);
+	mem[0xFFFC] = opcode(Ins::LDA_IM);
 	mem[0xFFFD] = 0x0;
 	CPU CPUCopy = cpu;
 
@@ -203,7 +203,7 @@ void M6502LoadRegisterTests::TestLoadRegisterZeroPageX(
 	// given:
 	using namespace m6502;
 	cpu.X = 5;
-	mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+	mem[0xFFFC] = opcode(OpcodeToTest);
 	mem[0xFFFD] = 0x42;
 	mem[0x0047] = 0x37;
 	CPU CPUCopy = cpu;
@@ -226,7 +226,7 @@ void M6502LoadRegisterTests::TestLoadRegisterZeroPageY(
 	// given:
 	using namespace m6502;
 	cpu.Y = 5;
-	mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+	mem[0xFFFC] = opcode(OpcodeToTest);
 	mem[0xFFFD] = 0x42;
 	mem[0x0047] = 0x37;
 	CPU CPUCopy = cpu;
@@ -265,7 +265,7 @@ TEST_F( M6502LoadRegisterTests, LDAZeroPageXCanLoadAValueIntoTheARegisterWhenItW
 	// given:
 	using namespace m6502;
 	cpu.X = 0xFF;
-	mem[0xFFFC] = static_cast<Byte>(Ins::LDA_ZPX);
+	mem[0xFFFC] = opcode(Ins::LDA_ZPX);
 	mem[0xFFFD] = 0x80;
 	mem[0x007F] = 0x37;
 
@@ -288,7 +288,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsolute(
 	// given:
 	cpu.Flags.Z = cpu.Flags.N = true;
 	using namespace m6502;
-	mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+	mem[0xFFFC] = opcode(OpcodeToTest);
 	mem[0xFFFD] = 0x80;
 	mem[0xFFFE] = 0x44;	//0x4480
 	mem[0x4480] = 0x37;
@@ -332,7 +332,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsoluteX(
 	cpu.Flags.Z = cpu.Flags.N = true;
 	using namespace m6502;
 	cpu.X = 1;
-	mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+	mem[0xFFFC] = opcode(OpcodeToTest);
 	mem[0xFFFD] = 0x80;
 	mem[0xFFFE] = 0x44;	//0x4480
 	mem[0x4481] = 0x37;
@@ -358,7 +358,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsoluteY(
 	using namespace m6502;
 	cpu.Flags.Z = cpu.Flags.N = true;
 	cpu.Y = 1;
-	mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+	mem[0xFFFC] = opcode(OpcodeToTest);
 	mem[0xFFFD] = 0x80;
 	mem[0xFFFE] = 0x44;	//0x4480
 	mem[0x4481] = 0x37;
@@ -401,7 +401,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsoluteXWhenCrossingPage(
 	// given:
 	using namespace m6502;
 	cpu.X = 0x1;
-	mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+	mem[0xFFFC] = opcode(OpcodeToTest);
 	mem[0xFFFD] = 0xFF;
 	mem[0xFFFE] = 0x44;	//0x44FF
 	mem[0x4500] = 0x37;	//0x44FF+0x1 crosses page boundary!
@@ -444,7 +444,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsoluteYWhenCrossingPage(
 	// given:
 	using namespace m6502;
 	cpu.Y = 0x1;
-	mem[0xFFFC] = static_cast<Byte>(OpcodeToTest);
+	mem[0xFFFC] = opcode(OpcodeToTest);
 	mem[0xFFFD] = 0xFF;
 	mem[0xFFFE] = 0x44;	//0x44FF
 	mem[0x4500] = 0x37;	//0x44FF+0x1 crosses page boundary!
@@ -480,7 +480,7 @@ TEST_F( M6502LoadRegisterTests, LDAIndirectXCanLoadAValueIntoTheARegister )
 	using namespace m6502;
 	cpu.Flags.Z = cpu.Flags.N = true;
 	cpu.X = 0x04;
-	mem[0xFFFC] = static_cast<Byte>(Ins::LDA_INDX);
+	mem[0xFFFC] = opcode(Ins::LDA_INDX);
 	mem[0xFFFD] = 0x02;
 	mem[0x0006] = 0x00;	//0x2 + 0x4
 	mem[0x0007] = 0x80;	
@@ -505,7 +505,7 @@ TEST_F( M6502LoadRegisterTests, LDAIndirectYCanLoadAValueIntoTheARegister )
 	using namespace m6502;
 	cpu.Flags.Z = cpu.Flags.N = true;
 	cpu.Y = 0x04;
-	mem[0xFFFC] = static_cast<Byte>(Ins::LDA_INDY);
+	mem[0xFFFC] = opcode(Ins::LDA_INDY);
 	mem[0xFFFD] = 0x02;
 	mem[0x0002] = 0x00;	
 	mem[0x0003] = 0x80;
@@ -529,7 +529,7 @@ TEST_F( M6502LoadRegisterTests, LDAIndirectYCanLoadAValueIntoTheARegisterWhenItC
 	// given:
 	using namespace m6502;
 	cpu.Y = 0x1;
-	mem[0xFFFC] = static_cast<Byte>(Ins::LDA_INDY);
+	mem[0xFFFC] = opcode(Ins::LDA_INDY);
 	mem[0xFFFD] = 0x05;
 	mem[0x0005] = 0xFF;
 	mem[0x0006] = 0x80;

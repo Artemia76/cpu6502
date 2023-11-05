@@ -1,7 +1,7 @@
 #pragma once
 #include "loop.h"
 #include <chrono>
-#include "m6502.h"
+#include <m6502/System.hpp>
 
 class CMainApp : public CProcessEvent
 {

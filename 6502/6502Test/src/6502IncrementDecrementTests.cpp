@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "m6502.h"
+#include <m6502/System.hpp>
 
 class M6502IncrementDecrementTests : public testing::Test
 {
@@ -39,7 +39,7 @@ TEST_F( M6502IncrementDecrementTests, INXCanIncrementAZeroValue )
 	cpu.X = 0x0;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
-	mem[0xFF00] = static_cast<Byte>(Ins::INX);
+	mem[0xFF00] = opcode(Ins::INX);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -62,7 +62,7 @@ TEST_F( M6502IncrementDecrementTests, INXCanIncrement255 )
 	cpu.X = 0xFF;
 	cpu.Flags.Z = false;
 	cpu.Flags.N = true;
-	mem[0xFF00] = static_cast<Byte>(Ins::INX);
+	mem[0xFF00] = opcode(Ins::INX);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -85,7 +85,7 @@ TEST_F( M6502IncrementDecrementTests, INXCanIncrementANegativeValue )
 	cpu.X = 0b10001000;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = false;
-	mem[0xFF00] = static_cast<Byte> (Ins::INX);
+	mem[0xFF00] = opcode (Ins::INX);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -109,7 +109,7 @@ TEST_F( M6502IncrementDecrementTests, INYCanIncrementAZeroValue )
 	cpu.Y = 0x0;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
-	mem[0xFF00] = static_cast<Byte>(Ins::INY);
+	mem[0xFF00] = opcode(Ins::INY);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -132,7 +132,7 @@ TEST_F( M6502IncrementDecrementTests, INYCanIncrement255 )
 	cpu.Y = 0xFF;
 	cpu.Flags.Z = false;
 	cpu.Flags.N = true;
-	mem[0xFF00] = static_cast<Byte>(Ins::INY);
+	mem[0xFF00] = opcode(Ins::INY);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -155,7 +155,7 @@ TEST_F( M6502IncrementDecrementTests, INYCanIncrementANegativeValue )
 	cpu.Y = 0b10001000;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = false;
-	mem[0xFF00] = static_cast<Byte>(Ins::INY);
+	mem[0xFF00] = opcode(Ins::INY);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -179,7 +179,7 @@ TEST_F( M6502IncrementDecrementTests, DEYCanDecementAZeroValue )
 	cpu.Y = 0x0;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = false;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEY);
+	mem[0xFF00] = opcode(Ins::DEY);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -202,7 +202,7 @@ TEST_F( M6502IncrementDecrementTests, DEYCanDecrement255 )
 	cpu.Y = 0xFF;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = false;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEY);
+	mem[0xFF00] = opcode(Ins::DEY);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -225,7 +225,7 @@ TEST_F( M6502IncrementDecrementTests, DEYCanDecrementANegativeValue )
 	cpu.Y = 0b10001001;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = false;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEY);
+	mem[0xFF00] = opcode(Ins::DEY);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -248,7 +248,7 @@ TEST_F( M6502IncrementDecrementTests, DEXCanDecementAZeroValue )
 	cpu.X = 0x0;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = false;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEX);
+	mem[0xFF00] = opcode(Ins::DEX);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -271,7 +271,7 @@ TEST_F( M6502IncrementDecrementTests, DEXCanDecrement255 )
 	cpu.X = 0xFF;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = false;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEX);
+	mem[0xFF00] = opcode(Ins::DEX);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -294,7 +294,7 @@ TEST_F( M6502IncrementDecrementTests, DEXCanDecrementANegativeValue )
 	cpu.X = 0b10001001;
 	cpu.Flags.Z = true;
 	cpu.Flags.N = false;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEX);
+	mem[0xFF00] = opcode(Ins::DEX);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CPU CPUCopy = cpu;
 
@@ -316,7 +316,7 @@ TEST_F( M6502IncrementDecrementTests, DECCanDecrementAValueInTheZeroPage )
 	cpu.Reset( 0xFF00 );
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEC_ZP);
+	mem[0xFF00] = opcode(Ins::DEC_ZP);
 	mem[0xFF01] = 0x42;
 	mem[0x0042] = 0x57;
 	constexpr s64 EXPECTED_CYCLES = 5;
@@ -341,7 +341,7 @@ TEST_F( M6502IncrementDecrementTests, DECCanDecrementAValueInTheZeroPageX )
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
 	cpu.X = 0x10;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEC_ZPX);
+	mem[0xFF00] = opcode(Ins::DEC_ZPX);
 	mem[0xFF01] = 0x42;
 	mem[0x0042 + 0x10] = 0x57;
 	constexpr s64 EXPECTED_CYCLES = 6;
@@ -365,7 +365,7 @@ TEST_F( M6502IncrementDecrementTests, DECCanDecrementAValueAbsolute )
 	cpu.Reset( 0xFF00 );
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEC_ABS);
+	mem[0xFF00] = opcode(Ins::DEC_ABS);
 	mem[0xFF01] = 0x00;
 	mem[0xFF02] = 0x80;
 	mem[0x8000] = 0x57;
@@ -391,7 +391,7 @@ TEST_F( M6502IncrementDecrementTests, DECCanDecrementAValueAbsoluteX )
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
 	cpu.X = 0x10;
-	mem[0xFF00] = static_cast<Byte>(Ins::DEC_ABSX);
+	mem[0xFF00] = opcode(Ins::DEC_ABSX);
 	mem[0xFF01] = 0x00;
 	mem[0xFF02] = 0x80;
 	mem[0x8000 + 0x10] = 0x57;
@@ -416,7 +416,7 @@ TEST_F( M6502IncrementDecrementTests, INCCanIncrementAValueInTheZeroPage )
 	cpu.Reset( 0xFF00 );
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
-	mem[0xFF00] = static_cast<Byte>(Ins::INC_ZP);
+	mem[0xFF00] = opcode(Ins::INC_ZP);
 	mem[0xFF01] = 0x42;
 	mem[0x0042] = 0x57;
 	constexpr s64 EXPECTED_CYCLES = 5;
@@ -441,7 +441,7 @@ TEST_F( M6502IncrementDecrementTests, INCCanIncrementAValueInTheZeroPageX )
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
 	cpu.X = 0x10;
-	mem[0xFF00] = static_cast<Byte>(Ins::INC_ZPX);
+	mem[0xFF00] = opcode(Ins::INC_ZPX);
 	mem[0xFF01] = 0x42;
 	mem[0x0042 + 0x10] = 0x57;
 	constexpr s64 EXPECTED_CYCLES = 6;
@@ -465,7 +465,7 @@ TEST_F( M6502IncrementDecrementTests, INCCanIncrementAValueAbsolute )
 	cpu.Reset( 0xFF00 );
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
-	mem[0xFF00] = static_cast<Byte>(Ins::INC_ABS);
+	mem[0xFF00] = opcode(Ins::INC_ABS);
 	mem[0xFF01] = 0x00;
 	mem[0xFF02] = 0x80;
 	mem[0x8000] = 0x57;
@@ -491,7 +491,7 @@ TEST_F( M6502IncrementDecrementTests, INCCanIncrementAValueAbsoluteX )
 	cpu.Flags.Z = true;
 	cpu.Flags.N = true;
 	cpu.X = 0x10;
-	mem[0xFF00] = static_cast<Byte>(Ins::INC_ABSX);
+	mem[0xFF00] = opcode(Ins::INC_ABSX);
 	mem[0xFF01] = 0x00;
 	mem[0xFF02] = 0x80;
 	mem[0x8000 + 0x10] = 0x57;

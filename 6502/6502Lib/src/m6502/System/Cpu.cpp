@@ -1,49 +1,55 @@
-#include "m6502.h"
+/**
+ * @file Cpu.cpp
+ * @author Gianni Peschiutta
+ * @brief M6502Lib - Motorola 6502 CPU Emulator
+ * @version 0.1
+ * @date 2023-11-05
+ * 
+ * @copyright Copyright (c) 2023
+ * Based on davepoo work: https://github.com/davepoo/6502Emulator
+ *
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *    This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ *    You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>
+ */
 
-#include <chrono>
-#include <thread>
+#include <m6502/System/Cpu.hpp>
 
 #define ASSERT( Condition, Text ) { if ( !Condition ) { throw -1; } }
 
-m6502::Mem::Mem ()
+namespace m6502
 {
-    Initialise();
-}
 
-m6502::Mem::~Mem()
-{
-}
-
-/** read 1 byte */
-m6502::Byte m6502::Mem::operator[]( u32 Address) const
-{
-    // assert here Address is < MAX_MEM
-    return Data[Address];
-}
-
-/** write 1 byte */
-m6502::Byte& m6502::Mem::operator[]( u32 Address)
-{
-    // assert here Address is < MAX_MEM
-    return Data[Address];
-}
-
-m6502::CPU::CPU(Mem& pMem) : m_memory(pMem)
+/**
+ * @brief Construct a new m6502::C P U::C P U object
+ * 
+ * @param pMem 
+ */
+CPU::CPU(Mem& pMem) : m_memory(pMem)
 {
     Reset();
 }
 
-m6502::CPU::~CPU()
+CPU::~CPU()
 {
 
 }
 
-void m6502::CPU::Reset( )
+void CPU::Reset( )
 {
-	Reset( 0xFFFC );
+    Reset( 0xFFFC );
 }
 
-void m6502::CPU::Reset( Word ResetVector )
+void CPU::Reset( Word ResetVector )
 {
     PC = ResetVector;
     SP = 0xFF;
@@ -52,7 +58,7 @@ void m6502::CPU::Reset( Word ResetVector )
     m_memory.Initialise();
 }
 
-m6502::Byte m6502::CPU::FetchByte()
+Byte CPU::FetchByte()
 {
     Byte Data = m_memory[PC];
     PC++;
@@ -60,7 +66,12 @@ m6502::Byte m6502::CPU::FetchByte()
     return Data;
 }
 
-m6502::Word m6502::CPU::FetchWord()
+/**
+ * @brief Fetch 1 Word from Memory
+ * 
+ * @return Word 
+ */
+Word CPU::FetchWord()
 {
     // 6502 is little endian
     Word Data = m_memory[PC];
@@ -73,29 +84,39 @@ m6502::Word m6502::CPU::FetchWord()
     return Data;
 }
 
-m6502::Byte m6502::CPU::ReadByte( Word Address )
+Byte CPU::ReadByte( Word Address )
 {
     Byte Data = m_memory[Address];
     m_cycles--;
     return Data;
 }
 
-m6502::Word m6502::CPU::ReadWord( Word Address )
+Word CPU::ReadWord( Word Address )
 {
     Byte LoByte = ReadByte( Address );
     Byte HiByte = ReadByte( Address + 1 );
     return LoByte | (HiByte << 8);
 }
 
-/** write 1 byte to memory */
-void m6502::CPU::WriteByte( Byte Value, Word Address )
+/**
+ * @brief Write 1 Byte in Memory
+ * 
+ * @param Value 
+ * @param Address 
+ */
+void CPU::WriteByte( Byte Value, Word Address )
 {
     m_memory[Address] = Value;
     m_cycles--;
 }
 
-/** write 2 bytes to memory */
-void m6502::CPU::WriteWord(	Word Value, Word Address )
+/**
+ * @brief Write a word in memory
+ * 
+ * @param Value 
+ * @param Address 
+ */
+void CPU::WriteWord( Word Value, Word Address )
 {
     m_memory[Address] = Value & 0xFF;
     m_memory[Address + 1] = (Value >> 8);
@@ -103,12 +124,12 @@ void m6502::CPU::WriteWord(	Word Value, Word Address )
 }
 
 /** @return the stack pointer as a full 16-bit address (in the 1st page) */
-m6502::Word m6502::CPU::SPToAddress() const
+Word CPU::SPToAddress() const
 {
     return 0x100 | SP;
 }
 
-void m6502::CPU::PushWordToStack( Word Value )
+void CPU::PushWordToStack( Word Value )
 {
     WriteByte( Value >> 8, SPToAddress());
     SP--;
@@ -117,24 +138,24 @@ void m6502::CPU::PushWordToStack( Word Value )
 }
 
 /** Push the PC-1 onto the stack */
-void m6502::CPU::PushPCMinusOneToStack()
+void CPU::PushPCMinusOneToStack()
 {
     PushWordToStack( PC - 1 );
 }
 
 /** Push the PC+1 onto the stack */
-void m6502::CPU::PushPCPlusOneToStack()
+void CPU::PushPCPlusOneToStack()
 {
     PushWordToStack( PC + 1 );
 }
 
 /** Push the PC onto the stack */
-void m6502::CPU::PushPCToStack()
+void CPU::PushPCToStack()
 {
     PushWordToStack( PC );
 }
 
-void m6502::CPU::PushByteOntoStack( Byte Value )
+void CPU::PushByteOntoStack( Byte Value )
 {
     const Word SPWord = SPToAddress();
     m_memory[SPWord] = Value;
@@ -143,7 +164,7 @@ void m6502::CPU::PushByteOntoStack( Byte Value )
     m_cycles--;
 }
 
-m6502::Byte m6502::CPU::PopByteFromStack()
+Byte CPU::PopByteFromStack()
 {
     SP++;
     m_cycles--;
@@ -154,7 +175,7 @@ m6502::Byte m6502::CPU::PopByteFromStack()
 }
 
 /** Pop a 16-bit value from the stack */
-m6502::Word m6502::CPU::PopWordFromStack()
+Word CPU::PopWordFromStack()
 {
     Word ValueFromStack = ReadWord( SPToAddress()+1 );
     SP += 2;
@@ -163,31 +184,206 @@ m6502::Word m6502::CPU::PopWordFromStack()
 }
 
 /** Sets the correct Process status after a load register instruction
-	*	- LDA, LDX, LDY
-	*	@Register The A,X or Y Register */
-void m6502::CPU::SetZeroAndNegativeFlags( Byte Register )
+    *	- LDA, LDX, LDY
+    *	@Register The A,X or Y Register */
+void CPU::SetZeroAndNegativeFlags( Byte Register )
 {
     Flags.Z = (Register == 0);
     Flags.N = (Register & NegativeFlagBit) > 0;
 }
 
-m6502::s64 m6502::CPU::Execute( s64 Cycles )
+s64 CPU::Execute( s64 Cycles )
 {
     /** Load a Register with the value from the memory address */
-    auto LoadRegister = 
-        [this]
+    auto LoadRegister = [ this ]
         ( Word Address, Byte& Register )
     {
         Register = ReadByte ( Address );
         SetZeroAndNegativeFlags( Register );
     };
+
+	/** And the A Register with the value from the memory address */
+	auto And = [ this ] ( Word Address )
+	{
+		A &= ReadByte( Address );
+		SetZeroAndNegativeFlags( A );
+	};
+
+	/** Or the A Register with the value from the memory address */
+	auto Ora = [ this ] ( Word Address )
+	{
+		A |= ReadByte( Address );
+		SetZeroAndNegativeFlags( A );
+	};
+
+	/** Eor the A Register with the value from the memory address */
+	auto Eor = [ this ]	( Word Address )
+	{
+		A ^= ReadByte( Address );
+		SetZeroAndNegativeFlags( A );
+	};
+
+    /** Push Processor status onto the stack
+	*	Setting bits 4 & 5 on the stack */
+	auto PushPSToStack = [ this ] ()
+	{
+		Byte PSStack = PS | BreakFlagBit | UnusedFlagBit;		
+		PushByteOntoStack( PSStack );
+	};
+
+	/** Pop Processor status from the stack
+	*	Clearing bits 4 & 5 (Break & Unused) */
+	auto PopPSFromStack = [ this ] ()
+	{
+        bool B = Flags.B;
+        bool Unused = Flags.Unused;
+		PS = PopByteFromStack();
+		Flags.B = B;
+		Flags.Unused = Unused;
+	};
     s64 CyclesRequested = Cycles;
-	m_cycles = Cycles;
+    m_cycles = Cycles;
     while ( m_cycles > 0)
     {
         Byte Instr = FetchByte();
-        switch (static_cast<Ins>(Instr))
+        switch (ins(Instr))
         {
+            case Ins::AND_IM:
+            {
+                A &= FetchByte();
+                SetZeroAndNegativeFlags(A);
+            } break;
+            case Ins::ORA_IM:
+            {
+                A |= FetchByte();
+                SetZeroAndNegativeFlags(A);
+            } break;
+            case Ins::EOR_IM:
+            {
+                A ^= FetchByte();
+                SetZeroAndNegativeFlags(A);
+            } break;
+            case Ins::AND_ZP:
+            {
+                Word Address = AddrZeroPage();
+                And( Address );
+            } break;
+            case Ins::ORA_ZP:
+            {
+                Word Address = AddrZeroPage();
+                Ora( Address );
+            } break;
+            case Ins::EOR_ZP:
+            {
+                Word Address = AddrZeroPage();
+                Eor( Address );
+            } break;
+            case Ins::AND_ZPX:
+            {
+                Word Address = AddrZeroPageX();
+                And( Address );
+            } break;
+            case Ins::ORA_ZPX:
+            {
+                Word Address = AddrZeroPageX();
+                Ora( Address );
+            } break;
+            case Ins::EOR_ZPX:
+            {
+                Word Address = AddrZeroPageX();
+                Eor( Address );
+            } break;
+            case Ins::AND_ABS:
+            {
+                Word Address = AddrAbsolute();
+                And( Address );
+            } break;
+            case Ins::ORA_ABS:
+            {
+                Word Address = AddrAbsolute();
+                Ora( Address );
+            } break;
+            case Ins::EOR_ABS:
+            {
+                Word Address = AddrAbsolute();
+                Eor( Address );
+            } break;
+            case Ins::AND_ABSX:
+            {
+                Word Address = AddrAbsoluteX();
+                And( Address );
+            } break;
+            case Ins::ORA_ABSX:
+            {
+                Word Address = AddrAbsoluteX();
+                Ora( Address );
+            } break;
+            case Ins::EOR_ABSX:
+            {
+                Word Address = AddrAbsoluteX();
+                Eor( Address );
+            } break;
+            case Ins::AND_ABSY:
+            {
+                Word Address = AddrAbsoluteY();
+                And( Address );
+            } break;
+            case Ins::ORA_ABSY:
+            {
+                Word Address = AddrAbsoluteY();
+                Ora( Address );
+            } break;
+            case Ins::EOR_ABSY:
+            {
+                Word Address = AddrAbsoluteY();
+                Eor( Address );
+            } break;
+            case Ins::AND_INDX:
+            {
+                Word Address = AddrIndirectX();
+                And( Address );
+            } break;
+            case Ins::ORA_INDX:
+            {
+                Word Address = AddrIndirectX();
+                Ora( Address );
+            } break;
+            case Ins::EOR_INDX:
+            {
+                Word Address = AddrIndirectX();
+                Eor( Address );
+            } break;
+            case Ins::AND_INDY:
+            {
+                Word Address = AddrIndirectY();
+                And( Address );
+            } break;
+            case Ins::ORA_INDY:
+            {
+                Word Address = AddrIndirectY();
+                Ora( Address );
+            } break;
+            case Ins::EOR_INDY:
+            {
+                Word Address = AddrIndirectY();
+                Eor( Address );
+            } break;
+            case Ins::BIT_ZP:
+            {
+                Word Address = AddrZeroPage();
+                Byte Value = ReadByte(Address);
+                Flags.Z = ! (A & Value);
+                Flags.N = (Value & NegativeFlagBit) != 0;
+                Flags.V = (Value & OverflowFlagBit) != 0;
+            } break;
+            case Ins::BIT_ABS:
+            {
+                Word Address = AddrAbsolute();
+                Byte Value = ReadByte(Address);
+                Flags.Z = ! (A & Value);
+                Flags.N = (Value & NegativeFlagBit) != 0;
+                Flags.V = (Value & OverflowFlagBit) != 0;
+            } break;
             case Ins::LDA_IM:
             {
                 A = FetchByte ();
@@ -375,6 +571,36 @@ m6502::s64 m6502::CPU::Execute( s64 Cycles )
                 Address = ReadWord( Address );
                 PC = Address;
             } break;
+            case Ins::TSX:
+            {
+                X = SP;
+                m_cycles--;
+                SetZeroAndNegativeFlags( X );
+            } break;
+            case Ins::TXS:
+            {
+                SP = X;
+                m_cycles--;
+            } break;
+            case Ins::PHA:
+            {
+                PushByteOntoStack( A );
+            } break;
+            case Ins::PLA:
+            {
+                A = PopByteFromStack();
+                SetZeroAndNegativeFlags( A );
+                m_cycles--;
+            } break;
+            case Ins::PHP:
+            {
+                PushPSToStack();
+            } break;
+            case Ins::PLP:
+            {
+                PopPSFromStack();
+                m_cycles--;
+            } break;
             case Ins::INX:
             {
                 X++;
@@ -479,134 +705,136 @@ m6502::s64 m6502::CPU::Execute( s64 Cycles )
         }
     }
     const s64 NumCyclesUsed = CyclesRequested - m_cycles;
-	return NumCyclesUsed;
+    return NumCyclesUsed;
 }
 
-m6502::Word m6502::CPU::AddrZeroPage()
+Word CPU::AddrZeroPage()
 {
-	Byte ZeroPageAddr = FetchByte();
-	return ZeroPageAddr;
+    Byte ZeroPageAddr = FetchByte();
+    return ZeroPageAddr;
 }
 
-m6502::Word m6502::CPU::AddrZeroPageX()
+Word CPU::AddrZeroPageX()
 {
-	Byte ZeroPageAddr = FetchByte();
-	ZeroPageAddr += X;
-	m_cycles--;
-	return ZeroPageAddr;
+    Byte ZeroPageAddr = FetchByte();
+    ZeroPageAddr += X;
+    m_cycles--;
+    return ZeroPageAddr;
 }
 
-m6502::Word m6502::CPU::AddrZeroPageY()
+Word CPU::AddrZeroPageY()
 {
-	Byte ZeroPageAddr = FetchByte();
-	ZeroPageAddr += Y;
-	m_cycles--;
-	return ZeroPageAddr;
+    Byte ZeroPageAddr = FetchByte();
+    ZeroPageAddr += Y;
+    m_cycles--;
+    return ZeroPageAddr;
 }
 
-m6502::Word m6502::CPU::AddrAbsolute()
+Word CPU::AddrAbsolute()
 {
-	Word AbsAddress = FetchWord();
-	return AbsAddress;
+    Word AbsAddress = FetchWord();
+    return AbsAddress;
 }
 
-m6502::Word m6502::CPU::AddrAbsoluteX()
+Word CPU::AddrAbsoluteX()
 {
-	Word AbsAddress = FetchWord();
-	Word AbsAddressX = AbsAddress + X;
-	const bool CrossedPageBoundary = (AbsAddress ^ AbsAddressX) >> 8;
-	if ( CrossedPageBoundary )
-	{
-		m_cycles--;
-	}
+    Word AbsAddress = FetchWord();
+    Word AbsAddressX = AbsAddress + X;
+    const bool CrossedPageBoundary = (AbsAddress ^ AbsAddressX) >> 8;
+    if ( CrossedPageBoundary )
+    {
+        m_cycles--;
+    }
 
-	return AbsAddressX;
+    return AbsAddressX;
 }
 
-m6502::Word m6502::CPU::AddrAbsoluteX_5()
+Word CPU::AddrAbsoluteX_5()
 {
-	Word AbsAddress = FetchWord();
-	Word AbsAddressX = AbsAddress + X;
-	m_cycles--;
-	return AbsAddressX;
+    Word AbsAddress = FetchWord();
+    Word AbsAddressX = AbsAddress + X;
+    m_cycles--;
+    return AbsAddressX;
 }
 
-m6502::Word m6502::CPU::AddrAbsoluteY()
+Word CPU::AddrAbsoluteY()
 {
-	Word AbsAddress = FetchWord();
-	Word AbsAddressY = AbsAddress + Y;
-	const bool CrossedPageBoundary = (AbsAddress ^ AbsAddressY) >> 8;
-	if ( CrossedPageBoundary )
-	{
-		m_cycles--;
-	}
+    Word AbsAddress = FetchWord();
+    Word AbsAddressY = AbsAddress + Y;
+    const bool CrossedPageBoundary = (AbsAddress ^ AbsAddressY) >> 8;
+    if ( CrossedPageBoundary )
+    {
+        m_cycles--;
+    }
 
-	return AbsAddressY;
+    return AbsAddressY;
 }
 
-m6502::Word m6502::CPU::AddrIndirectX()
+Word CPU::AddrIndirectX()
 {
-	Byte ZPAddress = FetchByte();
-	ZPAddress += X;
-	m_cycles--;
-	Word EffectiveAddr = ReadWord(ZPAddress);
-	return EffectiveAddr;
+    Byte ZPAddress = FetchByte();
+    ZPAddress += X;
+    m_cycles--;
+    Word EffectiveAddr = ReadWord(ZPAddress);
+    return EffectiveAddr;
 }
 
-m6502::Word m6502::CPU::AddrIndirectY()
+Word CPU::AddrIndirectY()
 {
-	Byte ZPAddress = FetchByte();
-	Word EffectiveAddr = ReadWord( ZPAddress );
-	Word EffectiveAddrY = EffectiveAddr + Y;
-	const bool CrossedPageBoundary = (EffectiveAddr ^ EffectiveAddrY) >> 8;
-	if ( CrossedPageBoundary )
-	{
-		m_cycles--;
-	}
-	return EffectiveAddrY;
+    Byte ZPAddress = FetchByte();
+    Word EffectiveAddr = ReadWord( ZPAddress );
+    Word EffectiveAddrY = EffectiveAddr + Y;
+    const bool CrossedPageBoundary = (EffectiveAddr ^ EffectiveAddrY) >> 8;
+    if ( CrossedPageBoundary )
+    {
+        m_cycles--;
+    }
+    return EffectiveAddrY;
 }
 
-m6502::Word m6502::CPU::AddrAbsoluteY_5()
+Word CPU::AddrAbsoluteY_5()
 {
-	Word AbsAddress = FetchWord();
-	Word AbsAddressY = AbsAddress + Y;	
-	m_cycles--;
-	return AbsAddressY;
+    Word AbsAddress = FetchWord();
+    Word AbsAddressY = AbsAddress + Y;	
+    m_cycles--;
+    return AbsAddressY;
 }
 
-m6502::Word m6502::CPU::AddrIndirectX_6()
+Word CPU::AddrIndirectX_6()
 {
-	Byte ZPAddress = FetchByte();
-	Word EffectiveAddr = ReadWord( ZPAddress );
-	Word EffectiveAddrY = EffectiveAddr + X;
-	m_cycles--;
-	return EffectiveAddrY;
+    Byte ZPAddress = FetchByte();
+    Word EffectiveAddr = ReadWord( ZPAddress );
+    Word EffectiveAddrY = EffectiveAddr + X;
+    m_cycles--;
+    return EffectiveAddrY;
 }
 
-m6502::Word m6502::CPU::AddrIndirectY_6()
+Word CPU::AddrIndirectY_6()
 {
-	Byte ZPAddress = FetchByte();
-	Word EffectiveAddr = ReadWord( ZPAddress );
-	Word EffectiveAddrY = EffectiveAddr + Y;
-	m_cycles--;
-	return EffectiveAddrY;
+    Byte ZPAddress = FetchByte();
+    Word EffectiveAddr = ReadWord( ZPAddress );
+    Word EffectiveAddrY = EffectiveAddr + Y;
+    m_cycles--;
+    return EffectiveAddrY;
 }
 
-m6502::Word m6502::CPU::LoadPrg( const Byte* Program, u32 NumBytes ) const
+Word CPU::LoadPrg( const Byte* Program, u32 NumBytes ) const
 {
-	Word LoadAddress = 0;
-	if ( Program && NumBytes > 2 )
-	{
-		u32 At = 0;
-		const Word Lo = Program[At++];
-		const Word Hi = Program[At++] << 8;
-		LoadAddress = Lo | Hi;
-		for ( Word i = LoadAddress; i < LoadAddress+NumBytes-2; i++ )
-		{
-			//TODO: mem copy?
-		m_memory[i] = Program[At++];
-		}
-	}
+    Word LoadAddress = 0;
+    if ( Program && NumBytes > 2 )
+    {
+        u32 At = 0;
+        const Word Lo = Program[At++];
+        const Word Hi = Program[At++] << 8;
+        LoadAddress = Lo | Hi;
+        for ( Word i = LoadAddress; i < LoadAddress+NumBytes-2; i++ )
+        {
+            //TODO: mem copy?
+        m_memory[i] = Program[At++];
+        }
+    }
 
-	return LoadAddress;
+    return LoadAddress;
+}
+
 }

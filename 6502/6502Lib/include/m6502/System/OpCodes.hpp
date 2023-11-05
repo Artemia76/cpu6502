@@ -131,6 +131,12 @@ enum class Ins : Byte
 	BIT_ZP = 0x24,
 	BIT_ABS = 0x2C,
 
+	//Register Transfer
+	TAX = 0xAA,
+	TAY = 0xA8,
+	TXA = 0x8A,
+	TYA = 0x98,
+
     //Increments, Decrements
 	INX = 0xE8,
 	INY = 0xC8,

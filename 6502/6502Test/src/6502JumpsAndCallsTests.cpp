@@ -6,9 +6,7 @@ class M6502JumpsAndCallsTests : public testing::Test
 public:	
 	m6502::Mem mem;
 	m6502::CPU cpu;
-	M6502JumpsAndCallsTests () : cpu(mem)
-	{
-	}
+	M6502JumpsAndCallsTests () : cpu(mem){}
 	virtual void SetUp()
 	{
 		cpu.Reset();

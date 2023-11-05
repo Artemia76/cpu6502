@@ -601,6 +601,30 @@ s64 CPU::Execute( s64 Cycles )
                 PopPSFromStack();
                 m_cycles--;
             } break;
+            case Ins::TAX:
+            {
+                X = A;
+                m_cycles--;
+                SetZeroAndNegativeFlags( X );
+            } break;
+            case Ins::TAY:
+            {
+                Y = A;
+                m_cycles--;
+                SetZeroAndNegativeFlags( Y );
+            } break;
+            case Ins::TXA:
+            {
+                A = X;
+                m_cycles--;
+                SetZeroAndNegativeFlags( A );
+            } break;
+            case Ins::TYA:
+            {
+                A = Y;
+                m_cycles--;
+                SetZeroAndNegativeFlags( A );
+            } break;
             case Ins::INX:
             {
                 X++;

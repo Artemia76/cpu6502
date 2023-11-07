@@ -149,7 +149,10 @@ enum class Ins : Byte
 	INC_ZP = 0xE6,
 	INC_ZPX = 0xF6,
 	INC_ABS = 0xEE,
-	INC_ABSX = 0xFE
+	INC_ABSX = 0xFE,
+
+	// Conditional Branch
+	BEQ = 0xF0
 };
 
 }

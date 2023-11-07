@@ -81,6 +81,7 @@ class CPU : public Registers
 
         Byte FetchByte();
         Word FetchWord();
+        SByte FetchSByte();
         Byte ReadByte( Word Address );
         Word ReadWord( Word Address );
 

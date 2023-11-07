@@ -66,6 +66,11 @@ Byte CPU::FetchByte()
     return Data;
 }
 
+SByte CPU::FetchSByte()
+{
+    return FetchByte();
+}
+
 /**
  * @brief Fetch 1 Word from Memory
  * 
@@ -221,6 +226,24 @@ s64 CPU::Execute( s64 Cycles )
 	{
 		A ^= ReadByte( Address );
 		SetZeroAndNegativeFlags( A );
+	};
+
+    /* Conditional branch */
+	auto BranchIf = [ this ] ( bool Test, bool Expected )
+	{
+		SByte Offset = FetchSByte();
+		if ( Test == Expected )
+		{
+			const Word PCOld = PC;
+			PC += Offset;
+			m_cycles--;
+
+			const bool PageChanged = (PC >> 8) != (PCOld >> 8);
+			if ( PageChanged )
+			{
+				m_cycles--;
+			}
+		}
 	};
 
     /** Push Processor status onto the stack
@@ -720,6 +743,10 @@ s64 CPU::Execute( s64 Cycles )
                 m_cycles--;
                 WriteByte( Value, Address );
                 SetZeroAndNegativeFlags( Value );
+            } break;
+            case Ins::BEQ:
+            {
+                BranchIf( Flags.Z, true );
             } break;
             default:
             {

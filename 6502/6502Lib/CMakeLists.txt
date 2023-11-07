@@ -10,8 +10,8 @@ else()
 endif()
 
 set  (M6502_SOURCES
-    "src/m6502/System/mem.cpp"
-	"src/m6502/System/cpu.cpp")
+    "src/m6502/System/Mem.cpp"
+	"src/m6502/System/Cpu.cpp")
 		
 source_group("src" FILES ${M6502_SOURCES})
 		

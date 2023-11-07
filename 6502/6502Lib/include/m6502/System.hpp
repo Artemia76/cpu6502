@@ -25,5 +25,5 @@
 #pragma once
 
 #include <m6502/Config.hpp>
-#include <m6502/System/cpu.hpp>
-#include <m6502/System/mem.hpp>
+#include <m6502/System/Cpu.hpp>
+#include <m6502/System/Mem.hpp>

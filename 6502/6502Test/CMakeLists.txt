@@ -6,10 +6,10 @@ set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DM6502_DEBUG" )	#so we can
 set( CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DM6502_DEBUG" )
 
 if(MSVC)
-	add_compile_options(/MP)				#Use multiple processors when building
-	add_compile_options(/W4 /wd4201 /WX)	#Warning level 4, all warnings are errors
+    add_compile_options(/MP)				#Use multiple processors when building
+    add_compile_options(/W4 /wd4201 /WX)	#Warning level 4, all warnings are errors
 else()
-	add_compile_options(-W -Wall -Werror) #All Warnings, all warnings are errors
+    add_compile_options(-W -Wall -Werror) #All Warnings, all warnings are errors
 endif()
 
 # Download and unpack googletest at configure time
@@ -39,25 +39,25 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 
 # source for the test executable
 set  (M6502_SOURCES
-		"src/main_6502.cpp"
-		"src/6502LoadRegisterTests.cpp"
-		"src/6502StoreRegisterTests.cpp"
-		"src/6502JumpsAndCallsTests.cpp"
-		"src/6502StackOperationsTests.cpp"
-		"src/6502AND_EOR_ORA_Tests.cpp"
-		"src/6502LoadPrgTests.cpp"
-		"src/6502TransferRegisterTests.cpp"
-		"src/6502IncrementDecrementTests.cpp"
-		"src/6502BranchTests.cpp"
-#		"src/6502StatusFlagChangeTests.cpp"
-#		"src/6502AddWithCarryTests.cpp"
-#		"src/6502CompareRegisterTests.cpp"
-#		"src/6502ShiftsTests.cpp"
-#		"src/6502SystemFunctionsTests.cpp"
+        "src/main_6502.cpp"
+        "src/6502LoadRegisterTests.cpp"
+        "src/6502StoreRegisterTests.cpp"
+        "src/6502JumpsAndCallsTests.cpp"
+        "src/6502StackOperationsTests.cpp"
+        "src/6502AND_EOR_ORA_Tests.cpp"
+        "src/6502LoadPrgTests.cpp"
+        "src/6502TransferRegisterTests.cpp"
+        "src/6502IncrementDecrementTests.cpp"
+        "src/6502BranchTests.cpp"
+#       "src/6502StatusFlagChangeTests.cpp"
+#       "src/6502AddWithCarryTests.cpp"
+#       "src/6502CompareRegisterTests.cpp"
+#       "src/6502ShiftsTests.cpp"
+#       "src/6502SystemFunctionsTests.cpp"
 )
-		
+        
 source_group("src" FILES ${M6502_SOURCES})
-		
+        
 add_executable( M6502Test ${M6502_SOURCES} 	)
 add_dependencies( M6502Test M6502Lib )
 target_link_libraries(M6502Test gtest)

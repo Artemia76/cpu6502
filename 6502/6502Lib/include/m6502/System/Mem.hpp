@@ -30,12 +30,12 @@ namespace m6502
 
 class Mem
 {
-	public:
+    public:
 static constexpr u32 MAX_MEM = 1024*64;
     Byte Data[MAX_MEM];
 
-	Mem();
-	~Mem();
+    Mem();
+    ~Mem();
 
     void Initialise ()
     {

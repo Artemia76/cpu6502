@@ -31,36 +31,36 @@ namespace m6502
 
 struct StatusFlags
 {	
-	Byte C : 1;	//0: Carry Flag	
-	Byte Z : 1;	//1: Zero Flag
-	Byte I : 1; //2: Interrupt disable
-	Byte D : 1; //3: Decimal mode
-	Byte B : 1; //4: Break
-	Byte Unused : 1; //5: Unused
-	Byte V : 1; //6: Overflow
-	Byte N : 1; //7: Negative
+    Byte C : 1;	//0: Carry Flag	
+    Byte Z : 1;	//1: Zero Flag
+    Byte I : 1; //2: Interrupt disable
+    Byte D : 1; //3: Decimal mode
+    Byte B : 1; //4: Break
+    Byte Unused : 1; //5: Unused
+    Byte V : 1; //6: Overflow
+    Byte N : 1; //7: Negative
 };
 
 class Registers
 {
-	public:
-		Word 		PC;        //program counter
-    	Byte 		SP;        //stack pointer
-		Byte 		A, X, Y;   //registers
+    public:
+        Word 		PC;        //program counter
+        Byte 		SP;        //stack pointer
+        Byte 		A, X, Y;   //registers
         union
         {
             Byte 		PS;
             StatusFlags	Flags;
         };
 
-		    // Process status bits
-	static constexpr Byte
-		NegativeFlagBit = 0b10000000,
-		OverflowFlagBit = 0b01000000,
-		BreakFlagBit = 0b000010000,
-		UnusedFlagBit = 0b000100000,
-		InterruptDisableFlagBit = 0b000000100,
-		ZeroBit = 0b00000001;
+            // Process status bits
+    static constexpr Byte
+        NegativeFlagBit = 0b10000000,
+        OverflowFlagBit = 0b01000000,
+        BreakFlagBit = 0b000010000,
+        UnusedFlagBit = 0b000100000,
+        InterruptDisableFlagBit = 0b000000100,
+        ZeroBit = 0b00000001;
 };
 
 }

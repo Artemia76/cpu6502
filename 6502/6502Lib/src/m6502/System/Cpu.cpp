@@ -207,63 +207,63 @@ s64 CPU::Execute( s64 Cycles )
         SetZeroAndNegativeFlags( Register );
     };
 
-	/** And the A Register with the value from the memory address */
-	auto And = [ this ] ( Word Address )
-	{
-		A &= ReadByte( Address );
-		SetZeroAndNegativeFlags( A );
-	};
+    /** And the A Register with the value from the memory address */
+    auto And = [ this ] ( Word Address )
+    {
+        A &= ReadByte( Address );
+        SetZeroAndNegativeFlags( A );
+    };
 
-	/** Or the A Register with the value from the memory address */
-	auto Ora = [ this ] ( Word Address )
-	{
-		A |= ReadByte( Address );
-		SetZeroAndNegativeFlags( A );
-	};
+    /** Or the A Register with the value from the memory address */
+    auto Ora = [ this ] ( Word Address )
+    {
+        A |= ReadByte( Address );
+        SetZeroAndNegativeFlags( A );
+    };
 
-	/** Eor the A Register with the value from the memory address */
-	auto Eor = [ this ]	( Word Address )
-	{
-		A ^= ReadByte( Address );
-		SetZeroAndNegativeFlags( A );
-	};
+    /** Eor the A Register with the value from the memory address */
+    auto Eor = [ this ]	( Word Address )
+    {
+        A ^= ReadByte( Address );
+        SetZeroAndNegativeFlags( A );
+    };
 
     /* Conditional branch */
-	auto BranchIf = [ this ] ( bool Test, bool Expected )
-	{
-		SByte Offset = FetchSByte();
-		if ( Test == Expected )
-		{
-			const Word PCOld = PC;
-			PC += Offset;
-			m_cycles--;
+    auto BranchIf = [ this ] ( bool Test, bool Expected )
+    {
+        SByte Offset = FetchSByte();
+        if ( Test == Expected )
+        {
+            const Word PCOld = PC;
+            PC += Offset;
+            m_cycles--;
 
-			const bool PageChanged = (PC >> 8) != (PCOld >> 8);
-			if ( PageChanged )
-			{
-				m_cycles--;
-			}
-		}
-	};
+            const bool PageChanged = (PC >> 8) != (PCOld >> 8);
+            if ( PageChanged )
+            {
+                m_cycles--;
+            }
+        }
+    };
 
     /** Push Processor status onto the stack
-	*	Setting bits 4 & 5 on the stack */
-	auto PushPSToStack = [ this ] ()
-	{
-		Byte PSStack = PS | BreakFlagBit | UnusedFlagBit;		
-		PushByteOntoStack( PSStack );
-	};
+    *	Setting bits 4 & 5 on the stack */
+    auto PushPSToStack = [ this ] ()
+    {
+        Byte PSStack = PS | BreakFlagBit | UnusedFlagBit;		
+        PushByteOntoStack( PSStack );
+    };
 
-	/** Pop Processor status from the stack
-	*	Clearing bits 4 & 5 (Break & Unused) */
-	auto PopPSFromStack = [ this ] ()
-	{
+    /** Pop Processor status from the stack
+    *	Clearing bits 4 & 5 (Break & Unused) */
+    auto PopPSFromStack = [ this ] ()
+    {
         bool B = Flags.B;
         bool Unused = Flags.Unused;
-		PS = PopByteFromStack();
-		Flags.B = B;
-		Flags.Unused = Unused;
-	};
+        PS = PopByteFromStack();
+        Flags.B = B;
+        Flags.Unused = Unused;
+    };
     s64 CyclesRequested = Cycles;
     m_cycles = Cycles;
     while ( m_cycles > 0)

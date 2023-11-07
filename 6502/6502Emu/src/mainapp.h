@@ -11,8 +11,8 @@ class CMainApp : public CProcessEvent
 
     private:
         hrc::time_point m_timePoint;
-	    m6502::Mem      mem;
-	    m6502::CPU      cpu;
+        m6502::Mem      mem;
+        m6502::CPU      cpu;
         int             m_clock; // Clock in Mhz
 
     protected:

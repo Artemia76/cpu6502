@@ -4,17 +4,17 @@
 class M6502TransferRegisterTests : public testing::Test
 {
 public:	
-	m6502::Mem mem;
-	m6502::CPU cpu;
-	M6502TransferRegisterTests () : cpu(mem){}
-	virtual void SetUp()
-	{
-		cpu.Reset();
-	}
+    m6502::Mem mem;
+    m6502::CPU cpu;
+    M6502TransferRegisterTests () : cpu(mem){}
+    virtual void SetUp()
+    {
+        cpu.Reset();
+    }
 
-	virtual void TearDown()
-	{
-	}
+    virtual void TearDown()
+    {
+    }
 
     void ExpectUnaffectedRegister( m6502::CPU CPUBefore)
     {
@@ -28,300 +28,300 @@ public:
 
 TEST_F( M6502TransferRegisterTests, TAXCanTransferANonNegativeNonZeroValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.A = 0x42;
     cpu.X = 0x32;
     cpu.Flags.Z = true;
     cpu.Flags.N = true;
-	mem[0xFF00] = opcode(Ins::TAX);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TAX);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0x42 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0x42 );
     EXPECT_EQ( cpu.X, 0x42 );
-	EXPECT_FALSE( cpu.Flags.Z );
+    EXPECT_FALSE( cpu.Flags.Z );
     EXPECT_FALSE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TAXCanTransferANonNegativeZeroValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.A = 0x00;
     cpu.X = 0x32;
     cpu.Flags.Z = false;
     cpu.Flags.N = true;
-	mem[0xFF00] = opcode(Ins::TAX);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TAX);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0x00 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0x00 );
     EXPECT_EQ( cpu.X, 0x00 );
-	EXPECT_TRUE( cpu.Flags.Z );
+    EXPECT_TRUE( cpu.Flags.Z );
     EXPECT_FALSE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TAXCanTransferANegativeValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.A = 0b10001011;
     cpu.X = 0x32;
     cpu.Flags.Z = true;
     cpu.Flags.N = false;
-	mem[0xFF00] = opcode(Ins::TAX);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TAX);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0b10001011 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0b10001011 );
     EXPECT_EQ( cpu.X, 0b10001011 );
-	EXPECT_FALSE( cpu.Flags.Z );
+    EXPECT_FALSE( cpu.Flags.Z );
     EXPECT_TRUE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TAYCanTransferANonNegativeNonZeroValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.A = 0x42;
     cpu.Y = 0x32;
     cpu.Flags.Z = true;
     cpu.Flags.N = true;
-	mem[0xFF00] = opcode(Ins::TAY);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TAY);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0x42 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0x42 );
     EXPECT_EQ( cpu.Y, 0x42 );
-	EXPECT_FALSE( cpu.Flags.Z );
+    EXPECT_FALSE( cpu.Flags.Z );
     EXPECT_FALSE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TAYCanTransferANonNegativeZeroValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.A = 0x00;
     cpu.Y = 0x32;
     cpu.Flags.Z = false;
     cpu.Flags.N = true;
-	mem[0xFF00] = opcode(Ins::TAY);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TAY);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0x00 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0x00 );
     EXPECT_EQ( cpu.Y, 0x00 );
-	EXPECT_TRUE( cpu.Flags.Z );
+    EXPECT_TRUE( cpu.Flags.Z );
     EXPECT_FALSE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TAYCanTransferANegativeValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.A = 0b10001011;
     cpu.Y = 0x32;
     cpu.Flags.Z = true;
     cpu.Flags.N = false;
-	mem[0xFF00] = opcode(Ins::TAY);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TAY);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0b10001011 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0b10001011 );
     EXPECT_EQ( cpu.Y, 0b10001011 );
-	EXPECT_FALSE( cpu.Flags.Z );
+    EXPECT_FALSE( cpu.Flags.Z );
     EXPECT_TRUE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TXACanTransferANonNegativeNonZeroValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.X = 0x42;
     cpu.A = 0x32;
     cpu.Flags.Z = true;
     cpu.Flags.N = true;
-	mem[0xFF00] = opcode(Ins::TXA);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TXA);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0x42 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0x42 );
     EXPECT_EQ( cpu.X, 0x42 );
-	EXPECT_FALSE( cpu.Flags.Z );
+    EXPECT_FALSE( cpu.Flags.Z );
     EXPECT_FALSE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TXACanTransferANonNegativeZeroValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.X = 0x00;
     cpu.A = 0x32;
     cpu.Flags.Z = false;
     cpu.Flags.N = true;
-	mem[0xFF00] = opcode(Ins::TXA);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TXA);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0x00 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0x00 );
     EXPECT_EQ( cpu.X, 0x00 );
-	EXPECT_TRUE( cpu.Flags.Z );
+    EXPECT_TRUE( cpu.Flags.Z );
     EXPECT_FALSE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TXACanTransferANegativeValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.X = 0b10001011;
     cpu.A = 0x32;
     cpu.Flags.Z = true;
     cpu.Flags.N = false;
-	mem[0xFF00] = opcode(Ins::TXA);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TXA);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0b10001011 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0b10001011 );
     EXPECT_EQ( cpu.X, 0b10001011 );
-	EXPECT_FALSE( cpu.Flags.Z );
+    EXPECT_FALSE( cpu.Flags.Z );
     EXPECT_TRUE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TYACanTransferANonNegativeNonZeroValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.Y = 0x42;
     cpu.A = 0x32;
     cpu.Flags.Z = true;
     cpu.Flags.N = true;
-	mem[0xFF00] = opcode(Ins::TYA);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TYA);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0x42 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0x42 );
     EXPECT_EQ( cpu.Y, 0x42 );
-	EXPECT_FALSE( cpu.Flags.Z );
+    EXPECT_FALSE( cpu.Flags.Z );
     EXPECT_FALSE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TYACanTransferANonNegativeZeroValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.Y = 0x00;
     cpu.A = 0x32;
     cpu.Flags.Z = false;
     cpu.Flags.N = true;
-	mem[0xFF00] = opcode(Ins::TYA);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TYA);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0x00 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0x00 );
     EXPECT_EQ( cpu.Y, 0x00 );
-	EXPECT_TRUE( cpu.Flags.Z );
+    EXPECT_TRUE( cpu.Flags.Z );
     EXPECT_FALSE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }
 
 TEST_F( M6502TransferRegisterTests, TYACanTransferANegativeValue )
 {
-	// given:
-	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+    // given:
+    using namespace m6502;
+    cpu.Reset( 0xFF00 );
     cpu.Y = 0b10001011;
     cpu.A = 0x32;
     cpu.Flags.Z = true;
     cpu.Flags.N = false;
-	mem[0xFF00] = opcode(Ins::TYA);
-	constexpr s64 EXPECTED_CYCLES = 2;
-	CPU CPUCopy = cpu;
+    mem[0xFF00] = opcode(Ins::TYA);
+    constexpr s64 EXPECTED_CYCLES = 2;
+    CPU CPUCopy = cpu;
 
-	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    // when:
+    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
 
-	// then:
-	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
-	EXPECT_EQ( cpu.A, 0b10001011 );
+    // then:
+    EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
+    EXPECT_EQ( cpu.A, 0b10001011 );
     EXPECT_EQ( cpu.Y, 0b10001011 );
-	EXPECT_FALSE( cpu.Flags.Z );
+    EXPECT_FALSE( cpu.Flags.Z );
     EXPECT_TRUE( cpu.Flags.N );
     ExpectUnaffectedRegister( CPUCopy );
 }

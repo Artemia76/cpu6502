@@ -30,6 +30,7 @@ namespace m6502
 {
 using SByte = std::int8_t;
 using Byte = std::uint8_t;
+using SWord = std::int16_t;
 using Word = std::uint16_t;
 
 using u32 = std::uint32_t;

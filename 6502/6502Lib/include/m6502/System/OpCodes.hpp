@@ -153,7 +153,46 @@ enum class Ins : Byte
     INC_ABSX = 0xFE,
 
     // Conditional Branch
-    BEQ = 0xF0
+    BEQ = 0xF0,
+    BNE = 0xD0,
+    BSC = 0xB0,
+    BCC = 0x90,
+    BMI = 0x30,
+    BPL = 0x10,
+    BVC = 0x50,
+    BVS = 0x70,
+
+    // Status flag changes
+    CLC = 0x18,
+    SEC = 0x38,
+    CLD = 0xD8,
+    SED = 0XF8,
+    CLI = 0x58,
+    SEI = 0x78,
+    CLV = 0xB8,
+
+    //Arithmetic
+	ADC = 0x69,
+    ADC_ZP = 0x65,
+	ADC_ZPX = 0x75,
+	ADC_ABS = 0x6D,
+	ADC_ABSX = 0x7D,
+	ADC_ABSY = 0x79,
+	ADC_INDX = 0x61,
+	ADC_INDY = 0x71,
+
+	SBC = 0xE9,
+	SBC_ABS = 0xED,
+	SBC_ZP = 0xE5,
+	SBC_ZPX = 0xF5,
+	SBC_ABSX = 0xFD,
+	SBC_ABSY = 0xF9,
+	SBC_INDX = 0xE1,
+	SBC_INDY = 0xF1,
+
+    // Misc
+    NOP = 0xEA
+
 };
 
 }

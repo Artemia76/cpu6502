@@ -263,6 +263,26 @@ s64 CPU::Execute( s64 cycles )
         }
     };
 
+    /** Do add with carry given the the operand */
+	auto ADC = [ this ] ( Byte Operand )
+	{
+		ASSERT( Flags.D == false, "haven't handled decimal mode!" );
+		const bool AreSignBitsTheSame =
+			!((A ^ Operand) & NegativeFlagBit);
+		Word Sum = static_cast<Word>(A);
+		Sum += Operand;
+		Sum += Flags.C;
+		A = (Sum & 0xFF);
+		SetZeroAndNegativeFlags( A );
+		Flags.C = Sum > 0xFF;
+		Flags.V = AreSignBitsTheSame &&
+			((A ^ Operand) & NegativeFlagBit);
+	};
+    /** Do subtract with carry given the the operand */
+	auto SBC = [&ADC] ( Byte Operand )
+	{
+		ADC( ~Operand );
+	};
     /** Push Processor status onto the stack
     *	Setting bits 4 & 5 on the stack */
     auto PushPSToStack = [ this ] ()
@@ -305,121 +325,98 @@ s64 CPU::Execute( s64 cycles )
             } break;
             case Ins::AND_ZP:
             {
-                Word Address = AddrZeroPage();
-                And( Address );
+                And( AddrZeroPage() );
             } break;
             case Ins::ORA_ZP:
             {
-                Word Address = AddrZeroPage();
-                Ora( Address );
+                Ora( AddrZeroPage() );
             } break;
             case Ins::EOR_ZP:
             {
-                Word Address = AddrZeroPage();
-                Eor( Address );
+                Eor( AddrZeroPage() );
             } break;
             case Ins::AND_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                And( Address );
+                And( AddrZeroPageX() );
             } break;
             case Ins::ORA_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                Ora( Address );
+                Ora( AddrZeroPageX() );
             } break;
             case Ins::EOR_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                Eor( Address );
+                Eor( AddrZeroPageX() );
             } break;
             case Ins::AND_ABS:
             {
-                Word Address = AddrAbsolute();
-                And( Address );
+                And( AddrAbsolute() );
             } break;
             case Ins::ORA_ABS:
             {
-                Word Address = AddrAbsolute();
-                Ora( Address );
+                Ora( AddrAbsolute() );
             } break;
             case Ins::EOR_ABS:
             {
-                Word Address = AddrAbsolute();
-                Eor( Address );
+                Eor( AddrAbsolute() );
             } break;
             case Ins::AND_ABSX:
             {
-                Word Address = AddrAbsoluteX();
-                And( Address );
+                And( AddrAbsoluteX() );
             } break;
             case Ins::ORA_ABSX:
             {
-                Word Address = AddrAbsoluteX();
-                Ora( Address );
+                Ora( AddrAbsoluteX() );
             } break;
             case Ins::EOR_ABSX:
             {
-                Word Address = AddrAbsoluteX();
-                Eor( Address );
+                Eor( AddrAbsoluteX() );
             } break;
             case Ins::AND_ABSY:
             {
-                Word Address = AddrAbsoluteY();
-                And( Address );
+                And( AddrAbsoluteY() );
             } break;
             case Ins::ORA_ABSY:
             {
-                Word Address = AddrAbsoluteY();
-                Ora( Address );
+                Ora( AddrAbsoluteY() );
             } break;
             case Ins::EOR_ABSY:
             {
-                Word Address = AddrAbsoluteY();
-                Eor( Address );
+                Eor( AddrAbsoluteY() );
             } break;
             case Ins::AND_INDX:
             {
-                Word Address = AddrIndirectX();
-                And( Address );
+                And( AddrIndirectX() );
             } break;
             case Ins::ORA_INDX:
             {
-                Word Address = AddrIndirectX();
-                Ora( Address );
+                Ora( AddrIndirectX() );
             } break;
             case Ins::EOR_INDX:
             {
-                Word Address = AddrIndirectX();
-                Eor( Address );
+                Eor( AddrIndirectX() );
             } break;
             case Ins::AND_INDY:
             {
-                Word Address = AddrIndirectY();
-                And( Address );
+                And( AddrIndirectY() );
             } break;
             case Ins::ORA_INDY:
             {
-                Word Address = AddrIndirectY();
-                Ora( Address );
+                Ora( AddrIndirectY() );
             } break;
             case Ins::EOR_INDY:
             {
-                Word Address = AddrIndirectY();
-                Eor( Address );
+                Eor( AddrIndirectY() );
             } break;
             case Ins::BIT_ZP:
             {
-                Word Address = AddrZeroPage();
-                Byte Value = ReadByte(Address);
+                Byte Value = ReadByte( AddrZeroPage() );
                 Flags.Z = ! (A & Value);
                 Flags.N = (Value & NegativeFlagBit) != 0;
                 Flags.V = (Value & OverflowFlagBit) != 0;
             } break;
             case Ins::BIT_ABS:
             {
-                Word Address = AddrAbsolute();
-                Byte Value = ReadByte(Address);
+                Byte Value = ReadByte( AddrAbsolute() );
                 Flags.Z = ! (A & Value);
                 Flags.N = (Value & NegativeFlagBit) != 0;
                 Flags.V = (Value & OverflowFlagBit) != 0;
@@ -441,143 +438,115 @@ s64 CPU::Execute( s64 cycles )
             } break;
             case Ins::LDA_ZP:
             {
-                Word Address = AddrZeroPage();
-                LoadRegister ( Address, A );
+                LoadRegister ( AddrZeroPage(), A );
             } break;
             case Ins::LDX_ZP:
             {
-                Word Address = AddrZeroPage();
-                LoadRegister ( Address, X );
+                LoadRegister ( AddrZeroPage(), X );
             } break;
             case Ins::LDY_ZP:
             {
-                Word Address = AddrZeroPage();
-                LoadRegister ( Address, Y );
+                LoadRegister ( AddrZeroPage(), Y );
             } break;
             case Ins::LDA_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                LoadRegister ( Address, A );
+                LoadRegister ( AddrZeroPageX(), A );
             } break;
             case Ins::LDX_ZPY:
             {
-                Word Address = AddrZeroPageY();
-                LoadRegister ( Address, X );
+                LoadRegister ( AddrZeroPageY(), X );
             } break;
             case Ins::LDY_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                LoadRegister ( Address, Y );
+                LoadRegister ( AddrZeroPageX(), Y );
             } break;
             case Ins::LDA_ABS:
             {
-                Word Address = AddrAbsolute();
-                LoadRegister ( Address, A );
+                LoadRegister ( AddrAbsolute(), A );
             } break;
             case Ins::LDX_ABS:
             {
-                Word Address = AddrAbsolute();
-                LoadRegister ( Address, X );
+                LoadRegister ( AddrAbsolute(), X );
             } break;
             case Ins::LDY_ABS:
             {
-                Word Address = AddrAbsolute();
-                LoadRegister ( Address, Y );
+                LoadRegister ( AddrAbsolute(), Y );
             } break;
             case Ins::LDA_ABSX:
             {
-                Word Address = AddrAbsoluteX();
-                LoadRegister ( Address, A );
+                LoadRegister ( AddrAbsoluteX(), A );
             } break;
             case Ins::LDA_ABSY:
             {
-                Word Address = AddrAbsoluteY();
-                LoadRegister ( Address, A );
+                LoadRegister ( AddrAbsoluteY(), A );
             } break;
             case Ins::LDX_ABSY:
             {
-                Word Address = AddrAbsoluteY();
-                LoadRegister ( Address, X );
+                LoadRegister ( AddrAbsoluteY(), X );
             } break;
             case Ins::LDY_ABSX:
             {
-                Word Address = AddrAbsoluteX();
-                LoadRegister ( Address, Y );
+                LoadRegister ( AddrAbsoluteX(), Y );
             } break;
             case Ins::LDA_INDX:
             {
-                Word Address = AddrIndirectX();
-                LoadRegister ( Address, A );
+                LoadRegister ( AddrIndirectX(), A );
             } break;
             case Ins::LDA_INDY:
             {
-                Word Address = AddrIndirectY();
-                LoadRegister ( Address, A );
+                LoadRegister ( AddrIndirectY(), A );
             } break;
             case Ins::STA_ZP:
             {
-                Word Address = AddrZeroPage();
-                WriteByte ( A , Address );
+                WriteByte ( A , AddrZeroPage() );
             } break;
             case Ins::STX_ZP:
             {
-                Word Address = AddrZeroPage();
-                WriteByte ( X , Address );
+                WriteByte ( X , AddrZeroPage() );
             } break;
             case Ins::STY_ZP:
             {
-                Word Address = AddrZeroPage();
-                WriteByte ( Y , Address );
+                WriteByte ( Y , AddrZeroPage() );
             } break;
             case Ins::STA_ABS:
             {
-                Word Address = AddrAbsolute();
-                WriteByte ( A , Address );
+                WriteByte ( A , AddrAbsolute() );
             } break;
             case Ins::STX_ABS:
             {
-                Word Address = AddrAbsolute();
-                WriteByte ( X , Address );
+                WriteByte ( X , AddrAbsolute() );
             } break;
             case Ins::STY_ABS:
             {
-                Word Address = AddrAbsolute();
-                WriteByte ( Y , Address );
+                WriteByte ( Y , AddrAbsolute() );
             } break;
             case Ins::STA_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                WriteByte ( A , Address );
+                WriteByte ( A , AddrZeroPageX() );
             } break;
             case Ins::STY_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                WriteByte ( Y , Address );
+                WriteByte ( Y , AddrZeroPageX() );
             } break;
             case Ins::STA_ABSX:
             {
-                Word Address = AddrAbsoluteX_5();
-                WriteByte ( A , Address );
+                WriteByte ( A , AddrAbsoluteX_5() );
             } break;
             case Ins::STA_ABSY:
             {
-                Word Address = AddrAbsoluteY_5();
-                WriteByte ( A , Address );
+                WriteByte ( A , AddrAbsoluteY_5() );
             } break;
             case Ins::STX_ZPY:
             {
-                Word Address = AddrZeroPageY();
-                WriteByte ( X , Address );
+                WriteByte ( X , AddrZeroPageY() );
             } break;
             case Ins::STA_INDX:
             {
-                Word Address = AddrIndirectX_6();
-                WriteByte ( A , Address );
+                WriteByte ( A , AddrIndirectX_6() );
             } break;
             case Ins::STA_INDY:
             {
-                Word Address = AddrIndirectY_6();
-                WriteByte ( A , Address );
+                WriteByte ( A , AddrIndirectY_6() );
             } break;
             case Ins::JSR:
             {
@@ -588,8 +557,7 @@ s64 CPU::Execute( s64 cycles )
             } break;
             case Ins::RTS:
             {
-                Word ReturnAddress = PopWordFromStack();
-                PC = ReturnAddress + 1;	
+                PC = PopWordFromStack() + 1;	
                 m_cycles -= 2;
             } break;
             //TODO:
@@ -602,14 +570,11 @@ s64 CPU::Execute( s64 cycles )
             //indirect vector is not at the end of the page.
             case Ins::JMP_ABS:
             {
-                Word Address = AddrAbsolute();
-                PC = Address;
+                PC = AddrAbsolute();
             } break;
             case Ins::JMP_IND:
             {
-                Word Address = AddrAbsolute();
-                Address = ReadWord( Address );
-                PC = Address;
+                PC = ReadWord( AddrAbsolute() );
             } break;
             case Ins::TSX:
             {
@@ -764,6 +729,137 @@ s64 CPU::Execute( s64 cycles )
             case Ins::BEQ:
             {
                 BranchIf( Flags.Z, true );
+            } break;
+            case Ins::BNE:
+            {
+                BranchIf( Flags.Z, false );
+            } break;
+            case Ins::BSC:
+            {
+                BranchIf( Flags.C, true );
+            } break;
+            case Ins::BCC:
+            {
+                BranchIf( Flags.C, false );
+            } break;
+            case Ins::BMI:
+            {
+                BranchIf( Flags.N, true );
+            } break;
+            case Ins::BPL:
+            {
+                BranchIf( Flags.N, false );
+            } break;
+            case Ins::BVC:
+            {
+                BranchIf( Flags.V, false );
+            } break;
+            case Ins::BVS:
+            {
+                BranchIf( Flags.V, true );
+            } break;
+            case Ins::CLC:
+            {
+                Flags.C = false;
+                m_cycles--;
+            } break;
+            case Ins::SEC:
+            {
+                Flags.C = true;
+                m_cycles--;
+            } break;
+            case Ins::CLD:
+            {
+                Flags.D = false;
+                m_cycles--;
+            } break;
+            case Ins::SED:
+            {
+                Flags.D = true;
+                m_cycles--;
+            } break;
+            case Ins::CLI:
+            {
+                Flags.I = false;
+                m_cycles--;
+            } break;
+            case Ins::SEI:
+            {
+                Flags.I = true;
+                m_cycles--;
+            } break;
+            case Ins::CLV:
+            {
+                Flags.V = false;
+                m_cycles--;
+            } break;
+            case Ins::NOP:
+            {
+                m_cycles--;
+            } break;
+            case Ins::ADC_ABS:
+            {
+                ADC( ReadByte( AddrAbsolute() ) );
+            } break;
+            case Ins::ADC_ABSX:
+            {
+                ADC( ReadByte( AddrAbsoluteX() ) );
+            } break;
+            case Ins::ADC_ABSY:
+            {
+                ADC( ReadByte( AddrAbsoluteY() ) );
+            } break;
+            case Ins::ADC_ZP:
+            {
+                ADC( ReadByte( AddrZeroPage() ) );
+            } break;
+            case Ins::ADC_ZPX:
+            {
+                ADC( ReadByte( AddrZeroPageX() ) );
+            } break;
+            case Ins::ADC_INDX:
+            {
+                ADC( ReadByte( AddrIndirectX() ) );
+            } break;
+            case Ins::ADC_INDY:
+            {
+                ADC( ReadByte( AddrIndirectY() ) );
+            } break;
+            case Ins::ADC:
+            {
+                ADC( FetchByte() );
+            } break;
+            case Ins::SBC:
+            {
+                SBC( FetchByte() );
+            } break;
+            case Ins::SBC_ABS:
+            {
+                SBC( ReadByte( AddrAbsolute() ) );
+            } break;
+            case Ins::SBC_ZP:
+            {
+                SBC( ReadByte( AddrZeroPage() ) );
+            } break;
+            case Ins::SBC_ZPX:
+            {
+                SBC( ReadByte( AddrZeroPageX() ) );
+            } break;
+            case Ins::SBC_ABSX:
+            {
+                SBC( ReadByte ( AddrAbsoluteX() ) );
+            } break;
+            case Ins::SBC_ABSY:
+            {
+                SBC( ReadByte( AddrAbsoluteY() ) );
+            } break;
+            case Ins::SBC_INDX:
+            {
+                SBC( ReadByte( AddrIndirectX() ) );
+            } break;
+            case Ins::SBC_INDY:
+            {
+                SBC( ReadByte( AddrIndirectY() ) );
             } break;
             default:
             {

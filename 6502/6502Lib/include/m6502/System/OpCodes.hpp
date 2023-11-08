@@ -190,6 +190,13 @@ enum class Ins : Byte
 	SBC_INDX = 0xE1,
 	SBC_INDY = 0xF1,
 
+    // Register Comparison
+    CMP = 0xC9,
+    CMP_ZP = 0xC5,
+    CMP_ZPX = 0xD5,
+    CMP_ABS = 0xCD,
+    CMP_ABSX = 0xDD,
+    CMP_ABSY = 0xD9,
     // Misc
     NOP = 0xEA
 

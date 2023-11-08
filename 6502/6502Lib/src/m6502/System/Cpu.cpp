@@ -278,11 +278,21 @@ s64 CPU::Execute( s64 cycles )
 		Flags.V = AreSignBitsTheSame &&
 			((A ^ Operand) & NegativeFlagBit);
 	};
+    
     /** Do subtract with carry given the the operand */
 	auto SBC = [&ADC] ( Byte Operand )
 	{
 		ADC( ~Operand );
 	};
+
+    /** Do compare accumulator to operand*/
+    auto CMP = [ this ] ( Byte Operand )
+    {
+        Byte Temp = A - Operand;
+        Flags.N = (Temp & NegativeFlagBit) > 0;
+        Flags.Z = A == Operand;
+        Flags.C = A >= Operand;
+    };
     /** Push Processor status onto the stack
     *	Setting bits 4 & 5 on the stack */
     auto PushPSToStack = [ this ] ()
@@ -860,6 +870,30 @@ s64 CPU::Execute( s64 cycles )
             case Ins::SBC_INDY:
             {
                 SBC( ReadByte( AddrIndirectY() ) );
+            } break;
+            case Ins::CMP:
+            {
+                CMP ( FetchByte() );
+            } break;
+            case Ins::CMP_ZP:
+            {
+                CMP ( ReadByte( AddrZeroPage() ) );
+            } break;
+            case Ins::CMP_ZPX:
+            {
+                CMP ( ReadByte( AddrZeroPageX() ) );
+            } break;
+            case Ins::CMP_ABS:
+            {
+                CMP ( ReadByte( AddrAbsolute() ) );
+            } break;
+            case Ins::CMP_ABSX:
+            {
+                CMP ( ReadByte( AddrAbsoluteX() ) );
+            } break;
+            case Ins::CMP_ABSY:
+            {
+                CMP ( ReadByte( AddrAbsoluteY() ) );
             } break;
             default:
             {

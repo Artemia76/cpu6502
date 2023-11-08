@@ -1,5 +1,5 @@
 /**
- * @file Mem.hpp
+ * @file Registers.hpp
  * @author Gianni Peschiutta
  * @brief M6502Lib - Motorola 6502 CPU Emulator
  * @version 0.1
@@ -22,51 +22,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-#include <m6502/System/Mem.hpp>
+#pragma once
+
+#include <m6502/System/Registers.hpp>
 
 namespace m6502
 {
 
 /*****************************************************************************/
 
-Mem::Mem ()
+Registers::Registers ()
 {
-    Initialise();
+    PC = 0xFFFC;
+    SP = 0xFF;
+    Flags.C = Flags.Z = Flags.I = Flags.D = Flags.B = Flags.V = Flags.N = 0;
+    A = X = Y = 0;
 }
 
 /*****************************************************************************/
 
-Mem::Mem (const Mem& copy)
+Registers::Registers (const Registers& copy)
 {
-
-    Data = copy.Data;
+    PC = copy.PC;
+    SP = copy.SP;
+    PS = copy.PS;
+    A = copy.A;
+    X = copy.X;
+    Y = copy.Y;
 }
 
 /*****************************************************************************/
 
-Mem::~Mem() {}
-
-/*****************************************************************************/
-
-void Mem::Initialise ()
-{
-    Data.fill(0x00);
-}
-
-/*****************************************************************************/
-
-Byte Mem::operator[]( u32 Address) const
-{
-    // assert here Address is < MAX_MEM
-    return Data[Address];
-}
-
-/*****************************************************************************/
-
-Byte& Mem::operator[]( u32 Address)
-{
-    // assert here Address is < MAX_MEM
-    return Data[Address];
-}
+Registers::~Registers () {}
 
 }

@@ -29,6 +29,10 @@
 namespace m6502
 {
 
+/**
+ * @brief Status Flags of 6502 CPU
+ * 
+ */
 struct StatusFlags
 {	
     Byte C : 1;	//0: Carry Flag	
@@ -41,19 +45,75 @@ struct StatusFlags
     Byte N : 1; //7: Negative
 };
 
+/**
+ * @brief 6502 CPU Registers
+ * 
+ */
 class Registers
 {
     public:
-        Word 		PC;        //program counter
-        Byte 		SP;        //stack pointer
-        Byte 		A, X, Y;   //registers
+        /**
+         * @brief Construct a new Registers object
+         * 
+         * @param copy 
+         */
+        Registers(const Registers& copy);
+
+        /**
+         * @brief Destroy the Registers object
+         * 
+         */
+        virtual ~Registers();
+
+        /**
+         * @brief program counter
+         * 
+         */
+        Word PC;
+        /**
+         * @brief stack pointer
+         * 
+         */
+        Byte SP;
+
+        /**
+         * @brief Accumulator Register
+         * 
+         */
+        Byte A;
+
+        /**
+         * @brief X Register
+         * 
+         */
+        Byte X;
+
+        /**
+         * @brief Y Register
+         * 
+         */
+        Byte Y;
         union
         {
+            /**
+             * @brief Process Status as Word
+             * 
+             */
             Byte 		PS;
+
+            /**
+             * @brief Process Status as Flag
+             *        Struct
+             * 
+             */
             StatusFlags	Flags;
         };
-
-            // Process status bits
+        
+        /**
+         * @brief Significant bit
+         *        For status register
+         * 
+         */
     static constexpr Byte
         NegativeFlagBit = 0b10000000,
         OverflowFlagBit = 0b01000000,
@@ -61,6 +121,13 @@ class Registers
         UnusedFlagBit = 0b000100000,
         InterruptDisableFlagBit = 0b000000100,
         ZeroBit = 0b00000001;
+    protected:
+        /**
+         * @brief Construct a new Registers object
+         *        from derivated class
+         * 
+         */
+        Registers();
 };
 
 }

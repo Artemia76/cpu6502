@@ -24,32 +24,63 @@
 
 #pragma once
 #include <m6502/Config.hpp>
-
+#include <array>
 namespace m6502
 {
 
+/**
+ * @brief Memory container
+ * 
+ */
 class Mem
 {
     public:
-static constexpr u32 MAX_MEM = 1024*64;
-    Byte Data[MAX_MEM];
+        /**
+         * @brief Construct a new Mem object
+         * 
+         */
+        Mem();
 
-    Mem();
-    ~Mem();
+        /**
+         * @brief Copy Contructor
+         * 
+         * @param copy 
+         */
+        Mem(const Mem& copy);
 
-    void Initialise ()
-    {
-        for ( u32 i = 0; i < MAX_MEM; i++)
-        {
-            Data[i] = 0;
-        }
-    }
+        /**
+         * @brief Destroy the Mem object
+         * 
+         */
+        ~Mem();
 
-    /** read 1 byte */
-    Byte operator[]( u32 Address) const;
+        /**
+         * @brief 
+         * 
+         */
+        std::array<Byte,MAX_MEM> Data;
 
-    /** write 1 byte */
-    Byte& operator[]( u32 Address);
+        /**
+         * @brief 
+         * 
+         */
+        void Initialise ();
+
+        /**
+         * @brief Read 1 Byte
+         * 
+         * @param Address 
+         * @return Byte 
+         */
+        Byte operator[]( u32 Address) const;
+
+        /**
+         * @brief Write 1 Byte
+         * 
+         * @param Address 
+         * @return Byte& 
+         */
+        Byte& operator[]( u32 Address);
 };
 
 }

@@ -35,16 +35,52 @@ namespace m6502
 {
 
 /**
- * @brief 
+ * @brief Registers for 6502 CPU
  * 
  */
 class CPU : public Registers
 {
     public:
-                CPU(Mem& memory);
-                ~CPU();
-        void    Reset( );
-        void    Reset( Word ResetVector );
+
+        /**
+         * @brief Construct a new CPU object
+         * 
+         * @param pMem 
+         */
+        explicit CPU(Mem& memory);
+
+        /**
+         * @brief Construct a new CPU object
+         * 
+         * @param memory 
+         */
+        explicit CPU(Mem&& memory) = delete;
+
+        /**
+         * @brief Construct a new CPU object
+         * 
+         * @param copy 
+         */
+        CPU(const CPU& copy);
+
+        /**
+         * @brief Destroy the CPU object
+         * 
+         */
+        ~CPU() override;
+
+        /**
+         * @brief Reset the CPU object
+         * 
+         */
+        void Reset( );
+
+        /**
+         * @brief Reset the CPU with the given start vector
+         * 
+         * @param ResetVector 
+         */
+        void Reset( Word ResetVector );
 
         /**
          * @brief Load program in memory
@@ -75,14 +111,55 @@ class CPU : public Registers
         s64 Execute( s64 Cycles);
 
     private:
+
+        /**
+         * @brief Memory space for CPU
+         * 
+         */
         Mem& m_memory;
 
+        /**
+         * @brief Cycles counter down for Execution
+         *        process
+         * 
+         */
         s64 m_cycles;
 
+        /**
+         * @brief 
+         * 
+         * @return Byte 
+         */
         Byte FetchByte();
+
+        /**
+         * @brief 
+         * 
+         * @return Word 
+         */
         Word FetchWord();
+
+        /**
+         * @brief 
+         * 
+         * @return SByte 
+         */
         SByte FetchSByte();
+
+        /**
+         * @brief 
+         * 
+         * @param Address 
+         * @return Byte 
+         */
         Byte ReadByte( Word Address );
+
+        /**
+         * @brief Read Word from memory at address
+         * 
+         * @param Address 
+         * @return Word 
+         */
         Word ReadWord( Word Address );
 
         /**
@@ -102,71 +179,148 @@ class CPU : public Registers
         void WriteWord(	Word Value, Word Address );
 
         /**
-         * @brief 
+         * @brief Write 1 Word on to Stack
          * 
          * @param Value 
          */
         void PushWordToStack( Word Value );
 
-        /** Push the PC-1 onto the stack */
+        /**
+         * @brief Push the PC-1 onto the stack
+         * 
+         */
         void PushPCMinusOneToStack();
 
-        /** Push the PC+1 onto the stack */
+        /**
+         * @brief Push the PC+1 onto the stack
+         * 
+         */
         void PushPCPlusOneToStack();
 
-        /** Push the PC onto the stack */
+        /**
+         * @brief Push the PC onto the stack
+         * 
+         */
         void PushPCToStack();
 
+        /**
+         * @brief Push a byte on to Stack
+         * 
+         * @param Value 
+         */
         void PushByteOntoStack( Byte Value );
 
+        /**
+         * @brief Pop a byte value from the stack
+         * 
+         * @return Byte 
+         */
         Byte PopByteFromStack();
 
-        /** Pop a 16-bit value from the stack */
+        /**
+         * @brief Pop a 16-bit value from the stack
+         * 
+         * @return Word 
+         */
         Word PopWordFromStack();
 
-        /** Sets the correct Process status after a load register instruction
-        *	- LDA, LDX, LDY
-        *	@Register The A,X or Y Register */
+        /**
+         * @brief Sets the correct Process status after a load register instruction
+         * 
+         * @param Register 
+         * 
+         * Sets the correct Process status after a load register instruction
+         * - LDA, LDX, LDY
+         * @Register The A,X or Y Register
+         * 
+         */
         void SetZeroAndNegativeFlags( Byte Register );
 
-        /** Addressing mode - Zero page */
+        /**
+         * @brief Addressing mode - Zero page
+         * 
+         * @return Word 
+         */
         Word AddrZeroPage();
 
-        /** Addressing mode - Zero page with X offset */
+        /**
+         * @brief Addressing mode - Zero page with X offset
+         * 
+         * @return Word 
+         */
         Word AddrZeroPageX();
 
-        /** Addressing mode - Zero page with Y offset */
+        /**
+         * @brief Addressing mode - Zero page with Y offset
+         * 
+         * @return Word 
+         */
         Word AddrZeroPageY();
 
-        /** Addressing mode - Absolute */
+        /**
+         * @brief Addressing mode - Absolute
+         * 
+         * @return Word 
+         */
         Word AddrAbsolute();
 
-        /** Addressing mode - Absolute with X offset */
+        /**
+         * @brief Addressing mode - Absolute with X offset
+         * 
+         * @return Word
+         * 
+         * Addressing mode - Absolute with X offset
+         * 
+         */
         Word AddrAbsoluteX();
 
-        /** Addressing mode - Absolute with X offset
-         *      - Always takes a cycle for the X page boundary)
-         *      - See "STA Absolute,X" */
+        /**
+         * @brief Addressing mode - Absolute with X offset
+         * 
+         * @return Word
+         * 
+         *  Addressing mode - Absolute with X offset
+         *  - Always takes a cycle for the X page boundary)
+         *  - See "STA Absolute,X"
+         * 
+         */
         Word AddrAbsoluteX_5();
 
-        /** Addressing mode - Absolute with Y offset */
+        /**
+         * @brief Addressing mode - Absolute with Y offset
+         * 
+         * @return Word 
+         */
         Word AddrAbsoluteY();
 
-        /** Addressing mode - Absolute with Y offset
-        *	- Always takes a cycle for the Y page boundary)
-        *	- See "STA Absolute,Y" */
+        /**
+         * @brief Addressing mode - Absolute with Y offset
+         * 
+         * @return Word 
+         * 
+         *  - Always takes a cycle for the Y page boundary)
+         *	- See "STA Absolute,Y"
+         *
+         */
         Word AddrAbsoluteY_5();
 
-        /** Addressing mode - Indirect X | Indexed Indirect */
+        /**
+         * @brief Addressing mode - Indirect X | Indexed Indirect
+         * 
+         * @return Word 
+         */
         Word AddrIndirectX();
 
-        /** Addressing mode - Indirect Y | Indirect Indexed */
+        /**
+         * @brief Addressing mode - Indirect Y | Indirect Indexed
+         * 
+         * @return Word 
+         */
         Word AddrIndirectY();
 
         /** Addressing mode - Indirect X | Indirect Indexed
         *	- Always takes a cycle for the Y page boundary)
         *	- See "STA (Indirect,Y) */
-
 
         Word AddrIndirectX_6();
 

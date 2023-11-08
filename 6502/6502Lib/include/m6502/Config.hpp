@@ -37,4 +37,6 @@ using s32 = std::int32_t;
 
 using u64 = std::uint64_t;
 using s64 = std::int64_t;
+
+static constexpr u32 MAX_MEM = 1024*64;
 }

@@ -24,9 +24,7 @@
 
 #pragma once
 
-#include <map>
 #include <m6502/Config.hpp>
-#include <map>
 
 /**
  * @brief Return ByteCode from OpCode Instruction
@@ -43,7 +41,10 @@
 namespace m6502
 {
 
- // opcodes
+/**
+ * @brief OpCodes for 6502 CPU
+ * 
+ */
 enum class Ins : Byte
 {	
     //LDA

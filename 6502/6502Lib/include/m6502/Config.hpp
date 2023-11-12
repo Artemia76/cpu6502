@@ -22,7 +22,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-#pragma once
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
 
 #include <cstdint>
 
@@ -41,3 +42,5 @@ using s64 = std::int64_t;
 
 static constexpr u32 MAX_MEM = 1024*64;
 }
+
+#endif

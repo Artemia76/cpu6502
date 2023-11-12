@@ -1,12 +1,11 @@
 /**
- * @file System.hpp
+ * @file mainapp.hpp
  * @author Gianni Peschiutta
- * @brief M6502Lib - Motorola 6502 CPU Emulator
+ * @brief 6502Emu - Motorola 6502 CPU Emulator
  * @version 0.1
  * @date 2023-11-05
  * 
  * @copyright Copyright (c) 2023
- * Based on davepoo work: https://github.com/davepoo/6502Emulator
  *
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -22,11 +21,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-#ifndef SYSTEM_HPP
-#define SYSTEM_HPP
+#ifndef MAINAPP_HPP
+#define MAINAPP_HPP
 
-#include <m6502/Config.hpp>
-#include <m6502/System/Cpu.hpp>
-#include <m6502/System/Mem.hpp>
+#include "loop.hpp"
+#include <chrono>
+#include <m6502/System.hpp>
+
+class CMainApp : public CProcessEvent
+{
+    public:
+        CMainApp (CLoop& pParent);
+        ~CMainApp ();
+
+    private:
+        hrc::time_point m_timePoint;
+        m6502::Mem      mem;
+        m6502::CPU      cpu;
+        int             m_clock; // Clock in Mhz
+
+    protected:
+        void OnProcess(const period& pInterval);
+};
 
 #endif

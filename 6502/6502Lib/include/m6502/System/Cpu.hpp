@@ -22,7 +22,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-#pragma once
+#ifndef CPU_HPP
+#define CPU_HPP
+
 #include <m6502/Config.hpp>
 #include <m6502/System/Mem.hpp>
 #include <m6502/System/Registers.hpp>
@@ -336,3 +338,5 @@ class CPU : public Registers
 };
 
 }
+
+#endif

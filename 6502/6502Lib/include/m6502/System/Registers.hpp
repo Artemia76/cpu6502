@@ -22,7 +22,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-#pragma once
+#ifndef REGISTERS_HPP
+#define REGISTERS_HPP
 
 #include <m6502/Config.hpp>
 
@@ -131,3 +132,5 @@ class Registers
 };
 
 }
+
+#endif

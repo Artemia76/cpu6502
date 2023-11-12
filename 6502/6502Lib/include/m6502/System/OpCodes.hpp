@@ -22,7 +22,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-#pragma once
+#ifndef OPCODES_HPP
+#define OPCODES_HPP
 
 #include <m6502/Config.hpp>
 
@@ -45,7 +46,8 @@ namespace m6502
  * @brief OpCodes for 6502 CPU
  * 
  */
-enum class Ins : Byte
+//enum class Ins : Byte
+enum Ins
 {	
     //LDA
     LDA_IM = 0xA9,
@@ -203,3 +205,5 @@ enum class Ins : Byte
 };
 
 }
+
+#endif

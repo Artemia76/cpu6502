@@ -22,7 +22,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>
  */
 
-#pragma once
+#ifndef MEM_HPP
+#define MEM_HPP
+
 #include <m6502/Config.hpp>
 #include <array>
 namespace m6502
@@ -84,3 +86,5 @@ class Mem
 };
 
 }
+
+#endif

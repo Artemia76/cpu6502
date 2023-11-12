@@ -21,3 +21,7 @@ add_library( M6502Lib ${M6502_SOURCES} )
 target_include_directories ( M6502Lib PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
 #set_target_properties(M6502Lib PROPERTIES FOLDER "M6502Lib")
+
+set_property(TARGET M6502Lib PROPERTY CXX_STANDARD 20)
+set_property(TARGET M6502Lib PROPERTY CXX_STANDARD_REQUIRED On)
+set_property(TARGET M6502Lib PROPERTY CXX_EXTENSIONS Off)

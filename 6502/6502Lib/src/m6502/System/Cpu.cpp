@@ -39,7 +39,7 @@ CPU::CPU(Mem& mem) : m_memory(mem)
 
 /*****************************************************************************/
 
-CPU::CPU(const CPU& copy) : m_memory(copy.m_memory), Registers(copy)
+CPU::CPU(const CPU& copy) : Registers(copy), m_memory(copy.m_memory)
 {
     m_cycles = copy.m_cycles;
 }

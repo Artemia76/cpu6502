@@ -24,9 +24,10 @@ static const m6502::u32 NumBytesInPrg = 14;
 class M6502LoadPrgTests : public testing::Test
 {
 public:	
-    M6502LoadPrgTests () : cpu(mem) {};
-    m6502::Mem mem;
-    m6502::CPU cpu;
+    M6502LoadPrgTests () : cpu(bus), mem(bus,0x0000,0x0000) {}
+    m6502::CBus bus;
+    m6502::CMem mem;
+    m6502::CCPU cpu;
 
     virtual void SetUp()
     {

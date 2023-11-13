@@ -4,12 +4,10 @@
 class M6502StatusFlagChangeTests : public testing::Test
 {
 public:
-    M6502StatusFlagChangeTests() : cpu(mem)
-    {
-        
-    }
-    m6502::Mem mem;
-    m6502::CPU cpu;
+    M6502StatusFlagChangeTests() : cpu(bus), mem(bus,0x0000,0x0000) {}
+    m6502::CBus bus;
+    m6502::CMem mem;
+    m6502::CCPU cpu;
 
     virtual void SetUp()
     {
@@ -29,7 +27,7 @@ TEST_F( M6502StatusFlagChangeTests, CLCWillClearTheCarryFlag )
     cpu.Flags.C = true;
     mem[0xFF00] = opcode(Ins::CLC);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -53,7 +51,7 @@ TEST_F( M6502StatusFlagChangeTests, SECWillSetTheCarryFlag )
     cpu.Flags.C = false;
     mem[0xFF00] = opcode(Ins::SEC);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -77,7 +75,7 @@ TEST_F( M6502StatusFlagChangeTests, CLDWillClearTheDecimalFlag )
     cpu.Flags.D = true;
     mem[0xFF00] = opcode(Ins::CLD);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -101,7 +99,7 @@ TEST_F( M6502StatusFlagChangeTests, SEDWillSetTheDecimalFlag )
     cpu.Flags.D = false;
     mem[0xFF00] = opcode(Ins::SED);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -125,7 +123,7 @@ TEST_F( M6502StatusFlagChangeTests, CLIWillClearTheInterruptFlag )
     cpu.Flags.I = true;
     mem[0xFF00] = opcode(Ins::CLI);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -149,7 +147,7 @@ TEST_F( M6502StatusFlagChangeTests, SEIWillSetTheInterruptFlag )
     cpu.Flags.I = false;
     mem[0xFF00] = opcode(Ins::SEI);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -173,7 +171,7 @@ TEST_F( M6502StatusFlagChangeTests, CLVWillClearTheOverflowFlag )
     cpu.Flags.V = true;
     mem[0xFF00] = opcode(Ins::CLV);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -196,7 +194,7 @@ TEST_F( M6502StatusFlagChangeTests, NOPWillDoNothingButConsumeACycle )
     cpu.Reset( 0xFF00);
     mem[0xFF00] = opcode(Ins::NOP);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );

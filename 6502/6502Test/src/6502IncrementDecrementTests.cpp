@@ -4,13 +4,12 @@
 class M6502IncrementDecrementTests : public testing::Test
 {
 public:
-    m6502::Mem mem;
-    m6502::CPU cpu;
+    M6502IncrementDecrementTests() : cpu(bus), mem(bus,0x0000,0x0000) {}
+    m6502::CBus bus;
+    m6502::CMem mem;
+    m6502::CCPU cpu;
 
-    M6502IncrementDecrementTests() : cpu(mem)
-    {
 
-    }
 
     virtual void SetUp()
     {
@@ -21,7 +20,7 @@ public:
     {
     }
 
-    void ExpectUnaffectedFlags( m6502::CPU CPUBefore )
+    void ExpectUnaffectedFlags( m6502::CCPU CPUBefore )
     {
         EXPECT_EQ( CPUBefore.Flags.C, cpu.Flags.C );
         EXPECT_EQ( CPUBefore.Flags.I, cpu.Flags.I );
@@ -41,7 +40,7 @@ TEST_F( M6502IncrementDecrementTests, INXCanIncrementAZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::INX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -64,7 +63,7 @@ TEST_F( M6502IncrementDecrementTests, INXCanIncrement255 )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::INX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -87,7 +86,7 @@ TEST_F( M6502IncrementDecrementTests, INXCanIncrementANegativeValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode (Ins::INX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -111,7 +110,7 @@ TEST_F( M6502IncrementDecrementTests, INYCanIncrementAZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::INY);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -134,7 +133,7 @@ TEST_F( M6502IncrementDecrementTests, INYCanIncrement255 )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::INY);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -157,7 +156,7 @@ TEST_F( M6502IncrementDecrementTests, INYCanIncrementANegativeValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::INY);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -181,7 +180,7 @@ TEST_F( M6502IncrementDecrementTests, DEYCanDecementAZeroValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::DEY);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -204,7 +203,7 @@ TEST_F( M6502IncrementDecrementTests, DEYCanDecrement255 )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::DEY);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -227,7 +226,7 @@ TEST_F( M6502IncrementDecrementTests, DEYCanDecrementANegativeValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::DEY);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -250,7 +249,7 @@ TEST_F( M6502IncrementDecrementTests, DEXCanDecementAZeroValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::DEX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -273,7 +272,7 @@ TEST_F( M6502IncrementDecrementTests, DEXCanDecrement255 )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::DEX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -296,7 +295,7 @@ TEST_F( M6502IncrementDecrementTests, DEXCanDecrementANegativeValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::DEX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -320,7 +319,7 @@ TEST_F( M6502IncrementDecrementTests, DECCanDecrementAValueInTheZeroPage )
     mem[0xFF01] = 0x42;
     mem[0x0042] = 0x57;
     constexpr s64 EXPECTED_CYCLES = 5;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -345,7 +344,7 @@ TEST_F( M6502IncrementDecrementTests, DECCanDecrementAValueInTheZeroPageX )
     mem[0xFF01] = 0x42;
     mem[0x0042 + 0x10] = 0x57;
     constexpr s64 EXPECTED_CYCLES = 6;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -370,7 +369,7 @@ TEST_F( M6502IncrementDecrementTests, DECCanDecrementAValueAbsolute )
     mem[0xFF02] = 0x80;
     mem[0x8000] = 0x57;
     constexpr s64 EXPECTED_CYCLES = 6;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -396,7 +395,7 @@ TEST_F( M6502IncrementDecrementTests, DECCanDecrementAValueAbsoluteX )
     mem[0xFF02] = 0x80;
     mem[0x8000 + 0x10] = 0x57;
     constexpr s64 EXPECTED_CYCLES = 7;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -420,7 +419,7 @@ TEST_F( M6502IncrementDecrementTests, INCCanIncrementAValueInTheZeroPage )
     mem[0xFF01] = 0x42;
     mem[0x0042] = 0x57;
     constexpr s64 EXPECTED_CYCLES = 5;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -445,7 +444,7 @@ TEST_F( M6502IncrementDecrementTests, INCCanIncrementAValueInTheZeroPageX )
     mem[0xFF01] = 0x42;
     mem[0x0042 + 0x10] = 0x57;
     constexpr s64 EXPECTED_CYCLES = 6;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -470,7 +469,7 @@ TEST_F( M6502IncrementDecrementTests, INCCanIncrementAValueAbsolute )
     mem[0xFF02] = 0x80;
     mem[0x8000] = 0x57;
     constexpr s64 EXPECTED_CYCLES = 6;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -496,7 +495,7 @@ TEST_F( M6502IncrementDecrementTests, INCCanIncrementAValueAbsoluteX )
     mem[0xFF02] = 0x80;
     mem[0x8000 + 0x10] = 0x57;
     constexpr s64 EXPECTED_CYCLES = 7;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );

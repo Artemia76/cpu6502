@@ -4,9 +4,10 @@
 class M6502AddSubWithCarryTests : public testing::Test
 {
 public:
-    M6502AddSubWithCarryTests() : cpu(mem) {}
-    m6502::Mem mem;
-    m6502::CPU cpu;
+    M6502AddSubWithCarryTests() : cpu(bus), mem(bus,0x0000,0x0000) {}
+    m6502::CBus bus;
+    m6502::CMem mem;
+    m6502::CCPU cpu;
 
     virtual void SetUp()
     {
@@ -17,7 +18,7 @@ public:
     {
     }
 
-    void ExpectUnaffectedRegisters( m6502::CPU CPUBefore )
+    void ExpectUnaffectedRegisters( m6502::CCPU CPUBefore )
     {
         EXPECT_EQ( CPUBefore.Flags.I, cpu.Flags.I );
         EXPECT_EQ( CPUBefore.Flags.D, cpu.Flags.D );
@@ -65,7 +66,7 @@ public:
         mem[0xFF02] = 0x80;
         mem[0x8000] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 4;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         // when:
         const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -104,7 +105,7 @@ public:
         mem[0xFF02] = 0x80;
         mem[0x8000+0x10] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 4;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         // when:
         const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -143,7 +144,7 @@ public:
         mem[0xFF02] = 0x80;
         mem[0x8000 + 0x10] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 4;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         // when:
         const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -179,7 +180,7 @@ public:
             opcode(Ins::ADC) : opcode(Ins::SBC);
         mem[0xFF01] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 2;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         // when:
         const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -216,7 +217,7 @@ public:
         mem[0xFF01] = 0x42;
         mem[0x0042] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 3;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         // when:
         const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -254,7 +255,7 @@ public:
         mem[0xFF01] = 0x42;
         mem[0x0042+0x10] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 4;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         // when:
         const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -294,7 +295,7 @@ public:
         mem[0x0007] = 0x80;
         mem[0x8000] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 6;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         // when:
         const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -334,7 +335,7 @@ public:
         mem[0x0003] = 0x80;
         mem[0x8000 + 0x04] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 5;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         // when:
         const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );

@@ -3,10 +3,12 @@
 
 class M6502BranchTests : public testing::Test
 {
-public:	
-    m6502::Mem mem;
-    m6502::CPU cpu;
-    M6502BranchTests () : cpu(mem){}
+public:
+    M6502BranchTests () : cpu(bus), mem(bus,0x0000,0x0000) {}
+    m6502::CBus bus;
+    m6502::CMem mem;
+    m6502::CCPU cpu;
+    
     virtual void SetUp()
     {
         cpu.Reset();
@@ -26,7 +28,7 @@ TEST_F( M6502BranchTests, BEQCanBranchForwardWhenZeroIsSet )
     mem[0xFF00] = opcode(Ins::BEQ);
     mem[0xFF01] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -46,7 +48,7 @@ TEST_F( M6502BranchTests, BEQDoesNotBranchForwardWhenZeroIsNotSet )
     mem[0xFF00] = opcode(Ins::BEQ);
     mem[0xFF01] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -66,7 +68,7 @@ TEST_F( M6502BranchTests, BEQCanBranchForwardIntoANewPageWhenZeroIsSet )
     mem[0xFEFD] = opcode(Ins::BEQ);
     mem[0xFEFE] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 4;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -86,7 +88,7 @@ TEST_F( M6502BranchTests, BEQCanBranchBackwardWhenZeroIsSet )
     mem[0xFFCC] = opcode(Ins::BEQ);
     mem[0xFFCD] = static_cast<Byte>( -0x2 );
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -113,7 +115,7 @@ TEST_F( M6502BranchTests, BEQCanBranchBackwardWhenZeroIsSetFromAssemble )
     mem[0xFFCC+2] = 0xF0;
     mem[0xFFCC+3] = 0xFC;
     constexpr s64 EXPECTED_CYCLES = 2 + 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -133,7 +135,7 @@ TEST_F( M6502BranchTests, BNECanBranchForwardWhenZeroIsNotSet )
     mem[0xFF00] = opcode(Ins::BNE);
     mem[0xFF01] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -152,7 +154,7 @@ TEST_F( M6502BranchTests, BSCCanBranchForwardWhenCarryFlagIsSet )
     mem[0xFF00] = opcode(Ins::BSC);
     mem[0xFF01] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -172,7 +174,7 @@ TEST_F( M6502BranchTests, BCCCanBranchForwardWhenCarryFlagIsNotSet )
     mem[0xFF00] = opcode(Ins::BCC);
     mem[0xFF01] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -192,7 +194,7 @@ TEST_F( M6502BranchTests, BMICanBranchForwardWhenNegativeFlagIsSet )
     mem[0xFF00] = opcode(Ins::BMI);
     mem[0xFF01] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -212,7 +214,7 @@ TEST_F( M6502BranchTests, BPLCanBranchForwardWhenNegativeFlagIsNotSet )
     mem[0xFF00] = opcode(Ins::BPL);
     mem[0xFF01] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -232,7 +234,7 @@ TEST_F( M6502BranchTests, BVCCanBranchForwardWhenOverflowFlagIsNotSet )
     mem[0xFF00] = opcode(Ins::BVC);
     mem[0xFF01] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -252,7 +254,7 @@ TEST_F( M6502BranchTests, BVSCanBranchForwardWhenOverflowFlagIsSet )
     mem[0xFF00] = opcode(Ins::BVS);
     mem[0xFF01] = 0x01;
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );

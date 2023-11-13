@@ -84,6 +84,10 @@ class CMem : CBusChip
          * @return Byte& 
          */
         Byte& operator[]( u32 Address);
+
+    protected:
+        void OnWriteBusData ( const Word , const Byte );
+        Byte OnReadBusData ( const Word );
 };
 
 }

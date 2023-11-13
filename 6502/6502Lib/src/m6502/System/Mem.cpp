@@ -53,18 +53,28 @@ void CMem::Initialise ()
 
 /*****************************************************************************/
 
-Byte CMem::operator[]( u32 Address) const
+Byte CMem::operator[]( u32 pAddress) const
 {
     // assert here Address is < MAX_MEM
-    return Data[Address];
+    return Data[pAddress];
 }
 
 /*****************************************************************************/
 
-Byte& CMem::operator[]( u32 Address)
+Byte& CMem::operator[]( u32 pAddress)
 {
     // assert here Address is < MAX_MEM
-    return Data[Address];
+    return Data[pAddress];
+}
+
+Byte CMem::OnReadBusData (const Word pAddress)
+{
+    return Data[pAddress];
+}
+
+void CMem::OnWriteBusData (const Word pAddress, const Byte pData)
+{
+   Data[pAddress]=pData;
 }
 
 }

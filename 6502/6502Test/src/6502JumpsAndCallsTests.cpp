@@ -4,9 +4,11 @@
 class M6502JumpsAndCallsTests : public testing::Test
 {
 public:	
-    m6502::Mem mem;
-    m6502::CPU cpu;
-    M6502JumpsAndCallsTests () : cpu(mem){}
+    M6502JumpsAndCallsTests () : cpu(bus), mem(bus,0x0000,0x0000) {}
+    m6502::CBus bus;
+    m6502::CMem mem;
+    m6502::CCPU cpu;
+
     virtual void SetUp()
     {
         cpu.Reset();
@@ -29,7 +31,7 @@ TEST_F( M6502JumpsAndCallsTests, CanJumpToASubroutineAndJumpBackAgain )
     mem[0xFF03] = opcode(Ins::LDA_IM);
     mem[0xFF04] = 0x42;
     constexpr s64 EXPECTED_CYCLES = 6 + 6 + 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -49,7 +51,7 @@ TEST_F( M6502JumpsAndCallsTests, JSRDoesNotAffectTheProcessorStatus )
     mem[0xFF01] = 0x00;
     mem[0xFF02] = 0x80;
     constexpr s64 EXPECTED_CYCLES = 6;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -71,7 +73,7 @@ TEST_F( M6502JumpsAndCallsTests, RTSDoesNotAffectTheProcessorStatus )
     mem[0xFF02] = 0x80;
     mem[0x8000] = opcode(Ins::RTS);
     constexpr s64 EXPECTED_CYCLES = 6 + 6;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -91,7 +93,7 @@ TEST_F( M6502JumpsAndCallsTests, JumpAbsoluteCanJumpToAnNewLocationInTheProgram 
     mem[0xFF01] = 0x00;
     mem[0xFF02] = 0x80;
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -114,7 +116,7 @@ TEST_F( M6502JumpsAndCallsTests, JumpIndirectCanJumpToAnNewLocationInTheProgram 
     mem[0x8000] = 0x00;
     mem[0x8001] = 0x90;
     constexpr s64 EXPECTED_CYCLES = 5;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );

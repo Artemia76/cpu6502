@@ -3,10 +3,12 @@
 
 class M6502TransferRegisterTests : public testing::Test
 {
-public:	
-    m6502::Mem mem;
-    m6502::CPU cpu;
-    M6502TransferRegisterTests () : cpu(mem){}
+public:
+    M6502TransferRegisterTests () : cpu(bus), mem(bus,0x0000,0x0000) {}
+    m6502::CBus bus;
+    m6502::CMem mem;
+    m6502::CCPU cpu;
+ 
     virtual void SetUp()
     {
         cpu.Reset();
@@ -16,7 +18,7 @@ public:
     {
     }
 
-    void ExpectUnaffectedRegister( m6502::CPU CPUBefore)
+    void ExpectUnaffectedRegister( m6502::CCPU CPUBefore)
     {
         EXPECT_EQ( CPUBefore.Flags.C, cpu.Flags.C );
         EXPECT_EQ( CPUBefore.Flags.I, cpu.Flags.I );
@@ -37,7 +39,7 @@ TEST_F( M6502TransferRegisterTests, TAXCanTransferANonNegativeNonZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::TAX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -62,7 +64,7 @@ TEST_F( M6502TransferRegisterTests, TAXCanTransferANonNegativeZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::TAX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -87,7 +89,7 @@ TEST_F( M6502TransferRegisterTests, TAXCanTransferANegativeValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::TAX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -112,7 +114,7 @@ TEST_F( M6502TransferRegisterTests, TAYCanTransferANonNegativeNonZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::TAY);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -137,7 +139,7 @@ TEST_F( M6502TransferRegisterTests, TAYCanTransferANonNegativeZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::TAY);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -162,7 +164,7 @@ TEST_F( M6502TransferRegisterTests, TAYCanTransferANegativeValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::TAY);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -187,7 +189,7 @@ TEST_F( M6502TransferRegisterTests, TXACanTransferANonNegativeNonZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::TXA);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -212,7 +214,7 @@ TEST_F( M6502TransferRegisterTests, TXACanTransferANonNegativeZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::TXA);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -237,7 +239,7 @@ TEST_F( M6502TransferRegisterTests, TXACanTransferANegativeValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::TXA);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -262,7 +264,7 @@ TEST_F( M6502TransferRegisterTests, TYACanTransferANonNegativeNonZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::TYA);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -287,7 +289,7 @@ TEST_F( M6502TransferRegisterTests, TYACanTransferANonNegativeZeroValue )
     cpu.Flags.N = true;
     mem[0xFF00] = opcode(Ins::TYA);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -312,7 +314,7 @@ TEST_F( M6502TransferRegisterTests, TYACanTransferANegativeValue )
     cpu.Flags.N = false;
     mem[0xFF00] = opcode(Ins::TYA);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );

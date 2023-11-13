@@ -4,9 +4,10 @@
 class M6502AndEorOraBitTests : public testing::Test
 {
 public:
-    M6502AndEorOraBitTests () : cpu(mem) {}
-    m6502::Mem mem;
-    m6502::CPU cpu;
+    M6502AndEorOraBitTests () : cpu(bus), mem(bus,0x0000,0x0000) {}
+    m6502::CBus bus;
+    m6502::CMem mem;
+    m6502::CCPU cpu;
 
     virtual void SetUp()
     {
@@ -18,8 +19,8 @@ public:
     }
 
     static void VerfifyUnmodifiedFlagsFromLogicalOpInstruction(
-        const m6502::CPU& cpu,
-        const m6502::CPU& CPUCopy )
+        const m6502::CCPU& cpu,
+        const m6502::CCPU& CPUCopy )
     {
         EXPECT_EQ( cpu.Flags.C, CPUCopy.Flags.C );
         EXPECT_EQ( cpu.Flags.I, CPUCopy.Flags.I );
@@ -75,7 +76,7 @@ public:
         mem[0xFFFD] = 0x84;
 
         //when:
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
         s64 CyclesUsed = cpu.Execute( 2 );
 
         //then:
@@ -109,7 +110,7 @@ public:
         mem[0x0042] = 0x37;
 
         //when:
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
         s64 CyclesUsed = cpu.Execute( 3 );
 
         //then:
@@ -142,7 +143,7 @@ public:
         }
         mem[0xFFFD] = 0x42;
         mem[0x0047] = 0x37;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         //when:
         s64 CyclesUsed = cpu.Execute( 4 );
@@ -179,7 +180,7 @@ public:
         mem[0xFFFE] = 0x44;	//0x4480
         mem[0x4480] = 0x37;
         constexpr s64 EXPECTED_CYCLES = 4;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         //when:
         s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
@@ -217,7 +218,7 @@ public:
         mem[0xFFFE] = 0x44;	//0x4480
         mem[0x4481] = 0x37;
         constexpr s64 EXPECTED_CYCLES = 4;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         //when:
         s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
@@ -255,7 +256,7 @@ public:
         mem[0xFFFE] = 0x44;	//0x4480
         mem[0x4481] = 0x37;
         constexpr s64 EXPECTED_CYCLES = 4;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         //when:
         s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
@@ -292,7 +293,7 @@ public:
         mem[0xFFFE] = 0x44;	//0x4402
         mem[0x4501] = 0x37;	//0x4402+0xFF crosses page boundary!
         constexpr s64 EXPECTED_CYCLES = 5;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         //when:
         s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
@@ -329,7 +330,7 @@ public:
         mem[0xFFFE] = 0x44;	//0x4402
         mem[0x4501] = 0x37;	//0x4402+0xFF crosses page boundary!
         constexpr s64 EXPECTED_CYCLES = 5;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         //when:
         s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
@@ -368,7 +369,7 @@ public:
         mem[0x0007] = 0x80;
         mem[0x8000] = 0x37;
         constexpr s64 EXPECTED_CYCLES = 6;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         //when:
         s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
@@ -407,7 +408,7 @@ public:
         mem[0x0003] = 0x80;
         mem[0x8004] = 0x37;	//0x8000 + 0x4
         constexpr s64 EXPECTED_CYCLES = 5;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         //when:
         s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
@@ -445,7 +446,7 @@ public:
         mem[0x0003] = 0x80;
         mem[0x8101] = 0x37;	//0x8002 + 0xFF
         constexpr s64 EXPECTED_CYCLES = 6;
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
 
         //when:
         s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
@@ -483,7 +484,7 @@ public:
         mem[0x007F] = 0x37;
 
         //when:
-        CPU CPUCopy = cpu;
+        CCPU CPUCopy = cpu;
         s64 CyclesUsed = cpu.Execute( 4 );
 
         //then:
@@ -540,7 +541,7 @@ TEST_F( M6502AndEorOraBitTests, TestLogicalOpEorImmediateCanAffectZeroFlag )
     cpu.A = 0xCC;
     mem[0xFFFC] = opcode(Ins::EOR_IM);
     mem[0xFFFD] = cpu.A;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     //when:
     cpu.Execute( 2 );
@@ -709,7 +710,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitZeroPage )
     mem[0xFFFC] = opcode(Ins::BIT_ZP);	
     mem[0xFFFD] = 0x42;
     mem[0x0042] = 0xCC;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
     constexpr s64 EXPECTED_CYCLES = 3;
 
     //when:
@@ -732,7 +733,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitZeroPageResultZero )
     mem[0xFFFC] = opcode(Ins::BIT_ZP);
     mem[0xFFFD] = 0x42;
     mem[0x0042] = 0x33;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
     constexpr s64 EXPECTED_CYCLES = 3;
 
     //when:
@@ -755,7 +756,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitZeroPageResultZeroBits6And7Zero )
     mem[0xFFFC] = opcode(Ins::BIT_ZP);
     mem[0xFFFD] = 0x42;
     mem[0x0042] = 0xCC;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
     constexpr s64 EXPECTED_CYCLES = 3;
 
     //when:
@@ -798,7 +799,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitAbsolute )
     mem[0xFFFD] = 0x00;
     mem[0xFFFE] = 0x80;
     mem[0x8000] = 0xCC;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
     constexpr s64 EXPECTED_CYCLES = 4;
 
     //when:
@@ -822,7 +823,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitAbsoluteResultZero )
     mem[0xFFFD] = 0x00;
     mem[0xFFFE] = 0x80;
     mem[0x8000] = 0x33;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
     constexpr s64 EXPECTED_CYCLES = 4;
 
     //when:
@@ -846,7 +847,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitAbsoluteResultZeroBit6And7Zero )
     mem[0xFFFD] = 0x00;
     mem[0xFFFE] = 0x80;
     mem[0x8000] = 0xCC;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
     constexpr s64 EXPECTED_CYCLES = 4;
 
     //when:
@@ -870,7 +871,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitAbsoluteResultZeroBit6And7Mixed )
     mem[0xFFFD] = 0x00;
     mem[0xFFFE] = 0x80;
     mem[0x8000] = 0b10000000;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
     constexpr s64 EXPECTED_CYCLES = 4;
 
     //when:

@@ -4,12 +4,10 @@
 class M6502StackOperationsTests : public testing::Test
 {
 public:
-    M6502StackOperationsTests() : cpu(mem)
-    {
-        
-    }
-    m6502::Mem mem;
-    m6502::CPU cpu;
+    M6502StackOperationsTests() :cpu(bus), mem(bus,0x0000,0x0000) {}
+    m6502::CBus bus;
+    m6502::CMem mem;
+    m6502::CCPU cpu;
 
     virtual void SetUp()
     {
@@ -31,7 +29,7 @@ TEST_F( M6502StackOperationsTests, TSXCanTransferTheStackPointerToXRegister )
     cpu.SP = 0x01;
     mem[0xFF00] = opcode(Ins::TSX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -53,7 +51,7 @@ TEST_F( M6502StackOperationsTests, TSXCanTransferAZeroStackPointerToXRegister )
     cpu.SP = 0x00;
     mem[0xFF00] =  opcode(Ins::TSX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -75,7 +73,7 @@ TEST_F( M6502StackOperationsTests, TSXCanTransferANegativeStackPointerToXRegiste
     cpu.SP = 0b10000000;
     mem[0xFF00] =  opcode(Ins::TSX);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -96,7 +94,7 @@ TEST_F( M6502StackOperationsTests, TXSCanTransferXRegisterToTheStackPointer )
     cpu.SP = 0;
     mem[0xFF00] = opcode(Ins::TXS);
     constexpr s64 EXPECTED_CYCLES = 2;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -115,7 +113,7 @@ TEST_F( M6502StackOperationsTests, PHACanPushARegsiterOntoTheStack )
     cpu.A = 0x42;
     mem[0xFF00] = opcode(Ins::PHA);
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -137,7 +135,7 @@ TEST_F( M6502StackOperationsTests, PLACanPullAValueFromTheStackIntoTheARegsiter 
     mem[0x01FF] = 0x42;
     mem[0xFF00] = opcode(Ins::PLA);
     constexpr s64 EXPECTED_CYCLES = 4;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -160,7 +158,7 @@ TEST_F( M6502StackOperationsTests, PLACanPullAZeroValueFromTheStackIntoTheARegsi
     mem[0x01FF] = 0x00;
     mem[0xFF00] = opcode(Ins::PLA);
     constexpr s64 EXPECTED_CYCLES = 4;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -185,7 +183,7 @@ TEST_F( M6502StackOperationsTests, PLACanPullANegativeValueFromTheStackIntoTheAR
     mem[0x01FF] = 0b10000001;
     mem[0xFF00] = opcode(Ins::PLA);
     constexpr s64 EXPECTED_CYCLES = 4;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -206,7 +204,7 @@ TEST_F( M6502StackOperationsTests, PHPCanPushProcessorStatusOntoTheStack )
     cpu.PS = 0xCC;
     mem[0xFF00] = opcode(Ins::PHP);
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -214,7 +212,7 @@ TEST_F( M6502StackOperationsTests, PHPCanPushProcessorStatusOntoTheStack )
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
     EXPECT_EQ( mem[cpu.SPToAddress() + 1], 
-        0xCC | CPU::UnusedFlagBit | CPU::BreakFlagBit );
+        0xCC | CCPU::UnusedFlagBit | CCPU::BreakFlagBit );
     EXPECT_EQ( cpu.PS, CPUCopy.PS );
     EXPECT_EQ( cpu.SP, 0xFE );
 }
@@ -227,7 +225,7 @@ TEST_F( M6502StackOperationsTests, PHPAlwaysSetsBits4And5OnTheStack )
     cpu.PS = 0x0;
     mem[0xFF00] = opcode(Ins::PHP);
     constexpr s64 EXPECTED_CYCLES = 3;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -243,7 +241,7 @@ TEST_F( M6502StackOperationsTests, PHPAlwaysSetsBits4And5OnTheStack )
     // interrupt line being pulled low (/IRQ or /NMI). This is the only time 
     // and place where the B flag actually exists: not in the status register 
     // itself, but in bit 4 of the copy that is written to the stack. 
-    const Byte FlagsOnStack = CPU::UnusedFlagBit | CPU::BreakFlagBit;
+    const Byte FlagsOnStack = CCPU::UnusedFlagBit | CCPU::BreakFlagBit;
     EXPECT_EQ( mem[AddPSOnStack], FlagsOnStack );
 }
 
@@ -254,10 +252,10 @@ TEST_F( M6502StackOperationsTests, PLPCanPullAValueFromTheStackIntoTheProcessorS
     cpu.Reset( 0xFF00 );
     cpu.SP = 0xFE;
     cpu.PS = 0;
-    mem[0x01FF] = 0x42 | CPU::BreakFlagBit | CPU::UnusedFlagBit;
+    mem[0x01FF] = 0x42 | CCPU::BreakFlagBit | CCPU::UnusedFlagBit;
     mem[0xFF00] = opcode(Ins::PLP);
     constexpr s64 EXPECTED_CYCLES = 4;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
@@ -274,10 +272,10 @@ TEST_F( M6502StackOperationsTests, PLPClearsBits4And5WhenPullingFromTheStack )
     cpu.Reset( 0xFF00 );
     cpu.SP = 0xFE;
     cpu.PS = 0;
-    mem[0x01FF] = CPU::BreakFlagBit | CPU::UnusedFlagBit;
+    mem[0x01FF] = CCPU::BreakFlagBit | CCPU::UnusedFlagBit;
     mem[0xFF00] = opcode(Ins::PLP);
     constexpr s64 EXPECTED_CYCLES = 4;
-    CPU CPUCopy = cpu;
+    CCPU CPUCopy = cpu;
 
     // when:
     const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );

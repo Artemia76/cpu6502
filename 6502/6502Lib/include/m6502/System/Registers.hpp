@@ -34,7 +34,7 @@ namespace m6502
  * @brief Status Flags of 6502 CPU
  * 
  */
-struct StatusFlags
+struct SStatusFlags
 {	
     Byte C : 1;	//0: Carry Flag	
     Byte Z : 1;	//1: Zero Flag
@@ -50,7 +50,7 @@ struct StatusFlags
  * @brief 6502 CPU Registers
  * 
  */
-class Registers
+class CRegisters
 {
     public:
         /**
@@ -58,13 +58,13 @@ class Registers
          * 
          * @param copy 
          */
-        Registers(const Registers& copy);
+        CRegisters(const CRegisters& copy);
 
         /**
          * @brief Destroy the Registers object
          * 
          */
-        virtual ~Registers();
+        virtual ~CRegisters();
 
         /**
          * @brief program counter
@@ -100,14 +100,14 @@ class Registers
              * @brief Process Status as Word
              * 
              */
-            Byte 		PS;
+            Byte PS;
 
             /**
              * @brief Process Status as Flag
              *        Struct
              * 
              */
-            StatusFlags	Flags;
+            SStatusFlags Flags;
         };
         
         /**
@@ -128,7 +128,7 @@ class Registers
          *        from derivated class
          * 
          */
-        Registers();
+        CRegisters();
 };
 
 }

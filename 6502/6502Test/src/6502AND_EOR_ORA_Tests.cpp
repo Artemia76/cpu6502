@@ -166,8 +166,7 @@ public:
         switch ( LogicalOp )
         {
         case ELogicalOp::And:
-            mem[0xFFFC] = Ins::AND_ABS;
-            //mem[0xFFFC] = opcode(Ins::AND_ABS);
+            mem[0xFFFC] = opcode(Ins::AND_ABS);
             break;
         case ELogicalOp::Or:
             mem[0xFFFC] = opcode(Ins::ORA_ABS);

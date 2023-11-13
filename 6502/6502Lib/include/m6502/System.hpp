@@ -28,5 +28,5 @@
 #include <m6502/Config.hpp>
 #include <m6502/System/Cpu.hpp>
 #include <m6502/System/Mem.hpp>
-
+#include <m6502/System/Bus.hpp>
 #endif

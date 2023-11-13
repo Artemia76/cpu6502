@@ -29,7 +29,7 @@ namespace m6502
 
 /*****************************************************************************/
 
-Registers::Registers ()
+CRegisters::CRegisters ()
 {
     PC = 0xFFFC;
     SP = 0xFF;
@@ -39,7 +39,7 @@ Registers::Registers ()
 
 /*****************************************************************************/
 
-Registers::Registers (const Registers& copy)
+CRegisters::CRegisters (const CRegisters& copy)
 {
     PC = copy.PC;
     SP = copy.SP;
@@ -51,6 +51,6 @@ Registers::Registers (const Registers& copy)
 
 /*****************************************************************************/
 
-Registers::~Registers () {}
+CRegisters::~CRegisters () {}
 
 }

@@ -12,7 +12,8 @@ endif()
 set  (M6502_SOURCES
     "src/m6502/System/Mem.cpp"
     "src/m6502/System/Cpu.cpp"
-    "src/m6502/System/Registers.cpp")
+    "src/m6502/System/Registers.cpp"
+    "src/m6502/System/Bus.cpp")
         
 source_group("src" FILES ${M6502_SOURCES})
         

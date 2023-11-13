@@ -26,6 +26,7 @@
 #define MEM_HPP
 
 #include <m6502/Config.hpp>
+#include <m6502/System/Bus.hpp>
 #include <array>
 namespace m6502
 {
@@ -34,27 +35,27 @@ namespace m6502
  * @brief Memory container
  * 
  */
-class Mem
+class CMem : CBusChip
 {
     public:
         /**
          * @brief Construct a new Mem object
          * 
          */
-        Mem();
+        explicit CMem(CBus& pBus, const Word pMask, const Word pBank);
 
         /**
          * @brief Copy Contructor
          * 
-         * @param copy 
+         * @param pCopy 
          */
-        Mem(const Mem& copy);
+        explicit CMem(const CMem& pCopy);
 
         /**
          * @brief Destroy the Mem object
          * 
          */
-        ~Mem();
+        ~CMem();
 
         /**
          * @brief 

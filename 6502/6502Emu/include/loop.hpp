@@ -45,8 +45,8 @@ class CProcessEvent
     public:
                 CProcessEvent(CLoop& pParent);
                 ~CProcessEvent();
-                CLoop&      m_parent;
     protected:
+        CLoop&  m_parent;
     virtual void OnProcess(const period& pInterval)=0;
 };
 typedef std::vector<CProcessEvent*> v_subscribers;

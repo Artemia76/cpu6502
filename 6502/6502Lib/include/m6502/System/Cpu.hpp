@@ -26,12 +26,13 @@
 #define CPU_HPP
 
 #include <m6502/Config.hpp>
-#include <m6502/System/Mem.hpp>
+#include <m6502/System/Bus.hpp>
 #include <m6502/System/Registers.hpp>
 #include <m6502/System/OpCodes.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <array>
 
 namespace m6502
 {
@@ -40,7 +41,7 @@ namespace m6502
  * @brief Registers for 6502 CPU
  * 
  */
-class CPU : public Registers
+class CCPU : public CRegisters, CBusChip
 {
     public:
 
@@ -49,27 +50,27 @@ class CPU : public Registers
          * 
          * @param pMem 
          */
-        explicit CPU(Mem& memory);
+        explicit CCPU(CBus& pBus);
 
         /**
          * @brief Construct a new CPU object
          * 
          * @param memory 
          */
-        explicit CPU(Mem&& memory) = delete;
+        explicit CCPU(CBus&& pBus) = delete;
 
         /**
          * @brief Construct a new CPU object
          * 
          * @param copy 
          */
-        CPU(const CPU& copy);
+        CCPU(const CCPU& pCopy);
 
         /**
          * @brief Destroy the CPU object
          * 
          */
-        ~CPU() override;
+        ~CCPU() override;
 
         /**
          * @brief Reset the CPU object
@@ -80,9 +81,9 @@ class CPU : public Registers
         /**
          * @brief Reset the CPU with the given start vector
          * 
-         * @param ResetVector 
+         * @param pResetVector 
          */
-        void Reset( Word ResetVector );
+        void Reset( const Word& pResetVector );
 
         /**
          * @brief Load program in memory
@@ -95,7 +96,7 @@ class CPU : public Registers
          * The 2 first Bytes contain the memory address where
          * Load the program
          */
-        Word LoadPrg( const Byte* Program, u32 NumBytes) const;
+        Word LoadPrg( const Byte* pProgram, u32 pNumBytes);
 
         /**
          * @brief Get the stack pointer
@@ -110,15 +111,9 @@ class CPU : public Registers
          * @param Cycles 
          * @return The real numbers cycles excecuted
          */
-        s64 Execute( s64 Cycles);
+        s64 Execute( s64 pCycles);
 
     private:
-
-        /**
-         * @brief Memory space for CPU
-         * 
-         */
-        Mem& m_memory;
 
         /**
          * @brief Cycles counter down for Execution
@@ -154,7 +149,7 @@ class CPU : public Registers
          * @param Address 
          * @return Byte 
          */
-        Byte ReadByte( Word Address );
+        Byte ReadByte( const Word& Address );
 
         /**
          * @brief Read Word from memory at address
@@ -162,7 +157,7 @@ class CPU : public Registers
          * @param Address 
          * @return Word 
          */
-        Word ReadWord( Word Address );
+        Word ReadWord( const Word& Address );
 
         /**
          * @brief Write 1 Byte to memory
@@ -170,7 +165,7 @@ class CPU : public Registers
          * @param Value 
          * @param Address 
          */
-        void WriteByte( Byte Value, Word Address );
+        void WriteByte( const Byte& Value, const Word& Address );
 
         /**
          * @brief Write 1 Word to memory
@@ -178,14 +173,14 @@ class CPU : public Registers
          * @param Value 
          * @param Address 
          */
-        void WriteWord(	Word Value, Word Address );
+        void WriteWord(	const Word& Value, const Word& Address );
 
         /**
          * @brief Write 1 Word on to Stack
          * 
          * @param Value 
          */
-        void PushWordToStack( Word Value );
+        void PushWordToStack( const Word& Value );
 
         /**
          * @brief Push the PC-1 onto the stack
@@ -210,7 +205,7 @@ class CPU : public Registers
          * 
          * @param Value 
          */
-        void PushByteOntoStack( Byte Value );
+        void PushByteOntoStack( const Byte& Value );
 
         /**
          * @brief Pop a byte value from the stack
@@ -236,7 +231,7 @@ class CPU : public Registers
          * @Register The A,X or Y Register
          * 
          */
-        void SetZeroAndNegativeFlags( Byte Register );
+        void SetZeroAndNegativeFlags( const Byte& Register );
 
         /**
          * @brief Addressing mode - Zero page

@@ -46,8 +46,7 @@ namespace m6502
  * @brief OpCodes for 6502 CPU
  * 
  */
-//enum class Ins : Byte
-enum Ins
+enum class Ins : Byte
 {	
     //LDA
     LDA_IM = 0xA9,
@@ -177,14 +176,14 @@ enum Ins
 	ADC = 0x69,
     ADC_ZP = 0x65,
 	ADC_ZPX = 0x75,
-	ADC_ABS = 0x6D,
+	ADC_ABS = 0x6Du,
 	ADC_ABSX = 0x7D,
 	ADC_ABSY = 0x79,
 	ADC_INDX = 0x61,
 	ADC_INDY = 0x71,
 
 	SBC = 0xE9,
-	SBC_ABS = 0xED,
+	SBC_ABS = 0xEDu,
 	SBC_ZP = 0xE5,
 	SBC_ZPX = 0xF5,
 	SBC_ABSX = 0xFD,

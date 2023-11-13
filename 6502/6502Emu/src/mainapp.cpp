@@ -23,6 +23,7 @@
 
 #include <cinttypes>
 #include <iostream>
+#include <array>
 #ifdef WIN32
 #include <Windows.h>
 #endif
@@ -32,7 +33,7 @@
  * @brief Construct a new CMainApp::CMainApp object
  * 
  */
-CMainApp::CMainApp(CLoop& pParent) : CProcessEvent(pParent), cpu(mem)
+CMainApp::CMainApp(CLoop& pParent) : CProcessEvent(pParent), cpu(bus), mem(bus, 0x0000, 0x0000)
 {
 #ifdef WIN32
     // Set console code page to UTF-8 so console known how to interpret string data
@@ -53,7 +54,7 @@ CMainApp::CMainApp(CLoop& pParent) : CProcessEvent(pParent), cpu(mem)
 	inx
   	jmp start
 	*/
-	Byte TestPrg[] = 
+	Byte TestPrg [] = 
 		{ 0x00,0x40,0xA2,0x00,0xE8,0x4C,0x02,0x40 };
 
 	Word StartAddress = cpu.LoadPrg( TestPrg, sizeof(TestPrg) );

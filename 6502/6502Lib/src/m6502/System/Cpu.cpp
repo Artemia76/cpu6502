@@ -31,7 +31,7 @@ namespace m6502
 
 /*****************************************************************************/
 
-CPU::CPU(Mem& mem) : m_memory(mem)
+CCPU::CCPU(CBus& pBus) : CBusChip(pBus, 0xFFFF, 0)
 {
     Reset();
     m_cycles= 0;
@@ -39,38 +39,37 @@ CPU::CPU(Mem& mem) : m_memory(mem)
 
 /*****************************************************************************/
 
-CPU::CPU(const CPU& copy) : Registers(copy), m_memory(copy.m_memory)
+CCPU::CCPU(const CCPU& pCopy) : CRegisters(pCopy), CBusChip(pCopy)
 {
-    m_cycles = copy.m_cycles;
+    m_cycles = pCopy.m_cycles;
 }
 
 /*****************************************************************************/
 
-CPU::~CPU() {}
+CCPU::~CCPU() {}
 
 /*****************************************************************************/
 
-void CPU::Reset()
+void CCPU::Reset()
 {
     Reset( 0xFFFC );
 }
 
 /*****************************************************************************/
 
-void CPU::Reset( Word ResetVector )
+void CCPU::Reset( const Word& pResetVector )
 {
-    PC = ResetVector;
+    PC = pResetVector;
     SP = 0xFF;
     Flags.C = Flags.Z = Flags.I = Flags.D = Flags.B = Flags.V = Flags.N = 0;
     A = X = Y = 0;
-    m_memory.Initialise();
 }
 
 /*****************************************************************************/
 
-Byte CPU::FetchByte()
+Byte CCPU::FetchByte()
 {
-    Byte Data = m_memory[PC];
+    Byte Data = ReadBusData(PC);
     PC++;
     m_cycles--;
     return Data;
@@ -78,20 +77,20 @@ Byte CPU::FetchByte()
 
 /*****************************************************************************/
 
-SByte CPU::FetchSByte()
+SByte CCPU::FetchSByte()
 {
     return FetchByte();
 }
 
 /*****************************************************************************/
 
-Word CPU::FetchWord()
+Word CCPU::FetchWord()
 {
     // 6502 is little endian
-    Word Data = m_memory[PC];
+    Word Data = ReadBusData(PC);
     PC++;
 
-    Data |= (m_memory[PC] << 8 );
+    Data |= (ReadBusData(PC) << 8 );
     PC++;
 
     m_cycles-=2;
@@ -100,83 +99,83 @@ Word CPU::FetchWord()
 
 /*****************************************************************************/
 
-Byte CPU::ReadByte( Word Address )
+Byte CCPU::ReadByte( const Word& pAddress )
 {
-    Byte Data = m_memory[Address];
+    Byte Data = ReadBusData(pAddress);
     m_cycles--;
     return Data;
 }
 
 /*****************************************************************************/
 
-Word CPU::ReadWord( Word Address )
+Word CCPU::ReadWord( const Word& pAddress )
 {
-    Byte LoByte = ReadByte( Address );
-    Byte HiByte = ReadByte( Address + 1 );
-    return LoByte | (HiByte << 8);
+    Byte LoByte = ReadByte( pAddress );
+    Byte HiByte = ReadByte( pAddress + 1 );
+    return LoByte | ( HiByte << 8 );
 }
 
 /*****************************************************************************/
 
-void CPU::WriteByte( Byte Value, Word Address )
+void CCPU::WriteByte( const Byte& pValue, const Word& pAddress )
 {
-    m_memory[Address] = Value;
+    WriteBusData( pAddress , pValue );
     m_cycles--;
 }
 
 /*****************************************************************************/
 
-void CPU::WriteWord( Word Value, Word Address )
+void CCPU::WriteWord( const Word& pValue, const Word& pAddress )
 {
-    m_memory[Address] = Value & 0xFF;
-    m_memory[Address + 1] = (Value >> 8);
+    WriteBusData( pAddress , pValue & 0xFF);
+    WriteBusData( pAddress + 1 , pValue >> 8);
     m_cycles -= 2;
 }
 
 /*****************************************************************************/
 
-Word CPU::SPToAddress() const
+Word CCPU::SPToAddress() const
 {
     return 0x100 | SP;
 }
 
 /*****************************************************************************/
 
-void CPU::PushWordToStack( Word Value )
+void CCPU::PushWordToStack( const Word& pValue )
 {
-    WriteByte( Value >> 8, SPToAddress());
+    WriteByte( pValue >> 8, SPToAddress());
     SP--;
-    WriteByte( Value & 0xFF, SPToAddress());
+    WriteByte( pValue & 0xFF, SPToAddress());
     SP--;
 }
 
 /*****************************************************************************/
 
-void CPU::PushPCMinusOneToStack()
+void CCPU::PushPCMinusOneToStack()
 {
     PushWordToStack( PC - 1 );
 }
 
 /*****************************************************************************/
 
-void CPU::PushPCPlusOneToStack()
+void CCPU::PushPCPlusOneToStack()
 {
     PushWordToStack( PC + 1 );
 }
 
 /*****************************************************************************/
 
-void CPU::PushPCToStack()
+void CCPU::PushPCToStack()
 {
     PushWordToStack( PC );
 }
 
 /*****************************************************************************/
 
-void CPU::PushByteOntoStack( Byte Value )
+void CCPU::PushByteOntoStack( const Byte& pValue )
 {
     const Word SPWord = SPToAddress();
-    m_memory[SPWord] = Value;
+    WriteBusData( SPWord , pValue );
     m_cycles--;
     SP--;
     m_cycles--;
@@ -184,19 +183,19 @@ void CPU::PushByteOntoStack( Byte Value )
 
 /*****************************************************************************/
 
-Byte CPU::PopByteFromStack()
+Byte CCPU::PopByteFromStack()
 {
     SP++;
     m_cycles--;
     const Word SPWord = SPToAddress();
-    Byte Value = m_memory[SPWord];
+    Byte Value = ReadBusData( SPWord );
     m_cycles--;
     return Value;
 }
 
 /*****************************************************************************/
 
-Word CPU::PopWordFromStack()
+Word CCPU::PopWordFromStack()
 {
     Word ValueFromStack = ReadWord( SPToAddress()+1 );
     SP += 2;
@@ -206,15 +205,15 @@ Word CPU::PopWordFromStack()
 
 /*****************************************************************************/
 
-void CPU::SetZeroAndNegativeFlags( Byte Register )
+void CCPU::SetZeroAndNegativeFlags( const Byte& pRegister )
 {
-    Flags.Z = (Register == 0);
-    Flags.N = (Register & NegativeFlagBit) > 0;
+    Flags.Z = (pRegister == 0);
+    Flags.N = (pRegister & NegativeFlagBit) > 0;
 }
 
 /*****************************************************************************/
 
-s64 CPU::Execute( s64 cycles )
+s64 CCPU::Execute( s64 pCycles )
 {
     /** Load a Register with the value from the memory address */
     auto LoadRegister = [ this ]
@@ -311,8 +310,8 @@ s64 CPU::Execute( s64 cycles )
         Flags.B = B;
         Flags.Unused = Unused;
     };
-    s64 CyclesRequested = cycles;
-    m_cycles = cycles;
+    s64 CyclesRequested = pCycles;
+    m_cycles = pCycles;
     while ( m_cycles > 0)
     {
         Byte Instr = FetchByte();
@@ -908,7 +907,7 @@ s64 CPU::Execute( s64 cycles )
 
 /*****************************************************************************/
 
-Word CPU::AddrZeroPage()
+Word CCPU::AddrZeroPage()
 {
     Byte ZeroPageAddr = FetchByte();
     return static_cast<Word>(ZeroPageAddr);
@@ -916,7 +915,7 @@ Word CPU::AddrZeroPage()
 
 /*****************************************************************************/
 
-Word CPU::AddrZeroPageX()
+Word CCPU::AddrZeroPageX()
 {
     Byte ZeroPageAddr = FetchByte();
     ZeroPageAddr += X;
@@ -926,7 +925,7 @@ Word CPU::AddrZeroPageX()
 
 /*****************************************************************************/
 
-Word CPU::AddrZeroPageY()
+Word CCPU::AddrZeroPageY()
 {
     Byte ZeroPageAddr = FetchByte();
     ZeroPageAddr += Y;
@@ -936,7 +935,7 @@ Word CPU::AddrZeroPageY()
 
 /*****************************************************************************/
 
-Word CPU::AddrAbsolute()
+Word CCPU::AddrAbsolute()
 {
     Word AbsAddress = FetchWord();
     return AbsAddress;
@@ -944,7 +943,7 @@ Word CPU::AddrAbsolute()
 
 /*****************************************************************************/
 
-Word CPU::AddrAbsoluteX()
+Word CCPU::AddrAbsoluteX()
 {
     Word AbsAddress = FetchWord();
     Word AbsAddressX = AbsAddress + X;
@@ -959,7 +958,7 @@ Word CPU::AddrAbsoluteX()
 
 /*****************************************************************************/
 
-Word CPU::AddrAbsoluteX_5()
+Word CCPU::AddrAbsoluteX_5()
 {
     Word AbsAddress = FetchWord();
     Word AbsAddressX = AbsAddress + X;
@@ -969,7 +968,7 @@ Word CPU::AddrAbsoluteX_5()
 
 /*****************************************************************************/
 
-Word CPU::AddrAbsoluteY()
+Word CCPU::AddrAbsoluteY()
 {
     Word AbsAddress = FetchWord();
     Word AbsAddressY = AbsAddress + Y;
@@ -984,7 +983,7 @@ Word CPU::AddrAbsoluteY()
 
 /*****************************************************************************/
 
-Word CPU::AddrIndirectX()
+Word CCPU::AddrIndirectX()
 {
     Byte ZPAddress = FetchByte();
     ZPAddress += X;
@@ -995,7 +994,7 @@ Word CPU::AddrIndirectX()
 
 /*****************************************************************************/
 
-Word CPU::AddrIndirectY()
+Word CCPU::AddrIndirectY()
 {
     Byte ZPAddress = FetchByte();
     Word EffectiveAddr = ReadWord( ZPAddress );
@@ -1010,7 +1009,7 @@ Word CPU::AddrIndirectY()
 
 /*****************************************************************************/
 
-Word CPU::AddrAbsoluteY_5()
+Word CCPU::AddrAbsoluteY_5()
 {
     Word AbsAddress = FetchWord();
     Word AbsAddressY = AbsAddress + Y;	
@@ -1020,7 +1019,7 @@ Word CPU::AddrAbsoluteY_5()
 
 /*****************************************************************************/
 
-Word CPU::AddrIndirectX_6()
+Word CCPU::AddrIndirectX_6()
 {
     Byte ZPAddress = FetchByte();
     Word EffectiveAddr = ReadWord( ZPAddress );
@@ -1031,7 +1030,7 @@ Word CPU::AddrIndirectX_6()
 
 /*****************************************************************************/
 
-Word CPU::AddrIndirectY_6()
+Word CCPU::AddrIndirectY_6()
 {
     Byte ZPAddress = FetchByte();
     Word EffectiveAddr = ReadWord( ZPAddress );
@@ -1042,19 +1041,19 @@ Word CPU::AddrIndirectY_6()
 
 /*****************************************************************************/
 
-Word CPU::LoadPrg( const Byte* Program, u32 NumBytes ) const
+Word CCPU::LoadPrg( const Byte* pProgram, u32 NumBytes )
 {
     Word LoadAddress = 0;
-    if ( Program && NumBytes > 2 )
+    if ( pProgram && NumBytes > 2 )
     {
-        u32 At = 0;
-        const Word Lo = Program[At++];
-        const Word Hi = Program[At++] << 8;
+        Word At = 0;
+        const Word Lo = pProgram[At++];
+        const Word Hi = pProgram[At++] << 8;
         LoadAddress = Lo | Hi;
-        for ( Word i = LoadAddress; i < LoadAddress+NumBytes-2; i++ )
+        for ( Word Addr = LoadAddress; Addr < LoadAddress+NumBytes-2; Addr++ )
         {
             //TODO: mem copy?
-        m_memory[i] = Program[At++];
+            WriteBusData(Addr, pProgram[At++]);
         }
     }
     return LoadAddress;

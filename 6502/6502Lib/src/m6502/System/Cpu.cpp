@@ -69,17 +69,16 @@ void CCPU::Reset( const Word& pResetVector )
 
 Byte CCPU::FetchByte()
 {
-    Byte Data = ReadBusData(PC);
-    PC++;
     m_cycles--;
-    return Data;
+    //return ReadBusData(PC++);
+    return CBusChip::Bus.ReadBusData(PC++);
 }
 
 /*****************************************************************************/
 
 SByte CCPU::FetchSByte()
 {
-    return FetchByte();
+    return static_cast<SByte>(FetchByte());
 }
 
 /*****************************************************************************/
@@ -87,12 +86,8 @@ SByte CCPU::FetchSByte()
 Word CCPU::FetchWord()
 {
     // 6502 is little endian
-    Word Data = ReadBusData(PC);
-    PC++;
-
-    Data |= (ReadBusData(PC) << 8 );
-    PC++;
-
+    Word Data = Bus.ReadBusData(PC++);
+    Data |= (Bus.ReadBusData(PC++) << 8 );
     m_cycles-=2;
     return Data;
 }
@@ -101,25 +96,22 @@ Word CCPU::FetchWord()
 
 Byte CCPU::ReadByte( const Word& pAddress )
 {
-    Byte Data = ReadBusData(pAddress);
     m_cycles--;
-    return Data;
+    return Bus.ReadBusData(pAddress);
 }
 
 /*****************************************************************************/
 
 Word CCPU::ReadWord( const Word& pAddress )
 {
-    Byte LoByte = ReadByte( pAddress );
-    Byte HiByte = ReadByte( pAddress + 1 );
-    return LoByte | ( HiByte << 8 );
+    return ReadByte( pAddress ) | (  ReadByte( pAddress + 1 ) << 8 );
 }
 
 /*****************************************************************************/
 
 void CCPU::WriteByte( const Byte& pValue, const Word& pAddress )
 {
-    WriteBusData( pAddress , pValue );
+    Bus.WriteBusData( pAddress , pValue );
     m_cycles--;
 }
 
@@ -127,8 +119,8 @@ void CCPU::WriteByte( const Byte& pValue, const Word& pAddress )
 
 void CCPU::WriteWord( const Word& pValue, const Word& pAddress )
 {
-    WriteBusData( pAddress , pValue & 0xFF);
-    WriteBusData( pAddress + 1 , pValue >> 8);
+    Bus.WriteBusData( pAddress , pValue & 0xFF);
+    Bus.WriteBusData( pAddress + 1 , pValue >> 8);
     m_cycles -= 2;
 }
 
@@ -174,11 +166,9 @@ void CCPU::PushPCToStack()
 
 void CCPU::PushByteOntoStack( const Byte& pValue )
 {
-    const Word SPWord = SPToAddress();
-    WriteBusData( SPWord , pValue );
-    m_cycles--;
+    Bus.WriteBusData( SPToAddress() , pValue );
+    m_cycles-=2;
     SP--;
-    m_cycles--;
 }
 
 /*****************************************************************************/
@@ -186,11 +176,8 @@ void CCPU::PushByteOntoStack( const Byte& pValue )
 Byte CCPU::PopByteFromStack()
 {
     SP++;
-    m_cycles--;
-    const Word SPWord = SPToAddress();
-    Byte Value = ReadBusData( SPWord );
-    m_cycles--;
-    return Value;
+    m_cycles-=2;
+    return Bus.ReadBusData( SPToAddress());
 }
 
 /*****************************************************************************/
@@ -909,8 +896,7 @@ s64 CCPU::Execute( s64 pCycles )
 
 Word CCPU::AddrZeroPage()
 {
-    Byte ZeroPageAddr = FetchByte();
-    return static_cast<Word>(ZeroPageAddr);
+    return static_cast<Word>(FetchByte());
 }
 
 /*****************************************************************************/
@@ -937,8 +923,7 @@ Word CCPU::AddrZeroPageY()
 
 Word CCPU::AddrAbsolute()
 {
-    Word AbsAddress = FetchWord();
-    return AbsAddress;
+    return FetchWord();
 }
 
 /*****************************************************************************/
@@ -961,9 +946,8 @@ Word CCPU::AddrAbsoluteX()
 Word CCPU::AddrAbsoluteX_5()
 {
     Word AbsAddress = FetchWord();
-    Word AbsAddressX = AbsAddress + X;
     m_cycles--;
-    return AbsAddressX;
+    return AbsAddress + X;
 }
 
 /*****************************************************************************/
@@ -985,11 +969,8 @@ Word CCPU::AddrAbsoluteY()
 
 Word CCPU::AddrIndirectX()
 {
-    Byte ZPAddress = FetchByte();
-    ZPAddress += X;
     m_cycles--;
-    Word EffectiveAddr = ReadWord(ZPAddress);
-    return EffectiveAddr;
+    return ReadWord(FetchByte() + X);
 }
 
 /*****************************************************************************/
@@ -1011,32 +992,24 @@ Word CCPU::AddrIndirectY()
 
 Word CCPU::AddrAbsoluteY_5()
 {
-    Word AbsAddress = FetchWord();
-    Word AbsAddressY = AbsAddress + Y;	
     m_cycles--;
-    return AbsAddressY;
+    return FetchWord() + Y;
 }
 
 /*****************************************************************************/
 
 Word CCPU::AddrIndirectX_6()
 {
-    Byte ZPAddress = FetchByte();
-    Word EffectiveAddr = ReadWord( ZPAddress );
-    Word EffectiveAddrY = EffectiveAddr + X;
     m_cycles--;
-    return EffectiveAddrY;
+    return ReadWord( FetchByte() ) + X;
 }
 
 /*****************************************************************************/
 
 Word CCPU::AddrIndirectY_6()
 {
-    Byte ZPAddress = FetchByte();
-    Word EffectiveAddr = ReadWord( ZPAddress );
-    Word EffectiveAddrY = EffectiveAddr + Y;
     m_cycles--;
-    return EffectiveAddrY;
+    return ReadWord( FetchByte() ) + Y;
 }
 
 /*****************************************************************************/
@@ -1053,7 +1026,7 @@ Word CCPU::LoadPrg( const Byte* pProgram, u32 NumBytes )
         for ( Word Addr = LoadAddress; Addr < LoadAddress+NumBytes-2; Addr++ )
         {
             //TODO: mem copy?
-            WriteBusData(Addr, pProgram[At++]);
+            Bus.WriteBusData(Addr, pProgram[At++]);
         }
     }
     return LoadAddress;

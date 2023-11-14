@@ -42,7 +42,7 @@ class CMem : CBusChip
          * @brief Construct a new Mem object
          * 
          */
-        explicit CMem(CBus& pBus, const Word pMask, const Word pBank);
+        explicit CMem(CBus& pBus, const Word& pMask, const Word& pBank);
 
         /**
          * @brief Copy Contructor
@@ -75,7 +75,7 @@ class CMem : CBusChip
          * @param Address 
          * @return Byte 
          */
-        Byte operator[]( u32 Address) const;
+        Byte operator[]( const Word& Address) const;
 
         /**
          * @brief Write 1 Byte
@@ -83,11 +83,11 @@ class CMem : CBusChip
          * @param Address 
          * @return Byte& 
          */
-        Byte& operator[]( u32 Address);
+        Byte& operator[]( const Word& Address);
 
     protected:
-        void OnWriteBusData ( const Word , const Byte );
-        Byte OnReadBusData ( const Word );
+        void OnWriteBusData ( const Word& pAddress, const Byte& pData );
+        Byte OnReadBusData ( const Word& pAddress);
 };
 
 }

@@ -33,23 +33,58 @@ namespace m6502
 
 class CBus;
 
+/**
+ * @brief This abstract class enable a chip to connect on data bus
+ * 
+ */
 class CBusChip
 {
+    /**
+     * @brief CBus is the controller class
+     * 
+     */
     friend class CBus;
 
-    protected: 
-        CBusChip(CBus& pBus, const Word pMask, const Word pBank);
+    protected:
+        /**
+         * @brief Construct a new CBusChip object
+         * 
+         * @param pBus 
+         * @param pMask 
+         * @param pBank 
+         */
+        CBusChip(CBus& pBus, const Word& pMask, const Word& pBank);
+
+        /**
+         * @brief Construct a new CBusChip object
+         * 
+         * @param pCopy 
+         */
         CBusChip(const CBusChip& pCopy);
 
+        /**
+         * @brief Destroy the CBusChip object
+         * 
+         */
         ~CBusChip();
 
-        void SetReady(const bool pFlag);
-        void WriteBusData(const Word pAddress, const Byte pData);
-        Byte ReadBusData(const Word pAddress);
+        /**
+         * @brief Write Event from Bus
+         * 
+         */
+        virtual void OnWriteBusData(const Word&, const Byte&){};
 
-        virtual void OnWriteBusData(const Word, const Byte){};
-        virtual Byte OnReadBusData(const Word){return 0;};
+        /**
+         * @brief Read Event from Bus
+         * 
+         * @return Byte 
+         */
+        virtual Byte OnReadBusData(const Word&){return 0;};
 
+        /**
+         * @brief Bus Parent
+         * 
+         */
         CBus& Bus;
 
         /**
@@ -70,8 +105,9 @@ class CBusChip
 
 typedef std::vector<CBusChip*> v_buschips;
 
+
 /**
- * @brief Represent both address and data bus
+ * @brief Link chips on a data bus
  *        Role is to avoid collisions on R/W  flows 
  *        Between Chips on emulated hardware in
  *        Case of multithreaded use
@@ -80,21 +116,67 @@ class CBus
 {
     friend class CBusChip;
     public:
+
+        /**
+         * @brief Construct a new CBus object
+         * 
+         */
         CBus(){};
+
+        /**
+         * @brief Destroy the CBus object
+         * 
+         */
         ~CBus(){};
 
+        /**
+         * @brief Send Reset Signal to all chips
+         * 
+         */
         void Reset();
-    
-    protected:
+
+        /**
+         * @brief Set the Ready flag
+         * 
+         * @param pFlag 
+         */
         void SetReady(const bool pFlag);
-        void WriteBusData(const Word pAddress, const Byte pData);
-        Byte ReadBusData(const Word pAddress);
 
+        /**
+         * @brief Send data on bus
+         * 
+         * @param pAddress 
+         * @param pData 
+         */
+        void WriteBusData(const Word& pAddress, const Byte& pData);
 
+        /**
+         * @brief Read data from bus
+         * 
+         * @param pAddress 
+         * @return Byte 
+         */
+        Byte ReadBusData(const Word& pAddress);
 
     private:
+        /**
+         * @brief Vector contain list of chips connected on bus
+         * 
+         */
         v_buschips m_chips;
+
+        /**
+         * @brief Called by Chips to connect on bus events
+         * 
+         * @param pChip 
+         */
         void Subscribe( CBusChip* pChip);
+
+        /**
+         * @brief Called by Chips to disconnect from bus events
+         * 
+         * @param pChip 
+         */
         void UnSubscribe( CBusChip* pChip);
 
 };

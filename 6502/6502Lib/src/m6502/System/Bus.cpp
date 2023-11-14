@@ -27,7 +27,7 @@
 namespace m6502
 {
 
-CBusChip::CBusChip (CBus& pBus, const Word pMask, const Word pBank) : Bus(pBus), Mask(pMask), Bank(pBank)
+CBusChip::CBusChip (CBus& pBus, const Word& pMask, const Word& pBank) : Bus(pBus), Mask(pMask), Bank(pBank)
 {
     Bus.Subscribe(this);
 }
@@ -48,24 +48,24 @@ CBusChip::~CBusChip()
 
 /*****************************************************************************/
 
-void CBusChip::SetReady(bool pFlag)
+/*void CBusChip::SetReady(bool pFlag)
 {
     Bus.SetReady(pFlag);
-}
+}*/
 
 /*****************************************************************************/
 
-void CBusChip::WriteBusData(const Word pAddress, const Byte pData)
+/*void CBusChip::WriteBusData(const Word& pAddress, const Byte& pData)
 {
     Bus.WriteBusData(pAddress,pData);
-}
+}*/
 
 /*****************************************************************************/
 
-Byte CBusChip::ReadBusData(const Word pAddress)
+/*Byte CBusChip::ReadBusData(const Word& pAddress)
 {
     return Bus.ReadBusData(pAddress);
-}
+}*/
 
 
 
@@ -78,11 +78,13 @@ void CBus::SetReady(const bool)
 
 /*****************************************************************************/
 
-void CBus::WriteBusData(const Word pAddress, const Byte pData)
+void CBus::WriteBusData(const Word& pAddress, const Byte& pData)
 {
     for (auto Chip : m_chips)
     {
+        // If chip on bus is a master (e.g. CPU, etc) we pass
         if (Chip->Mask == 0xFFFF) continue;
+        // If chip is on range of address
         if ((Chip->Mask & pAddress)==Chip->Bank)
         {
             Chip->OnWriteBusData(pAddress-Chip->Bank,pData);
@@ -92,11 +94,14 @@ void CBus::WriteBusData(const Word pAddress, const Byte pData)
 
 /*****************************************************************************/
 
-Byte CBus::ReadBusData(const Word pAddress)
+Byte CBus::ReadBusData(const Word& pAddress)
 {
     for (auto Chip : m_chips)
     {
+        // If chip on bus is a master (e.g. CPU, etc) we pass
         if (Chip->Mask == 0xFFFF) continue;
+        // If chip is on range of address
+        
         if ((Chip->Mask & pAddress)==Chip->Bank)
         {
             return Chip->OnReadBusData(pAddress-Chip->Bank);

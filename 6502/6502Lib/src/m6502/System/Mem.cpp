@@ -29,7 +29,7 @@ namespace m6502
 
 /*****************************************************************************/
 
-CMem::CMem (CBus& pBus, const Word pMask, const Word pBank) : CBusChip(pBus,pMask,pBank)
+CMem::CMem (CBus& pBus, const Word& pMask, const Word& pBank) : CBusChip(pBus,pMask,pBank)
 {
     Initialise();
 }
@@ -53,7 +53,7 @@ void CMem::Initialise ()
 
 /*****************************************************************************/
 
-Byte CMem::operator[]( u32 pAddress) const
+Byte CMem::operator[]( const Word& pAddress) const
 {
     // assert here Address is < MAX_MEM
     return Data[pAddress];
@@ -61,18 +61,18 @@ Byte CMem::operator[]( u32 pAddress) const
 
 /*****************************************************************************/
 
-Byte& CMem::operator[]( u32 pAddress)
+Byte& CMem::operator[]( const Word& pAddress)
 {
     // assert here Address is < MAX_MEM
     return Data[pAddress];
 }
 
-Byte CMem::OnReadBusData (const Word pAddress)
+Byte CMem::OnReadBusData (const Word& pAddress)
 {
     return Data[pAddress];
 }
 
-void CMem::OnWriteBusData (const Word pAddress, const Byte pData)
+void CMem::OnWriteBusData (const Word& pAddress, const Byte& pData)
 {
    Data[pAddress]=pData;
 }

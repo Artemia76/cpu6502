@@ -198,6 +198,16 @@ enum class Ins : Byte
     CMP_ABS = 0xCD,
     CMP_ABSX = 0xDD,
     CMP_ABSY = 0xD9,
+	CMP_INDX = 0xC1,
+	CMP_INDY = 0xD1,
+
+    CPX = 0xE0,
+	CPY = 0xC0,
+    CPX_ZP = 0xE4,
+	CPY_ZP = 0xC4,
+	CPX_ABS = 0xEC,
+	CPY_ABS = 0xCC,
+
     // Misc
     NOP = 0xEA
 

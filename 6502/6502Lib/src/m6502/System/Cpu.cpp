@@ -271,14 +271,16 @@ s64 CCPU::Execute( s64 pCycles )
 		ADC( ~Operand );
 	};
 
-    /** Do compare accumulator to operand*/
-    auto CMP = [ this ] ( Byte Operand )
-    {
-        Byte Temp = A - Operand;
-        Flags.N = (Temp & NegativeFlagBit) > 0;
-        Flags.Z = A == Operand;
-        Flags.C = A >= Operand;
-    };
+    /** Sets the processor status for a CMP/CPX/CPY instruction */
+	auto RegisterCompare = [ this ]
+	( Byte Operand, Byte RegisterValue )
+	{
+		Byte Temp = RegisterValue - Operand;
+		Flags.N = (Temp & NegativeFlagBit) > 0;
+		Flags.Z = RegisterValue == Operand;
+		Flags.C = RegisterValue >= Operand;
+	};
+   
     /** Push Processor status onto the stack
     *	Setting bits 4 & 5 on the stack */
     auto PushPSToStack = [ this ] ()
@@ -857,29 +859,61 @@ s64 CCPU::Execute( s64 pCycles )
             {
                 SBC( ReadByte( AddrIndirectY() ) );
             } break;
+            case Ins::CPX:
+            {
+                RegisterCompare( FetchByte() , X );
+            } break;
+            case Ins::CPY:
+            {
+                RegisterCompare( FetchByte(), Y );
+            } break;
+            case Ins::CPX_ZP:
+            {
+                RegisterCompare( ReadByte( AddrZeroPage() ), X );
+            } break;
+            case Ins::CPY_ZP:
+            {
+                RegisterCompare( ReadByte( AddrZeroPage() ), Y );
+            } break;
+            case Ins::CPX_ABS:
+            {
+                RegisterCompare( ReadByte ( AddrAbsolute () ), X );
+            } break;
+            case Ins::CPY_ABS:
+            {
+                RegisterCompare( ReadByte ( AddrAbsolute () ), Y );
+            } break;
             case Ins::CMP:
             {
-                CMP ( FetchByte() );
+                RegisterCompare( FetchByte(), A );
             } break;
             case Ins::CMP_ZP:
             {
-                CMP ( ReadByte( AddrZeroPage() ) );
+                RegisterCompare( ReadByte( AddrZeroPage() ), A );
             } break;
             case Ins::CMP_ZPX:
             {
-                CMP ( ReadByte( AddrZeroPageX() ) );
+                RegisterCompare( ReadByte( AddrZeroPageX() ), A );
             } break;
             case Ins::CMP_ABS:
             {
-                CMP ( ReadByte( AddrAbsolute() ) );
+                RegisterCompare( ReadByte( AddrAbsolute() ), A );
             } break;
             case Ins::CMP_ABSX:
             {
-                CMP ( ReadByte( AddrAbsoluteX() ) );
+                RegisterCompare( ReadByte( AddrAbsoluteX() ), A );
             } break;
             case Ins::CMP_ABSY:
             {
-                CMP ( ReadByte( AddrAbsoluteY() ) );
+                RegisterCompare( ReadByte( AddrAbsoluteY() ), A );
+            } break;
+            case Ins::CMP_INDX:
+            {
+                RegisterCompare( ReadByte( AddrIndirectX() ), A );
+            } break;
+            case Ins::CMP_INDY:
+            {
+                RegisterCompare( ReadByte( AddrIndirectY() ), A );
             } break;
             default:
             {

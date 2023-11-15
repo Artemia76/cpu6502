@@ -181,7 +181,7 @@ public:
         cpu.X = 4;
         mem[0xFF00] = opcode(Ins::CMP_ZPX);
         mem[0xFF01] = 0x42;
-        mem[0x0052] = Test.Operand;
+        mem[0x0042 + 4] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 4;
         CCPU CPUCopy = cpu;
 
@@ -225,7 +225,7 @@ public:
         mem[0xFF00] = OpCode;
         mem[0xFF01] = 0x00;
         mem[0xFF02] = 0x80;
-        mem[0x2000] = Test.Operand;
+        mem[0x8000] = Test.Operand;
         constexpr s64 EXPECTED_CYCLES = 4;
         CCPU CPUCopy = cpu;
 

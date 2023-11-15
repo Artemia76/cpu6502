@@ -208,6 +208,31 @@ enum class Ins : Byte
 	CPX_ABS = 0xEC,
 	CPY_ABS = 0xCC,
 
+    // shifts
+    ASL = 0x0A,
+    ASL_ZP = 0x06,
+    ASL_ZPX = 0x16,
+    ASL_ABS = 0x0E,
+    ASL_ABSX = 0x1E,
+
+    LSR = 0x4A,
+    LSR_ZP = 0x46,
+    LSR_ZPX = 0x56,
+    LSR_ABS = 0x4E,
+    LSR_ABSX = 0x5E,
+
+    ROL = 0x2A,
+    ROL_ZP = 0x26,
+    ROL_ZPX = 0x36,
+    ROL_ABS = 0x2E,
+    ROL_ABSX = 0x3E,
+
+    ROR = 0x6A,
+    ROR_ZP = 0x66,
+    ROR_ZPX = 0x76,
+    ROR_ABS = 0x6E,
+    ROR_ABSX = 0x7E,
+
     // Misc
     NOP = 0xEA
 

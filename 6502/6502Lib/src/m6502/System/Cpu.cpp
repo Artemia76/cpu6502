@@ -280,7 +280,54 @@ s64 CCPU::Execute( s64 pCycles )
 		Flags.Z = RegisterValue == Operand;
 		Flags.C = RegisterValue >= Operand;
 	};
-   
+
+	/** Arithmetic shift left */
+	auto ASL = [ this ]( Byte Operand ) -> Byte
+	{
+		Flags.C = (Operand & NegativeFlagBit) > 0;
+		Byte Result = Operand << 1;
+		SetZeroAndNegativeFlags( Result );
+		m_cycles--;
+		return Result;
+	};
+
+	/** Logical shift right */
+	auto LSR = [ this ]( Byte Operand ) -> Byte
+	{
+		Flags.C = (Operand & ZeroBit) > 0;
+		Byte Result = Operand >> 1;
+		SetZeroAndNegativeFlags( Result );
+		m_cycles--;
+		return Result;
+	};
+
+	/** Rotate left */
+	auto ROL = [ this ]( Byte Operand ) -> Byte
+	{
+		Byte NewBit0 = Flags.C ? ZeroBit : 0;
+		Flags.C = (Operand & NegativeFlagBit) > 0;
+		Operand = Operand << 1;
+		Operand |= NewBit0;
+		SetZeroAndNegativeFlags( Operand );
+		m_cycles--;
+		return Operand;
+	};
+
+	/** Rotate right */
+	auto ROR = [ this ]( Byte Operand ) -> Byte
+	{
+		bool OldBit0 = (Operand & ZeroBit) > 0;
+		Operand = Operand >> 1;
+		if ( Flags.C )
+		{
+			Operand |= NegativeFlagBit;
+		}
+		m_cycles--;
+		Flags.C = OldBit0;
+		SetZeroAndNegativeFlags( Operand );
+		return Operand;
+	};
+
     /** Push Processor status onto the stack
     *	Setting bits 4 & 5 on the stack */
     auto PushPSToStack = [ this ] ()
@@ -915,6 +962,148 @@ s64 CCPU::Execute( s64 pCycles )
             {
                 RegisterCompare( ReadByte( AddrIndirectY() ), A );
             } break;
+            case Ins::ASL:
+            {
+                A = ASL( A );
+            } break;
+            case Ins::ASL_ZP:
+            {
+                Word Address = AddrZeroPage();
+                Byte Operand = ReadByte( Address );
+                Byte Result = ASL( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ASL_ZPX:
+            {
+                Word Address = AddrZeroPageX();
+                Byte Operand = ReadByte( Address );
+                Byte Result = ASL( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ASL_ABS:
+            {
+                Word Address = AddrAbsolute();
+                Byte Operand = ReadByte( Address );
+                Byte Result = ASL( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ASL_ABSX:
+            {
+                Word Address = AddrAbsoluteX_5();
+                Byte Operand = ReadByte( Address );
+                Byte Result = ASL( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::LSR:
+            {
+                A = LSR( A );
+            } break;
+            case Ins::LSR_ZP:
+            {
+                Word Address = AddrZeroPage();
+                Byte Operand = ReadByte( Address );
+                Byte Result = LSR( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::LSR_ZPX:
+            {
+                Word Address = AddrZeroPageX();
+                Byte Operand = ReadByte( Address );
+                Byte Result = LSR( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::LSR_ABS:
+            {
+                Word Address = AddrAbsolute();
+                Byte Operand = ReadByte( Address );
+                Byte Result = LSR( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::LSR_ABSX:
+            {
+                Word Address = AddrAbsoluteX_5();
+                Byte Operand = ReadByte( Address );
+                Byte Result = LSR( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ROL:
+            {
+                A = ROL( A );
+            } break;
+            case Ins::ROL_ZP:
+            {
+                Word Address = AddrZeroPage( );
+                Byte Operand = ReadByte( Address );
+                Byte Result = ROL( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ROL_ZPX:
+            {
+                Word Address = AddrZeroPageX();
+                Byte Operand = ReadByte( Address );
+                Byte Result = ROL( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ROL_ABS:
+            {
+                Word Address = AddrAbsolute();
+                Byte Operand = ReadByte( Address );
+                Byte Result = ROL( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ROL_ABSX:
+            {
+                Word Address = AddrAbsoluteX_5();
+                Byte Operand = ReadByte( Address );
+                Byte Result = ROL( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ROR:
+            {
+                A = ROR( A );
+            } break;
+            case Ins::ROR_ZP:
+            {
+                Word Address = AddrZeroPage();
+                Byte Operand = ReadByte( Address );			
+                Byte Result = ROR( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ROR_ZPX:
+            {
+                Word Address = AddrZeroPageX( );
+                Byte Operand = ReadByte( Address );
+                Byte Result = ROR( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ROR_ABS:
+            {
+                Word Address = AddrAbsolute();
+                Byte Operand = ReadByte( Address );
+                Byte Result = ROR( Operand );
+                WriteByte( Result, Address );
+            } break;
+            case Ins::ROR_ABSX:
+            {
+                Word Address = AddrAbsoluteX_5();
+                Byte Operand = ReadByte(Address);
+                Byte Result = ROR( Operand );
+                WriteByte( Result, Address );
+            } break;
+            /*case Ins::BRK:
+            {
+                PushPCPlusOneToStack();
+                PushPSToStack();
+                constexpr Word InterruptVector = 0xFFFE;
+                PC = ReadWord( InterruptVector );
+                Flags.B = true;
+                Flags.I = true;
+            } break;
+            case Ins::RTI:
+            {
+                PopPSFromStack();
+                PC = PopWordFromStack();
+            } break;*/
             default:
             {
                 printf("Instruction %02X not handled\n", Instr);

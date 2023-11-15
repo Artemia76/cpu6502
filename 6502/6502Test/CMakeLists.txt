@@ -53,7 +53,7 @@ set  (M6502_SOURCES
         "src/6502AddWithCarryTests.cpp"
         "src/6502CompareRegisterTests.cpp"
         "src/6502ShiftsTests.cpp"
-#       "src/6502SystemFunctionsTests.cpp"
+        "src/6502SystemFunctionsTests.cpp"
 )
         
 source_group("src" FILES ${M6502_SOURCES})

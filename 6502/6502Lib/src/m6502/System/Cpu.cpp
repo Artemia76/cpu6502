@@ -340,12 +340,11 @@ s64 CCPU::Execute( s64 pCycles )
     *	Clearing bits 4 & 5 (Break & Unused) */
     auto PopPSFromStack = [ this ] ()
     {
-        bool B = Flags.B;
-        bool Unused = Flags.Unused;
         PS = PopByteFromStack();
-        Flags.B = B;
-        Flags.Unused = Unused;
+        Flags.B = false;
+        Flags.Unused = false;
     };
+
     s64 CyclesRequested = pCycles;
     m_cycles = pCycles;
     while ( m_cycles > 0)
@@ -1090,7 +1089,7 @@ s64 CCPU::Execute( s64 pCycles )
                 Byte Result = ROR( Operand );
                 WriteByte( Result, Address );
             } break;
-            /*case Ins::BRK:
+            case Ins::BRK:
             {
                 PushPCPlusOneToStack();
                 PushPSToStack();
@@ -1103,7 +1102,7 @@ s64 CCPU::Execute( s64 pCycles )
             {
                 PopPSFromStack();
                 PC = PopWordFromStack();
-            } break;*/
+            } break;
             default:
             {
                 printf("Instruction %02X not handled\n", Instr);

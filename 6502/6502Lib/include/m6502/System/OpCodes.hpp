@@ -234,8 +234,9 @@ enum class Ins : Byte
     ROR_ABSX = 0x7E,
 
     // Misc
-    NOP = 0xEA
-
+    NOP = 0xEA,
+	BRK = 0x00,
+	RTI = 0x40
 };
 
 }

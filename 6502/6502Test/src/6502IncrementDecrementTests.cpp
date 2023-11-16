@@ -6,8 +6,8 @@ class M6502IncrementDecrementTests : public testing::Test
 public:
     M6502IncrementDecrementTests() : cpu(bus), mem(bus,0x0000,0x0000) {}
     m6502::CBus bus;
-    m6502::CMem mem;
     m6502::CCPU cpu;
+    m6502::CMem mem;
 
 
 

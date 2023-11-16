@@ -62,3 +62,7 @@ add_executable( M6502Test ${M6502_SOURCES} 	)
 add_dependencies( M6502Test M6502Lib )
 target_link_libraries(M6502Test gtest)
 target_link_libraries(M6502Test M6502Lib)
+
+set_property(TARGET M6502Test PROPERTY CXX_STANDARD 17)
+set_property(TARGET M6502Test PROPERTY CXX_STANDARD_REQUIRED On)
+set_property(TARGET M6502Test PROPERTY CXX_EXTENSIONS Off)

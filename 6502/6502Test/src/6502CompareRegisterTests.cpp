@@ -6,8 +6,8 @@ class M6502CompareRegisterTests : public testing::Test
 public:
     M6502CompareRegisterTests() : cpu(bus), mem(bus,0x0000,0x0000) {}
     m6502::CBus bus;
-    m6502::CMem mem;
     m6502::CCPU cpu;
+    m6502::CMem mem;
 
     virtual void SetUp()
     {
@@ -100,6 +100,10 @@ public:
         Byte OpCode = opcode(Ins::CMP);
         switch ( RegisterToCompare )
         {
+        case ERegister::A:
+            Register = &cpu.A;
+            OpCode = opcode(Ins::CMP);
+            break;
         case ERegister::X:
             Register = &cpu.X;
             OpCode = opcode(Ins::CPX);
@@ -141,6 +145,10 @@ public:
         Byte OpCode = opcode(Ins::CMP_ZP);
         switch ( RegisterToCompare )
         {
+        case ERegister::A:
+            Register = &cpu.A;
+            OpCode = opcode(Ins::CMP_ZP);
+            break;
         case ERegister::X:
             Register = &cpu.X;
             OpCode = opcode(Ins::CPX_ZP);
@@ -211,6 +219,10 @@ public:
         Byte OpCode = opcode(Ins::CMP_ABS);
         switch ( RegisterToCompare )
         {
+        case ERegister::A:
+            Register = &cpu.A;
+            OpCode = opcode(Ins::CMP_ABS);
+            break;
         case ERegister::X:
             Register = &cpu.X;
             OpCode = opcode(Ins::CPX_ABS);

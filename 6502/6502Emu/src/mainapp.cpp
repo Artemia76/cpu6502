@@ -33,7 +33,7 @@
  * @brief Construct a new CMainApp::CMainApp object
  * 
  */
-CMainApp::CMainApp(CLoop& pParent) : CProcessEvent(pParent), cpu(bus), mem(bus, 0x0000, 0x0000)
+CMainApp::CMainApp(CLoop& pParent) : CProcessEvent(pParent), mem(bus, 0x0000, 0x0000), cpu(bus)
 {
 #ifdef WIN32
     // Set console code page to UTF-8 so console known how to interpret string data

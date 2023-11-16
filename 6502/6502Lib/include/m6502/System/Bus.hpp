@@ -27,6 +27,7 @@
 
 #include <m6502/Config.hpp>
 #include <vector>
+#include <algorithm>
 
 namespace m6502
 {

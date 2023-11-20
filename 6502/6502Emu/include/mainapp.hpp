@@ -28,21 +28,64 @@
 #include <chrono>
 #include <m6502/System.hpp>
 
+/**
+ * @brief Main 6502 Emulator application
+ * 
+ */
 class CMainApp : public CProcessEvent
 {
-    public:
-        CMainApp (CLoop& pParent);
-        ~CMainApp ();
+public:
+    /**
+     * @brief Construct a new CMainApp object
+     * 
+     * @param pParent 
+     */
+    CMainApp (CLoop& pParent);
 
-    private:
-        hrc::time_point m_timePoint;
-        m6502::CBus bus;
-        m6502::CMem mem;
-        m6502::CCPU cpu;
-        int m_clock; // Clock in Mhz
+    /**
+     * @brief Destroy the CMainApp object
+     * 
+     */
+    ~CMainApp ();
 
-    protected:
-        void OnProcess(const period& pInterval);
+protected:
+    /**
+     * @brief Process Event loop callback
+     * 
+     * @param pInterval : Period of loop
+     */
+    void onProcess(const period& pInterval);
+
+private:
+    /**
+     * @brief 
+     * 
+     */
+    hrc::time_point _timePoint;
+
+    /**
+     * @brief Data Bus Emulator for CPU and memory
+     * 
+     */
+    m6502::CBus _bus;
+
+    /**
+     * @brief Memory to use with CPU
+     * 
+     */
+    m6502::CMem _mem;
+
+    /**
+     * @brief CPU emulator
+     * 
+     */
+    m6502::CCPU _cpu;
+
+    /**
+     * @brief Clock in Mhz
+     * 
+     */
+    int _clock;
 };
 
 #endif

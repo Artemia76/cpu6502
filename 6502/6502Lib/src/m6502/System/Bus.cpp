@@ -110,7 +110,6 @@ Byte CBus::readBusData(const Word& pAddress)
     return 0;
 }
 
-
 /*****************************************************************************/
 
 void CBus::_subscribe( CBusChip* pChip)

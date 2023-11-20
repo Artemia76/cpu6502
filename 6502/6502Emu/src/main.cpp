@@ -25,14 +25,17 @@
 #include "loop.hpp"
 #include "mainapp.hpp"
 
-/// @brief 
-/// @return 
+/**
+ * @brief 
+ * 
+ * @return * int 
+ */
 int main() {
     CLoop Loop;
     CMainApp MainApp(Loop);
-    Loop.Start(2);
+    Loop.start(2);
     std::cout << "Wait touch press..." << std::endl;
     std::getchar();
-    Loop.Stop();
+    Loop.stop();
     return 0;
 }

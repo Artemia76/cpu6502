@@ -41,14 +41,48 @@ class CLoop;
  */
 class CProcessEvent
 {
-    friend CLoop;
-    public:
-                CProcessEvent(CLoop& pParent);
-                ~CProcessEvent();
-    protected:
-        CLoop&  m_parent;
-    virtual void OnProcess(const period& pInterval)=0;
+friend class CLoop;
+public:
+    /**
+     * @brief Construct a new CProcessEvent object
+     * 
+     * @param pParent 
+     */
+    CProcessEvent(CLoop& pParent);
+
+    /**
+     * @brief Destroy the CProcessEvent object
+     * 
+     */
+    ~CProcessEvent();
+
+protected:
+
+    /**
+     * @brief Process Event Callback
+     * 
+     * @param pInterval 
+     */
+virtual void onProcess(const period& pInterval)=0;
+
+    /**
+     * @brief 
+     * 
+     */
+    period getLastSleep();
+
+    private:
+    /**
+     * @brief Store event controller
+     * 
+     */
+    CLoop&  _parent;
 };
+
+/**
+ * @brief Container for event clients
+ * 
+ */
 typedef std::vector<CProcessEvent*> v_subscribers;
 
 /**
@@ -58,26 +92,61 @@ typedef std::vector<CProcessEvent*> v_subscribers;
  */
 class CLoop
 {
-    public:
-                    CLoop ();
-                    ~CLoop ();
-    void            Start (int pPeriod=10);
-    void            Stop ();
-    void            WaitEnd();
-    void            Subscribe (CProcessEvent* pSubscriber);
-    void            UnSubscribe (CProcessEvent* pSubscriber);
-    period          GetLastSleep ();
+friend class CProcessEvent;
+public:
+    /**
+     * @brief Construct a new CLoop object
+     * 
+     */
+    CLoop ();
 
-    private:
-    std::thread*    m_thread;
-    hrc::time_point m_start;
-    hrc::time_point m_end;
-    period          m_period;
-    period          m_lastSleep;
-    std::atomic<bool> m_running;
-    v_subscribers   m_subscribers;
-    std::mutex      m_mutex;
-    void            mainLoop();
+    /**
+     * @brief Destroy the CLoop object
+     * 
+     */
+    ~CLoop ();
+
+    /**
+     * @brief Start the loop processing with given period
+     * 
+     * @param pPeriod : Period in msec
+     */
+    void start(int pPeriod=10);
+
+    /**
+     * @brief Stop the loop processing
+     * 
+     */
+    void stop();
+
+    period getLastSleep ();
+
+protected:
+    /**
+     * @brief Suscribe to event loop
+     * 
+     * @param pSubscriber 
+     */
+    void subscribe (CProcessEvent* pSubscriber);
+
+    /**
+     * @brief Unsuscribe to event loop
+     * 
+     * @param pSubscriber 
+     */
+    void unSubscribe (CProcessEvent* pSubscriber);
+
+private:
+    std::thread*    _thread;
+    hrc::time_point _start;
+    hrc::time_point _end;
+    period          _period;
+    period          _lastSleep;
+    std::atomic<bool> _running;
+    v_subscribers   _subscribers;
+    std::mutex      _mutex;
+
+    void            _mainLoop();
 };
 
 #endif

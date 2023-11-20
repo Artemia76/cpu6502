@@ -24,101 +24,118 @@
 #include "loop.hpp"
 #include <algorithm>
 
-CProcessEvent::CProcessEvent(CLoop& pParent) : m_parent(pParent)
+CProcessEvent::CProcessEvent(CLoop& pParent) : _parent(pParent)
 {
-    m_parent.Subscribe(this);
+    _parent.subscribe(this);
 }
+
+/*****************************************************************************/
 
 CProcessEvent::~CProcessEvent()
 {
-    m_parent.UnSubscribe(this);
+    _parent.unSubscribe(this);
 }
+
+/*****************************************************************************/
+
+period CProcessEvent::getLastSleep()
+{
+    return _parent.getLastSleep();
+}
+
+/*****************************************************************************/
 
 CLoop::CLoop ()
 {
-    m_running=false;
-    m_thread = nullptr;
+    _running=false;
+    _thread = nullptr;
+    _lastSleep = std::chrono::milliseconds(0);
 }
+
+/*****************************************************************************/
 
 CLoop::~CLoop ()
 {
-    if (m_running) Stop();
+    if (_running) stop();
 }
 
-void CLoop::Start(int pPeriod)
+/*****************************************************************************/
+
+void CLoop::start(int pPeriod)
 {
-    m_period = std::chrono::microseconds(pPeriod*1000);
-    if ((!m_running) && (m_thread==nullptr))
+    _period = std::chrono::microseconds(pPeriod*1000);
+    if ((!_running) && (_thread==nullptr))
     {
-        m_running = true;
-        m_thread= new std::thread(&CLoop::mainLoop, this);
+        _running = true;
+        _thread= new std::thread(&CLoop::_mainLoop, this);
     }
 }
 
-void CLoop::Stop()
+/*****************************************************************************/
+
+void CLoop::stop()
 {
-    if (m_running && m_thread != nullptr)
+    if (_running && _thread != nullptr)
     {
-        m_running = false;
-        m_thread->join();
-        delete m_thread;
-        m_thread = nullptr;
+        _running = false;
+        _thread->join();
+        delete _thread;
+        _thread = nullptr;
     }
 }
 
-void CLoop::WaitEnd()
-{
-   if (m_running && m_thread != nullptr)
-    {
-        m_thread->join();
-    }
-}
+/*****************************************************************************/
 
-/// @brief 
-void CLoop::mainLoop()
+void CLoop::_mainLoop()
 {
     // Main Loop
-    while (m_running)
+    while (_running)
     {
-        m_start = std::chrono::high_resolution_clock::now();
+        _start = std::chrono::high_resolution_clock::now();
         // Doing some things ...
-        m_mutex.lock();
-        for (auto Subcriber : m_subscribers)
+        _mutex.lock();
+        for (auto Subcriber : _subscribers)
         {
             if (Subcriber != nullptr)
             {
-                Subcriber->OnProcess(m_period);
+                Subcriber->onProcess(_period);
             }
         }
-        m_mutex.unlock();
-        m_end = hrc::now();
+        _mutex.unlock();
+        _end = hrc::now();
         // Calculate spent time
-        period TimeSpent = std::chrono::duration_cast<std::chrono::microseconds>(m_end-m_start);
-        m_lastSleep = m_period-TimeSpent;
+        period TimeSpent = std::chrono::duration_cast<std::chrono::microseconds>(_end-_start);
+        _lastSleep = _period-TimeSpent;
         //Sleep the rest of time period
-        if (m_lastSleep.count() > 0)
-            std::this_thread::sleep_for(m_lastSleep);
+        if (_lastSleep.count() > 0)
+            std::this_thread::sleep_for(_lastSleep);
     }
 }
 
-void CLoop::Subscribe(CProcessEvent* pSubscriber)
+/*****************************************************************************/
+
+void CLoop::subscribe(CProcessEvent* pSubscriber)
 {
-    if (std::find(m_subscribers.begin(), m_subscribers.end(),pSubscriber) == m_subscribers.end())
+    if (std::find(_subscribers.begin(), _subscribers.end(),pSubscriber) == _subscribers.end())
     {
-        m_mutex.lock();
-        m_subscribers.push_back(pSubscriber);
-        m_mutex.unlock();
+        _mutex.lock();
+        _subscribers.push_back(pSubscriber);
+        _mutex.unlock();
     }
 }
 
-void CLoop::UnSubscribe(CProcessEvent* pSubscriber)
+/*****************************************************************************/
+
+void CLoop::unSubscribe(CProcessEvent* pSubscriber)
 {
-    m_mutex.lock();
-    m_subscribers.erase(std::remove(m_subscribers.begin(), m_subscribers.end(), pSubscriber), m_subscribers.end());
-    m_mutex.unlock();
+    _mutex.lock();
+    _subscribers.erase(std::remove(_subscribers.begin(), _subscribers.end(), pSubscriber), _subscribers.end());
+    _mutex.unlock();
 }
 
-period CLoop::GetLastSleep()
+/*****************************************************************************/
+
+period CLoop::getLastSleep()
 {
-    return m_lastSleep;
+    return _lastSleep;
 }

@@ -202,8 +202,6 @@ void CCPU::_setZeroAndNegativeFlags( const Byte& pRegister )
 
 s64 CCPU::execute( s64 pCycles )
 {
-    
-
     s64 CyclesRequested = pCycles;
     _cycles = pCycles;
     while ( _cycles > 0)
@@ -1109,6 +1107,7 @@ Word CCPU::loadPrg( const Byte* pProgram, u32 NumBytes )
             //TODO: mem copy?
             bus.writeBusData(Addr, pProgram[At++]);
         }
+        PC = LoadAddress;
     }
     return LoadAddress;
 }

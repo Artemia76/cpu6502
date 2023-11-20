@@ -11,7 +11,7 @@ public:
 
     virtual void SetUp()
     {
-        cpu.Reset();
+        cpu.reset();
     }
 
     virtual void TearDown()
@@ -77,7 +77,7 @@ public:
 
         //when:
         CCPU CPUCopy = cpu;
-        s64 CyclesUsed = cpu.Execute( 2 );
+        s64 CyclesUsed = cpu.execute( 2 );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x84, LogicalOp );
@@ -111,7 +111,7 @@ public:
 
         //when:
         CCPU CPUCopy = cpu;
-        s64 CyclesUsed = cpu.Execute( 3 );
+        s64 CyclesUsed = cpu.execute( 3 );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -146,7 +146,7 @@ public:
         CCPU CPUCopy = cpu;
 
         //when:
-        s64 CyclesUsed = cpu.Execute( 4 );
+        s64 CyclesUsed = cpu.execute( 4 );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -183,7 +183,7 @@ public:
         CCPU CPUCopy = cpu;
 
         //when:
-        s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+        s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -221,7 +221,7 @@ public:
         CCPU CPUCopy = cpu;
 
         //when:
-        s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+        s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -259,7 +259,7 @@ public:
         CCPU CPUCopy = cpu;
 
         //when:
-        s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+        s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -296,7 +296,7 @@ public:
         CCPU CPUCopy = cpu;
 
         //when:
-        s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+        s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -333,7 +333,7 @@ public:
         CCPU CPUCopy = cpu;
 
         //when:
-        s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+        s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -372,7 +372,7 @@ public:
         CCPU CPUCopy = cpu;
 
         //when:
-        s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+        s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -411,7 +411,7 @@ public:
         CCPU CPUCopy = cpu;
 
         //when:
-        s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+        s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -449,7 +449,7 @@ public:
         CCPU CPUCopy = cpu;
 
         //when:
-        s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+        s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -485,7 +485,7 @@ public:
 
         //when:
         CCPU CPUCopy = cpu;
-        s64 CyclesUsed = cpu.Execute( 4 );
+        s64 CyclesUsed = cpu.execute( 4 );
 
         //then:
         const Byte ExpectedResult = DoLogicalOp( 0xCC, 0x37, LogicalOp );
@@ -544,7 +544,7 @@ TEST_F( M6502AndEorOraBitTests, TestLogicalOpEorImmediateCanAffectZeroFlag )
     CCPU CPUCopy = cpu;
 
     //when:
-    cpu.Execute( 2 );
+    cpu.execute( 2 );
 
     //then:
     EXPECT_TRUE( cpu.Flags.Z );
@@ -714,7 +714,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitZeroPage )
     constexpr s64 EXPECTED_CYCLES = 3;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( CyclesUsed, EXPECTED_CYCLES );
@@ -737,7 +737,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitZeroPageResultZero )
     constexpr s64 EXPECTED_CYCLES = 3;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( CyclesUsed, EXPECTED_CYCLES );
@@ -760,7 +760,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitZeroPageResultZeroBits6And7Zero )
     constexpr s64 EXPECTED_CYCLES = 3;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( CyclesUsed, EXPECTED_CYCLES );
@@ -782,7 +782,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitZeroPageResultZeroBits6And7Mixed )
     constexpr s64 EXPECTED_CYCLES = 3;
 
     //when:
-    cpu.Execute( EXPECTED_CYCLES );
+    cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_TRUE( cpu.Flags.V );
@@ -803,7 +803,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitAbsolute )
     constexpr s64 EXPECTED_CYCLES = 4;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( CyclesUsed, EXPECTED_CYCLES );
@@ -827,7 +827,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitAbsoluteResultZero )
     constexpr s64 EXPECTED_CYCLES = 4;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( CyclesUsed, EXPECTED_CYCLES );
@@ -851,7 +851,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitAbsoluteResultZeroBit6And7Zero )
     constexpr s64 EXPECTED_CYCLES = 4;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( CyclesUsed, EXPECTED_CYCLES );
@@ -875,7 +875,7 @@ TEST_F( M6502AndEorOraBitTests, TestBitAbsoluteResultZeroBit6And7Mixed )
     constexpr s64 EXPECTED_CYCLES = 4;
 
     //when:
-    cpu.Execute( EXPECTED_CYCLES );
+    cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_FALSE( cpu.Flags.V );

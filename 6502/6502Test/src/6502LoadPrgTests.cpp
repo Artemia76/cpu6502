@@ -31,7 +31,7 @@ public:
 
     virtual void SetUp()
     {
-        cpu.Reset();
+        cpu.reset();
     }
 
     virtual void TearDown()
@@ -45,7 +45,7 @@ TEST_F( M6502LoadPrgTests, TestLoadProgramAProgramIntoTheCorrectAreaOfMemory )
     using namespace m6502;
 
     // when:
-    cpu.LoadPrg( TestPrg, NumBytesInPrg );
+    cpu.loadPrg( TestPrg, NumBytesInPrg );
 
     //then:
     EXPECT_EQ( mem[0x0FFF], 0x0 );
@@ -59,19 +59,19 @@ TEST_F( M6502LoadPrgTests, TestLoadProgramAProgramIntoTheCorrectAreaOfMemory )
     EXPECT_EQ( mem[0x100C], 0x0 );
 }
 
-TEST_F( M6502LoadPrgTests, TestLoadProgramAProgramAndExecuteIt )
+TEST_F( M6502LoadPrgTests, TestLoadProgramAProgramAnExecuteIt )
 {
     // given:
     using namespace m6502;
 
     // when:
-    Word StartAddress = cpu.LoadPrg( TestPrg, NumBytesInPrg );
+    Word StartAddress = cpu.loadPrg( TestPrg, NumBytesInPrg );
     cpu.PC = StartAddress;
 
     //then:
     for ( m6502::s64 Clock = 1000; Clock > 0; )
     {
-        Clock -= cpu.Execute( 1 );
+        Clock -= cpu.execute( 1 );
     }
 }
 
@@ -94,7 +94,7 @@ TEST_F( M6502LoadPrgTests, LoadThe6502TestPrg )
     //then:
     while ( true )
     {
-        cpu.Execute( 1 );
+        cpu.execute( 1 );
     }
 #endif
 }

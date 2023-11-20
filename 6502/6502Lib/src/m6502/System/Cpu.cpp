@@ -33,15 +33,15 @@ namespace m6502
 
 CCPU::CCPU(CBus& pBus) : CBusChip(pBus, 0xFFFF, 0)
 {
-    Reset();
-    m_cycles= 0;
+    reset();
+    _cycles= 0;
 }
 
 /*****************************************************************************/
 
 CCPU::CCPU(const CCPU& pCopy) : CRegisters(pCopy), CBusChip(pCopy)
 {
-    m_cycles = pCopy.m_cycles;
+    _cycles = pCopy._cycles;
 }
 
 /*****************************************************************************/
@@ -50,14 +50,14 @@ CCPU::~CCPU() {}
 
 /*****************************************************************************/
 
-void CCPU::Reset()
+void CCPU::reset()
 {
-    Reset( 0xFFFC );
+    reset( 0xFFFC );
 }
 
 /*****************************************************************************/
 
-void CCPU::Reset( const Word& pResetVector )
+void CCPU::reset( const Word& pResetVector )
 {
     PC = pResetVector;
     SP = 0xFF;
@@ -67,61 +67,61 @@ void CCPU::Reset( const Word& pResetVector )
 
 /*****************************************************************************/
 
-Byte CCPU::FetchByte()
+Byte CCPU::_fetchByte()
 {
-    m_cycles--;
+    _cycles--;
     //return ReadBusData(PC++);
-    return CBusChip::Bus.ReadBusData(PC++);
+    return CBusChip::bus.readBusData(PC++);
 }
 
 /*****************************************************************************/
 
-SByte CCPU::FetchSByte()
+SByte CCPU::_fetchSByte()
 {
-    return static_cast<SByte>(FetchByte());
+    return static_cast<SByte>(_fetchByte());
 }
 
 /*****************************************************************************/
 
-Word CCPU::FetchWord()
+Word CCPU::_fetchWord()
 {
     // 6502 is little endian
-    Word Data = Bus.ReadBusData(PC++);
-    Data |= (Bus.ReadBusData(PC++) << 8 );
-    m_cycles-=2;
+    Word Data = bus.readBusData(PC++);
+    Data |= (bus.readBusData(PC++) << 8 );
+    _cycles-=2;
     return Data;
 }
 
 /*****************************************************************************/
 
-Byte CCPU::ReadByte( const Word& pAddress )
+Byte CCPU::_readByte( const Word& pAddress )
 {
-    m_cycles--;
-    return Bus.ReadBusData(pAddress);
+    _cycles--;
+    return bus.readBusData(pAddress);
 }
 
 /*****************************************************************************/
 
-Word CCPU::ReadWord( const Word& pAddress )
+Word CCPU::_readWord( const Word& pAddress )
 {
-    return ReadByte( pAddress ) | (  ReadByte( pAddress + 1 ) << 8 );
+    return _readByte( pAddress ) | (  _readByte( pAddress + 1 ) << 8 );
 }
 
 /*****************************************************************************/
 
-void CCPU::WriteByte( const Byte& pValue, const Word& pAddress )
+void CCPU::_writeByte( const Byte& pValue, const Word& pAddress )
 {
-    Bus.WriteBusData( pAddress , pValue );
-    m_cycles--;
+    bus.writeBusData( pAddress , pValue );
+    _cycles--;
 }
 
 /*****************************************************************************/
 
-void CCPU::WriteWord( const Word& pValue, const Word& pAddress )
+void CCPU::_writeWord( const Word& pValue, const Word& pAddress )
 {
-    Bus.WriteBusData( pAddress , pValue & 0xFF);
-    Bus.WriteBusData( pAddress + 1 , pValue >> 8);
-    m_cycles -= 2;
+    bus.writeBusData( pAddress , pValue & 0xFF);
+    bus.writeBusData( pAddress + 1 , pValue >> 8);
+    _cycles -= 2;
 }
 
 /*****************************************************************************/
@@ -133,66 +133,66 @@ Word CCPU::SPToAddress() const
 
 /*****************************************************************************/
 
-void CCPU::PushWordToStack( const Word& pValue )
+void CCPU::_pushWordToStack( const Word& pValue )
 {
-    WriteByte( pValue >> 8, SPToAddress());
+    _writeByte( pValue >> 8, SPToAddress());
     SP--;
-    WriteByte( pValue & 0xFF, SPToAddress());
-    SP--;
-}
-
-/*****************************************************************************/
-
-void CCPU::PushPCMinusOneToStack()
-{
-    PushWordToStack( PC - 1 );
-}
-
-/*****************************************************************************/
-
-void CCPU::PushPCPlusOneToStack()
-{
-    PushWordToStack( PC + 1 );
-}
-
-/*****************************************************************************/
-
-void CCPU::PushPCToStack()
-{
-    PushWordToStack( PC );
-}
-
-/*****************************************************************************/
-
-void CCPU::PushByteOntoStack( const Byte& pValue )
-{
-    Bus.WriteBusData( SPToAddress() , pValue );
-    m_cycles-=2;
+    _writeByte( pValue & 0xFF, SPToAddress());
     SP--;
 }
 
 /*****************************************************************************/
 
-Byte CCPU::PopByteFromStack()
+void CCPU::_pushPCMinusOneToStack()
+{
+    _pushWordToStack( PC - 1 );
+}
+
+/*****************************************************************************/
+
+void CCPU::_pushPCPlusOneToStack()
+{
+    _pushWordToStack( PC + 1 );
+}
+
+/*****************************************************************************/
+
+void CCPU::_pushPCToStack()
+{
+    _pushWordToStack( PC );
+}
+
+/*****************************************************************************/
+
+void CCPU::_pushByteOntoStack( const Byte& pValue )
+{
+    bus.writeBusData( SPToAddress() , pValue );
+    _cycles-=2;
+    SP--;
+}
+
+/*****************************************************************************/
+
+Byte CCPU::_popByteFromStack()
 {
     SP++;
-    m_cycles-=2;
-    return Bus.ReadBusData( SPToAddress());
+    _cycles-=2;
+    return bus.readBusData( SPToAddress());
 }
 
 /*****************************************************************************/
 
-Word CCPU::PopWordFromStack()
+Word CCPU::_popWordFromStack()
 {
-    Word ValueFromStack = ReadWord( SPToAddress()+1 );
+    Word ValueFromStack = _readWord( SPToAddress()+1 );
     SP += 2;
-    m_cycles--;
+    _cycles--;
     return ValueFromStack;
 }
 
 /*****************************************************************************/
 
-void CCPU::SetZeroAndNegativeFlags( const Byte& pRegister )
+void CCPU::_setZeroAndNegativeFlags( const Byte& pRegister )
 {
     Flags.Z = (pRegister == 0);
     Flags.N = (pRegister & NegativeFlagBit) > 0;
@@ -200,409 +200,268 @@ void CCPU::SetZeroAndNegativeFlags( const Byte& pRegister )
 
 /*****************************************************************************/
 
-s64 CCPU::Execute( s64 pCycles )
+s64 CCPU::execute( s64 pCycles )
 {
-    /** Load a Register with the value from the memory address */
-    auto LoadRegister = [ this ]
-        ( Word Address, Byte& Register )
-    {
-        Register = ReadByte ( Address );
-        SetZeroAndNegativeFlags( Register );
-    };
-
-    /** And the A Register with the value from the memory address */
-    auto And = [ this ] ( Word Address )
-    {
-        A &= ReadByte( Address );
-        SetZeroAndNegativeFlags( A );
-    };
-
-    /** Or the A Register with the value from the memory address */
-    auto Ora = [ this ] ( Word Address )
-    {
-        A |= ReadByte( Address );
-        SetZeroAndNegativeFlags( A );
-    };
-
-    /** Eor the A Register with the value from the memory address */
-    auto Eor = [ this ]	( Word Address )
-    {
-        A ^= ReadByte( Address );
-        SetZeroAndNegativeFlags( A );
-    };
-
-    /* Conditional branch */
-    auto BranchIf = [ this ] ( bool Test, bool Expected )
-    {
-        SByte Offset = FetchSByte();
-        if ( Test == Expected )
-        {
-            const Word PCOld = PC;
-            PC += Offset;
-            m_cycles--;
-
-            const bool PageChanged = (PC >> 8) != (PCOld >> 8);
-            if ( PageChanged )
-            {
-                m_cycles--;
-            }
-        }
-    };
-
-    /** Do add with carry given the the operand */
-	auto ADC = [ this ] ( Byte Operand )
-	{
-		ASSERT( Flags.D == false, "haven't handled decimal mode!" );
-		const bool AreSignBitsTheSame =
-			!((A ^ Operand) & NegativeFlagBit);
-		Word Sum = static_cast<Word>(A);
-		Sum += Operand;
-		Sum += Flags.C;
-		A = (Sum & 0xFF);
-		SetZeroAndNegativeFlags( A );
-		Flags.C = Sum > 0xFF;
-		Flags.V = AreSignBitsTheSame &&
-			((A ^ Operand) & NegativeFlagBit);
-	};
     
-    /** Do subtract with carry given the the operand */
-	auto SBC = [&ADC] ( Byte Operand )
-	{
-		ADC( ~Operand );
-	};
-
-    /** Sets the processor status for a CMP/CPX/CPY instruction */
-	auto RegisterCompare = [ this ]
-	( Byte Operand, Byte RegisterValue )
-	{
-		Byte Temp = RegisterValue - Operand;
-		Flags.N = (Temp & NegativeFlagBit) > 0;
-		Flags.Z = RegisterValue == Operand;
-		Flags.C = RegisterValue >= Operand;
-	};
-
-	/** Arithmetic shift left */
-	auto ASL = [ this ]( Byte Operand ) -> Byte
-	{
-		Flags.C = (Operand & NegativeFlagBit) > 0;
-		Byte Result = Operand << 1;
-		SetZeroAndNegativeFlags( Result );
-		m_cycles--;
-		return Result;
-	};
-
-	/** Logical shift right */
-	auto LSR = [ this ]( Byte Operand ) -> Byte
-	{
-		Flags.C = (Operand & ZeroBit) > 0;
-		Byte Result = Operand >> 1;
-		SetZeroAndNegativeFlags( Result );
-		m_cycles--;
-		return Result;
-	};
-
-	/** Rotate left */
-	auto ROL = [ this ]( Byte Operand ) -> Byte
-	{
-		Byte NewBit0 = Flags.C ? ZeroBit : 0;
-		Flags.C = (Operand & NegativeFlagBit) > 0;
-		Operand = Operand << 1;
-		Operand |= NewBit0;
-		SetZeroAndNegativeFlags( Operand );
-		m_cycles--;
-		return Operand;
-	};
-
-	/** Rotate right */
-	auto ROR = [ this ]( Byte Operand ) -> Byte
-	{
-		bool OldBit0 = (Operand & ZeroBit) > 0;
-		Operand = Operand >> 1;
-		if ( Flags.C )
-		{
-			Operand |= NegativeFlagBit;
-		}
-		m_cycles--;
-		Flags.C = OldBit0;
-		SetZeroAndNegativeFlags( Operand );
-		return Operand;
-	};
-
-    /** Push Processor status onto the stack
-    *	Setting bits 4 & 5 on the stack */
-    auto PushPSToStack = [ this ] ()
-    {
-        Byte PSStack = PS | BreakFlagBit | UnusedFlagBit;		
-        PushByteOntoStack( PSStack );
-    };
-
-    /** Pop Processor status from the stack
-    *	Clearing bits 4 & 5 (Break & Unused) */
-    auto PopPSFromStack = [ this ] ()
-    {
-        PS = PopByteFromStack();
-        Flags.B = false;
-        Flags.Unused = false;
-    };
 
     s64 CyclesRequested = pCycles;
-    m_cycles = pCycles;
-    while ( m_cycles > 0)
+    _cycles = pCycles;
+    while ( _cycles > 0)
     {
-        Byte Instr = FetchByte();
+        Byte Instr = _fetchByte();
         switch (ins(Instr))
         {
             case Ins::AND_IM:
             {
-                A &= FetchByte();
-                SetZeroAndNegativeFlags(A);
+                A &= _fetchByte();
+                _setZeroAndNegativeFlags(A);
             } break;
             case Ins::ORA_IM:
             {
-                A |= FetchByte();
-                SetZeroAndNegativeFlags(A);
+                A |= _fetchByte();
+                _setZeroAndNegativeFlags(A);
             } break;
             case Ins::EOR_IM:
             {
-                A ^= FetchByte();
-                SetZeroAndNegativeFlags(A);
+                A ^= _fetchByte();
+                _setZeroAndNegativeFlags(A);
             } break;
             case Ins::AND_ZP:
             {
-                And( AddrZeroPage() );
+                _and( _addrZeroPage() );
             } break;
             case Ins::ORA_ZP:
             {
-                Ora( AddrZeroPage() );
+                _ora( _addrZeroPage() );
             } break;
             case Ins::EOR_ZP:
             {
-                Eor( AddrZeroPage() );
+                _eor( _addrZeroPage() );
             } break;
             case Ins::AND_ZPX:
             {
-                And( AddrZeroPageX() );
+                _and( _addrZeroPageX() );
             } break;
             case Ins::ORA_ZPX:
             {
-                Ora( AddrZeroPageX() );
+                _ora( _addrZeroPageX() );
             } break;
             case Ins::EOR_ZPX:
             {
-                Eor( AddrZeroPageX() );
+                _eor( _addrZeroPageX() );
             } break;
             case Ins::AND_ABS:
             {
-                And( AddrAbsolute() );
+                _and( _addrAbsolute() );
             } break;
             case Ins::ORA_ABS:
             {
-                Ora( AddrAbsolute() );
+                _ora( _addrAbsolute() );
             } break;
             case Ins::EOR_ABS:
             {
-                Eor( AddrAbsolute() );
+                _eor( _addrAbsolute() );
             } break;
             case Ins::AND_ABSX:
             {
-                And( AddrAbsoluteX() );
+                _and( _addrAbsoluteX() );
             } break;
             case Ins::ORA_ABSX:
             {
-                Ora( AddrAbsoluteX() );
+                _ora( _addrAbsoluteX() );
             } break;
             case Ins::EOR_ABSX:
             {
-                Eor( AddrAbsoluteX() );
+                _eor( _addrAbsoluteX() );
             } break;
             case Ins::AND_ABSY:
             {
-                And( AddrAbsoluteY() );
+                _and( _addrAbsoluteY() );
             } break;
             case Ins::ORA_ABSY:
             {
-                Ora( AddrAbsoluteY() );
+                _ora( _addrAbsoluteY() );
             } break;
             case Ins::EOR_ABSY:
             {
-                Eor( AddrAbsoluteY() );
+                _eor( _addrAbsoluteY() );
             } break;
             case Ins::AND_INDX:
             {
-                And( AddrIndirectX() );
+                _and( _addrIndirectX() );
             } break;
             case Ins::ORA_INDX:
             {
-                Ora( AddrIndirectX() );
+                _ora( _addrIndirectX() );
             } break;
             case Ins::EOR_INDX:
             {
-                Eor( AddrIndirectX() );
+                _eor( _addrIndirectX() );
             } break;
             case Ins::AND_INDY:
             {
-                And( AddrIndirectY() );
+                _and( _addrIndirectY() );
             } break;
             case Ins::ORA_INDY:
             {
-                Ora( AddrIndirectY() );
+                _ora( _addrIndirectY() );
             } break;
             case Ins::EOR_INDY:
             {
-                Eor( AddrIndirectY() );
+                _eor( _addrIndirectY() );
             } break;
             case Ins::BIT_ZP:
             {
-                Byte Value = ReadByte( AddrZeroPage() );
+                Byte Value = _readByte( _addrZeroPage() );
                 Flags.Z = ! (A & Value);
                 Flags.N = (Value & NegativeFlagBit) != 0;
                 Flags.V = (Value & OverflowFlagBit) != 0;
             } break;
             case Ins::BIT_ABS:
             {
-                Byte Value = ReadByte( AddrAbsolute() );
+                Byte Value = _readByte( _addrAbsolute() );
                 Flags.Z = ! (A & Value);
                 Flags.N = (Value & NegativeFlagBit) != 0;
                 Flags.V = (Value & OverflowFlagBit) != 0;
             } break;
             case Ins::LDA_IM:
             {
-                A = FetchByte ();
-                SetZeroAndNegativeFlags(A);
+                A = _fetchByte ();
+                _setZeroAndNegativeFlags(A);
             } break;
             case Ins::LDX_IM:
             {
-                X = FetchByte ();
-                SetZeroAndNegativeFlags(X);
+                X = _fetchByte ();
+                _setZeroAndNegativeFlags(X);
             } break;
             case Ins::LDY_IM:
             {
-                Y = FetchByte ();
-                SetZeroAndNegativeFlags(Y);
+                Y = _fetchByte ();
+                _setZeroAndNegativeFlags(Y);
             } break;
             case Ins::LDA_ZP:
             {
-                LoadRegister ( AddrZeroPage(), A );
+                _loadRegister ( _addrZeroPage(), A );
             } break;
             case Ins::LDX_ZP:
             {
-                LoadRegister ( AddrZeroPage(), X );
+                _loadRegister ( _addrZeroPage(), X );
             } break;
             case Ins::LDY_ZP:
             {
-                LoadRegister ( AddrZeroPage(), Y );
+                _loadRegister ( _addrZeroPage(), Y );
             } break;
             case Ins::LDA_ZPX:
             {
-                LoadRegister ( AddrZeroPageX(), A );
+                _loadRegister ( _addrZeroPageX(), A );
             } break;
             case Ins::LDX_ZPY:
             {
-                LoadRegister ( AddrZeroPageY(), X );
+                _loadRegister ( _addrZeroPageY(), X );
             } break;
             case Ins::LDY_ZPX:
             {
-                LoadRegister ( AddrZeroPageX(), Y );
+                _loadRegister ( _addrZeroPageX(), Y );
             } break;
             case Ins::LDA_ABS:
             {
-                LoadRegister ( AddrAbsolute(), A );
+                _loadRegister ( _addrAbsolute(), A );
             } break;
             case Ins::LDX_ABS:
             {
-                LoadRegister ( AddrAbsolute(), X );
+                _loadRegister ( _addrAbsolute(), X );
             } break;
             case Ins::LDY_ABS:
             {
-                LoadRegister ( AddrAbsolute(), Y );
+                _loadRegister ( _addrAbsolute(), Y );
             } break;
             case Ins::LDA_ABSX:
             {
-                LoadRegister ( AddrAbsoluteX(), A );
+                _loadRegister ( _addrAbsoluteX(), A );
             } break;
             case Ins::LDA_ABSY:
             {
-                LoadRegister ( AddrAbsoluteY(), A );
+                _loadRegister ( _addrAbsoluteY(), A );
             } break;
             case Ins::LDX_ABSY:
             {
-                LoadRegister ( AddrAbsoluteY(), X );
+                _loadRegister ( _addrAbsoluteY(), X );
             } break;
             case Ins::LDY_ABSX:
             {
-                LoadRegister ( AddrAbsoluteX(), Y );
+                _loadRegister ( _addrAbsoluteX(), Y );
             } break;
             case Ins::LDA_INDX:
             {
-                LoadRegister ( AddrIndirectX(), A );
+                _loadRegister ( _addrIndirectX(), A );
             } break;
             case Ins::LDA_INDY:
             {
-                LoadRegister ( AddrIndirectY(), A );
+                _loadRegister ( _addrIndirectY(), A );
             } break;
             case Ins::STA_ZP:
             {
-                WriteByte ( A , AddrZeroPage() );
+                _writeByte ( A , _addrZeroPage() );
             } break;
             case Ins::STX_ZP:
             {
-                WriteByte ( X , AddrZeroPage() );
+                _writeByte ( X , _addrZeroPage() );
             } break;
             case Ins::STY_ZP:
             {
-                WriteByte ( Y , AddrZeroPage() );
+                _writeByte ( Y , _addrZeroPage() );
             } break;
             case Ins::STA_ABS:
             {
-                WriteByte ( A , AddrAbsolute() );
+                _writeByte ( A , _addrAbsolute() );
             } break;
             case Ins::STX_ABS:
             {
-                WriteByte ( X , AddrAbsolute() );
+                _writeByte ( X , _addrAbsolute() );
             } break;
             case Ins::STY_ABS:
             {
-                WriteByte ( Y , AddrAbsolute() );
+                _writeByte ( Y , _addrAbsolute() );
             } break;
             case Ins::STA_ZPX:
             {
-                WriteByte ( A , AddrZeroPageX() );
+                _writeByte ( A , _addrZeroPageX() );
             } break;
             case Ins::STY_ZPX:
             {
-                WriteByte ( Y , AddrZeroPageX() );
+                _writeByte ( Y , _addrZeroPageX() );
             } break;
             case Ins::STA_ABSX:
             {
-                WriteByte ( A , AddrAbsoluteX_5() );
+                _writeByte ( A , _addrAbsoluteX_5() );
             } break;
             case Ins::STA_ABSY:
             {
-                WriteByte ( A , AddrAbsoluteY_5() );
+                _writeByte ( A , _addrAbsoluteY_5() );
             } break;
             case Ins::STX_ZPY:
             {
-                WriteByte ( X , AddrZeroPageY() );
+                _writeByte ( X , _addrZeroPageY() );
             } break;
             case Ins::STA_INDX:
             {
-                WriteByte ( A , AddrIndirectX_6() );
+                _writeByte ( A , _addrIndirectX_6() );
             } break;
             case Ins::STA_INDY:
             {
-                WriteByte ( A , AddrIndirectY_6() );
+                _writeByte ( A , _addrIndirectY_6() );
             } break;
             case Ins::JSR:
             {
-                Word SubAddr = FetchWord();
-                PushPCMinusOneToStack();
+                Word SubAddr = _fetchWord();
+                _pushPCMinusOneToStack();
                 PC = SubAddr;
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::RTS:
             {
-                PC = PopWordFromStack() + 1;	
-                m_cycles -= 2;
+                PC = _popWordFromStack() + 1;	
+                _cycles -= 2;
             } break;
             //TODO:
             //An original 6502 has does not correctly fetch the target 
@@ -614,494 +473,494 @@ s64 CCPU::Execute( s64 pCycles )
             //indirect vector is not at the end of the page.
             case Ins::JMP_ABS:
             {
-                PC = AddrAbsolute();
+                PC = _addrAbsolute();
             } break;
             case Ins::JMP_IND:
             {
-                PC = ReadWord( AddrAbsolute() );
+                PC = _readWord( _addrAbsolute() );
             } break;
             case Ins::TSX:
             {
                 X = SP;
-                m_cycles--;
-                SetZeroAndNegativeFlags( X );
+                _cycles--;
+                _setZeroAndNegativeFlags( X );
             } break;
             case Ins::TXS:
             {
                 SP = X;
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::PHA:
             {
-                PushByteOntoStack( A );
+                _pushByteOntoStack( A );
             } break;
             case Ins::PLA:
             {
-                A = PopByteFromStack();
-                SetZeroAndNegativeFlags( A );
-                m_cycles--;
+                A = _popByteFromStack();
+                _setZeroAndNegativeFlags( A );
+                _cycles--;
             } break;
             case Ins::PHP:
             {
-                PushPSToStack();
+                _pushPSToStack();
             } break;
             case Ins::PLP:
             {
-                PopPSFromStack();
-                m_cycles--;
+                _popPSFromStack();
+                _cycles--;
             } break;
             case Ins::TAX:
             {
                 X = A;
-                m_cycles--;
-                SetZeroAndNegativeFlags( X );
+                _cycles--;
+                _setZeroAndNegativeFlags( X );
             } break;
             case Ins::TAY:
             {
                 Y = A;
-                m_cycles--;
-                SetZeroAndNegativeFlags( Y );
+                _cycles--;
+                _setZeroAndNegativeFlags( Y );
             } break;
             case Ins::TXA:
             {
                 A = X;
-                m_cycles--;
-                SetZeroAndNegativeFlags( A );
+                _cycles--;
+                _setZeroAndNegativeFlags( A );
             } break;
             case Ins::TYA:
             {
                 A = Y;
-                m_cycles--;
-                SetZeroAndNegativeFlags( A );
+                _cycles--;
+                _setZeroAndNegativeFlags( A );
             } break;
             case Ins::INX:
             {
                 X++;
-                m_cycles--;
-                SetZeroAndNegativeFlags( X );
+                _cycles--;
+                _setZeroAndNegativeFlags( X );
             } break;
             case Ins::INY:
             {
                 Y++;
-                m_cycles--;
-                SetZeroAndNegativeFlags( Y );
+                _cycles--;
+                _setZeroAndNegativeFlags( Y );
             } break;
             case Ins::DEX:
             {
                 X--;
-                m_cycles--;
-                SetZeroAndNegativeFlags( X );
+                _cycles--;
+                _setZeroAndNegativeFlags( X );
             } break;
             case Ins::DEY:
             {
                 Y--;
-                m_cycles--;
-                SetZeroAndNegativeFlags( Y );
+                _cycles--;
+                _setZeroAndNegativeFlags( Y );
             } break;
             case Ins::DEC_ZP:
             {
-                Word Address = AddrZeroPage();
-                Byte Value = ReadByte( Address );
+                Word Address = _addrZeroPage();
+                Byte Value = _readByte( Address );
                 Value--;
-                m_cycles--;
-                WriteByte( Value, Address );
-                SetZeroAndNegativeFlags( Value );
+                _cycles--;
+                _writeByte( Value, Address );
+                _setZeroAndNegativeFlags( Value );
             } break;
             case Ins::DEC_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                Byte Value = ReadByte( Address );
+                Word Address = _addrZeroPageX();
+                Byte Value = _readByte( Address );
                 Value--;
-                m_cycles--;
-                WriteByte( Value, Address );
-                SetZeroAndNegativeFlags( Value );
+                _cycles--;
+                _writeByte( Value, Address );
+                _setZeroAndNegativeFlags( Value );
             } break;
             case Ins::DEC_ABS:
             {
-                Word Address = AddrAbsolute();
-                Byte Value = ReadByte( Address );
+                Word Address = _addrAbsolute();
+                Byte Value = _readByte( Address );
                 Value--;
-                m_cycles--;
-                WriteByte( Value, Address );
-                SetZeroAndNegativeFlags( Value );
+                _cycles--;
+                _writeByte( Value, Address );
+                _setZeroAndNegativeFlags( Value );
             } break;
             case Ins::DEC_ABSX:
             {
-                Word Address = AddrAbsoluteX_5();
-                Byte Value = ReadByte( Address );
+                Word Address = _addrAbsoluteX_5();
+                Byte Value = _readByte( Address );
                 Value--;
-                m_cycles--;
-                WriteByte( Value, Address );
-                SetZeroAndNegativeFlags( Value );
+                _cycles--;
+                _writeByte( Value, Address );
+                _setZeroAndNegativeFlags( Value );
             } break;
             case Ins::INC_ZP:
             {
-                Word Address = AddrZeroPage();
-                Byte Value = ReadByte( Address );
+                Word Address = _addrZeroPage();
+                Byte Value = _readByte( Address );
                 Value++;
-                m_cycles--;
-                WriteByte( Value, Address );
-                SetZeroAndNegativeFlags( Value );
+                _cycles--;
+                _writeByte( Value, Address );
+                _setZeroAndNegativeFlags( Value );
             } break;
             case Ins::INC_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                Byte Value = ReadByte( Address );
+                Word Address = _addrZeroPageX();
+                Byte Value = _readByte( Address );
                 Value++;
-                m_cycles--;
-                WriteByte( Value, Address );
-                SetZeroAndNegativeFlags( Value );
+                _cycles--;
+                _writeByte( Value, Address );
+                _setZeroAndNegativeFlags( Value );
             } break;
             case Ins::INC_ABS:
             {
-                Word Address = AddrAbsolute();
-                Byte Value = ReadByte( Address );
+                Word Address = _addrAbsolute();
+                Byte Value = _readByte( Address );
                 Value++;
-                m_cycles--;
-                WriteByte( Value, Address );
-                SetZeroAndNegativeFlags( Value );
+                _cycles--;
+                _writeByte( Value, Address );
+                _setZeroAndNegativeFlags( Value );
             } break;
             case Ins::INC_ABSX:
             {
-                Word Address = AddrAbsoluteX_5();
-                Byte Value = ReadByte( Address );
+                Word Address = _addrAbsoluteX_5();
+                Byte Value = _readByte( Address );
                 Value++;
-                m_cycles--;
-                WriteByte( Value, Address );
-                SetZeroAndNegativeFlags( Value );
+                _cycles--;
+                _writeByte( Value, Address );
+                _setZeroAndNegativeFlags( Value );
             } break;
             case Ins::BEQ:
             {
-                BranchIf( Flags.Z, true );
+                _branchIf( Flags.Z, true );
             } break;
             case Ins::BNE:
             {
-                BranchIf( Flags.Z, false );
+                _branchIf( Flags.Z, false );
             } break;
             case Ins::BSC:
             {
-                BranchIf( Flags.C, true );
+                _branchIf( Flags.C, true );
             } break;
             case Ins::BCC:
             {
-                BranchIf( Flags.C, false );
+                _branchIf( Flags.C, false );
             } break;
             case Ins::BMI:
             {
-                BranchIf( Flags.N, true );
+                _branchIf( Flags.N, true );
             } break;
             case Ins::BPL:
             {
-                BranchIf( Flags.N, false );
+                _branchIf( Flags.N, false );
             } break;
             case Ins::BVC:
             {
-                BranchIf( Flags.V, false );
+                _branchIf( Flags.V, false );
             } break;
             case Ins::BVS:
             {
-                BranchIf( Flags.V, true );
+                _branchIf( Flags.V, true );
             } break;
             case Ins::CLC:
             {
                 Flags.C = false;
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::SEC:
             {
                 Flags.C = true;
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::CLD:
             {
                 Flags.D = false;
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::SED:
             {
                 Flags.D = true;
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::CLI:
             {
                 Flags.I = false;
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::SEI:
             {
                 Flags.I = true;
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::CLV:
             {
                 Flags.V = false;
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::NOP:
             {
-                m_cycles--;
+                _cycles--;
             } break;
             case Ins::ADC_ABS:
             {
-                ADC( ReadByte( AddrAbsolute() ) );
+                _ADC( _readByte( _addrAbsolute() ) );
             } break;
             case Ins::ADC_ABSX:
             {
-                ADC( ReadByte( AddrAbsoluteX() ) );
+                _ADC( _readByte( _addrAbsoluteX() ) );
             } break;
             case Ins::ADC_ABSY:
             {
-                ADC( ReadByte( AddrAbsoluteY() ) );
+                _ADC( _readByte( _addrAbsoluteY() ) );
             } break;
             case Ins::ADC_ZP:
             {
-                ADC( ReadByte( AddrZeroPage() ) );
+                _ADC( _readByte( _addrZeroPage() ) );
             } break;
             case Ins::ADC_ZPX:
             {
-                ADC( ReadByte( AddrZeroPageX() ) );
+                _ADC( _readByte( _addrZeroPageX() ) );
             } break;
             case Ins::ADC_INDX:
             {
-                ADC( ReadByte( AddrIndirectX() ) );
+                _ADC( _readByte( _addrIndirectX() ) );
             } break;
             case Ins::ADC_INDY:
             {
-                ADC( ReadByte( AddrIndirectY() ) );
+                _ADC( _readByte( _addrIndirectY() ) );
             } break;
             case Ins::ADC:
             {
-                ADC( FetchByte() );
+                _ADC( _fetchByte() );
             } break;
             case Ins::SBC:
             {
-                SBC( FetchByte() );
+                _SBC( _fetchByte() );
             } break;
             case Ins::SBC_ABS:
             {
-                SBC( ReadByte( AddrAbsolute() ) );
+                _SBC( _readByte( _addrAbsolute() ) );
             } break;
             case Ins::SBC_ZP:
             {
-                SBC( ReadByte( AddrZeroPage() ) );
+                _SBC( _readByte( _addrZeroPage() ) );
             } break;
             case Ins::SBC_ZPX:
             {
-                SBC( ReadByte( AddrZeroPageX() ) );
+                _SBC( _readByte( _addrZeroPageX() ) );
             } break;
             case Ins::SBC_ABSX:
             {
-                SBC( ReadByte ( AddrAbsoluteX() ) );
+                _SBC( _readByte ( _addrAbsoluteX() ) );
             } break;
             case Ins::SBC_ABSY:
             {
-                SBC( ReadByte( AddrAbsoluteY() ) );
+                _SBC( _readByte( _addrAbsoluteY() ) );
             } break;
             case Ins::SBC_INDX:
             {
-                SBC( ReadByte( AddrIndirectX() ) );
+                _SBC( _readByte( _addrIndirectX() ) );
             } break;
             case Ins::SBC_INDY:
             {
-                SBC( ReadByte( AddrIndirectY() ) );
+                _SBC( _readByte( _addrIndirectY() ) );
             } break;
             case Ins::CPX:
             {
-                RegisterCompare( FetchByte() , X );
+                _registerCompare( _fetchByte() , X );
             } break;
             case Ins::CPY:
             {
-                RegisterCompare( FetchByte(), Y );
+                _registerCompare( _fetchByte(), Y );
             } break;
             case Ins::CPX_ZP:
             {
-                RegisterCompare( ReadByte( AddrZeroPage() ), X );
+                _registerCompare( _readByte( _addrZeroPage() ), X );
             } break;
             case Ins::CPY_ZP:
             {
-                RegisterCompare( ReadByte( AddrZeroPage() ), Y );
+                _registerCompare( _readByte( _addrZeroPage() ), Y );
             } break;
             case Ins::CPX_ABS:
             {
-                RegisterCompare( ReadByte ( AddrAbsolute () ), X );
+                _registerCompare( _readByte ( _addrAbsolute () ), X );
             } break;
             case Ins::CPY_ABS:
             {
-                RegisterCompare( ReadByte ( AddrAbsolute () ), Y );
+                _registerCompare( _readByte ( _addrAbsolute () ), Y );
             } break;
             case Ins::CMP:
             {
-                RegisterCompare( FetchByte(), A );
+                _registerCompare( _fetchByte(), A );
             } break;
             case Ins::CMP_ZP:
             {
-                RegisterCompare( ReadByte( AddrZeroPage() ), A );
+                _registerCompare( _readByte( _addrZeroPage() ), A );
             } break;
             case Ins::CMP_ZPX:
             {
-                RegisterCompare( ReadByte( AddrZeroPageX() ), A );
+                _registerCompare( _readByte( _addrZeroPageX() ), A );
             } break;
             case Ins::CMP_ABS:
             {
-                RegisterCompare( ReadByte( AddrAbsolute() ), A );
+                _registerCompare( _readByte( _addrAbsolute() ), A );
             } break;
             case Ins::CMP_ABSX:
             {
-                RegisterCompare( ReadByte( AddrAbsoluteX() ), A );
+                _registerCompare( _readByte( _addrAbsoluteX() ), A );
             } break;
             case Ins::CMP_ABSY:
             {
-                RegisterCompare( ReadByte( AddrAbsoluteY() ), A );
+                _registerCompare( _readByte( _addrAbsoluteY() ), A );
             } break;
             case Ins::CMP_INDX:
             {
-                RegisterCompare( ReadByte( AddrIndirectX() ), A );
+                _registerCompare( _readByte( _addrIndirectX() ), A );
             } break;
             case Ins::CMP_INDY:
             {
-                RegisterCompare( ReadByte( AddrIndirectY() ), A );
+                _registerCompare( _readByte( _addrIndirectY() ), A );
             } break;
             case Ins::ASL:
             {
-                A = ASL( A );
+                A = _ASL( A );
             } break;
             case Ins::ASL_ZP:
             {
-                Word Address = AddrZeroPage();
-                Byte Operand = ReadByte( Address );
-                Byte Result = ASL( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrZeroPage();
+                Byte Operand = _readByte( Address );
+                Byte Result = _ASL( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ASL_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                Byte Operand = ReadByte( Address );
-                Byte Result = ASL( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrZeroPageX();
+                Byte Operand = _readByte( Address );
+                Byte Result = _ASL( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ASL_ABS:
             {
-                Word Address = AddrAbsolute();
-                Byte Operand = ReadByte( Address );
-                Byte Result = ASL( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrAbsolute();
+                Byte Operand = _readByte( Address );
+                Byte Result = _ASL( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ASL_ABSX:
             {
-                Word Address = AddrAbsoluteX_5();
-                Byte Operand = ReadByte( Address );
-                Byte Result = ASL( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrAbsoluteX_5();
+                Byte Operand = _readByte( Address );
+                Byte Result = _ASL( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::LSR:
             {
-                A = LSR( A );
+                A = _LSR( A );
             } break;
             case Ins::LSR_ZP:
             {
-                Word Address = AddrZeroPage();
-                Byte Operand = ReadByte( Address );
-                Byte Result = LSR( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrZeroPage();
+                Byte Operand = _readByte( Address );
+                Byte Result = _LSR( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::LSR_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                Byte Operand = ReadByte( Address );
-                Byte Result = LSR( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrZeroPageX();
+                Byte Operand = _readByte( Address );
+                Byte Result = _LSR( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::LSR_ABS:
             {
-                Word Address = AddrAbsolute();
-                Byte Operand = ReadByte( Address );
-                Byte Result = LSR( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrAbsolute();
+                Byte Operand = _readByte( Address );
+                Byte Result = _LSR( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::LSR_ABSX:
             {
-                Word Address = AddrAbsoluteX_5();
-                Byte Operand = ReadByte( Address );
-                Byte Result = LSR( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrAbsoluteX_5();
+                Byte Operand = _readByte( Address );
+                Byte Result = _LSR( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ROL:
             {
-                A = ROL( A );
+                A = _ROL( A );
             } break;
             case Ins::ROL_ZP:
             {
-                Word Address = AddrZeroPage( );
-                Byte Operand = ReadByte( Address );
-                Byte Result = ROL( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrZeroPage( );
+                Byte Operand = _readByte( Address );
+                Byte Result = _ROL( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ROL_ZPX:
             {
-                Word Address = AddrZeroPageX();
-                Byte Operand = ReadByte( Address );
-                Byte Result = ROL( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrZeroPageX();
+                Byte Operand = _readByte( Address );
+                Byte Result = _ROL( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ROL_ABS:
             {
-                Word Address = AddrAbsolute();
-                Byte Operand = ReadByte( Address );
-                Byte Result = ROL( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrAbsolute();
+                Byte Operand = _readByte( Address );
+                Byte Result = _ROL( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ROL_ABSX:
             {
-                Word Address = AddrAbsoluteX_5();
-                Byte Operand = ReadByte( Address );
-                Byte Result = ROL( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrAbsoluteX_5();
+                Byte Operand = _readByte( Address );
+                Byte Result = _ROL( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ROR:
             {
-                A = ROR( A );
+                A = _ROR( A );
             } break;
             case Ins::ROR_ZP:
             {
-                Word Address = AddrZeroPage();
-                Byte Operand = ReadByte( Address );			
-                Byte Result = ROR( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrZeroPage();
+                Byte Operand = _readByte( Address );			
+                Byte Result = _ROR( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ROR_ZPX:
             {
-                Word Address = AddrZeroPageX( );
-                Byte Operand = ReadByte( Address );
-                Byte Result = ROR( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrZeroPageX( );
+                Byte Operand = _readByte( Address );
+                Byte Result = _ROR( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ROR_ABS:
             {
-                Word Address = AddrAbsolute();
-                Byte Operand = ReadByte( Address );
-                Byte Result = ROR( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrAbsolute();
+                Byte Operand = _readByte( Address );
+                Byte Result = _ROR( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::ROR_ABSX:
             {
-                Word Address = AddrAbsoluteX_5();
-                Byte Operand = ReadByte(Address);
-                Byte Result = ROR( Operand );
-                WriteByte( Result, Address );
+                Word Address = _addrAbsoluteX_5();
+                Byte Operand = _readByte(Address);
+                Byte Result = _ROR( Operand );
+                _writeByte( Result, Address );
             } break;
             case Ins::BRK:
             {
-                PushPCPlusOneToStack();
-                PushPSToStack();
+                _pushPCPlusOneToStack();
+                _pushPSToStack();
                 constexpr Word InterruptVector = 0xFFFE;
-                PC = ReadWord( InterruptVector );
+                PC = _readWord( InterruptVector );
                 Flags.B = true;
                 Flags.I = true;
             } break;
             case Ins::RTI:
             {
-                PopPSFromStack();
-                PC = PopWordFromStack();
+                _popPSFromStack();
+                PC = _popWordFromStack();
             } break;
             default:
             {
@@ -1110,54 +969,54 @@ s64 CCPU::Execute( s64 pCycles )
             } break;
         }
     }
-    const s64 NumCyclesUsed = CyclesRequested - m_cycles;
+    const s64 NumCyclesUsed = CyclesRequested - _cycles;
     return NumCyclesUsed;
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrZeroPage()
+Word CCPU::_addrZeroPage()
 {
-    return static_cast<Word>(FetchByte());
+    return static_cast<Word>(_fetchByte());
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrZeroPageX()
+Word CCPU::_addrZeroPageX()
 {
-    Byte ZeroPageAddr = FetchByte();
+    Byte ZeroPageAddr = _fetchByte();
     ZeroPageAddr += X;
-    m_cycles--;
+    _cycles--;
     return ZeroPageAddr;
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrZeroPageY()
+Word CCPU::_addrZeroPageY()
 {
-    Byte ZeroPageAddr = FetchByte();
+    Byte ZeroPageAddr = _fetchByte();
     ZeroPageAddr += Y;
-    m_cycles--;
+    _cycles--;
     return ZeroPageAddr;
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrAbsolute()
+Word CCPU::_addrAbsolute()
 {
-    return FetchWord();
+    return _fetchWord();
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrAbsoluteX()
+Word CCPU::_addrAbsoluteX()
 {
-    Word AbsAddress = FetchWord();
+    Word AbsAddress = _fetchWord();
     Word AbsAddressX = AbsAddress + X;
     const bool CrossedPageBoundary = (AbsAddress ^ AbsAddressX) >> 8;
     if ( CrossedPageBoundary )
     {
-        m_cycles--;
+        _cycles--;
     }
 
     return AbsAddressX;
@@ -1165,23 +1024,23 @@ Word CCPU::AddrAbsoluteX()
 
 /*****************************************************************************/
 
-Word CCPU::AddrAbsoluteX_5()
+Word CCPU::_addrAbsoluteX_5()
 {
-    Word AbsAddress = FetchWord();
-    m_cycles--;
+    Word AbsAddress = _fetchWord();
+    _cycles--;
     return AbsAddress + X;
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrAbsoluteY()
+Word CCPU::_addrAbsoluteY()
 {
-    Word AbsAddress = FetchWord();
+    Word AbsAddress = _fetchWord();
     Word AbsAddressY = AbsAddress + Y;
     const bool CrossedPageBoundary = (AbsAddress ^ AbsAddressY) >> 8;
     if ( CrossedPageBoundary )
     {
-        m_cycles--;
+        _cycles--;
     }
 
     return AbsAddressY;
@@ -1189,54 +1048,54 @@ Word CCPU::AddrAbsoluteY()
 
 /*****************************************************************************/
 
-Word CCPU::AddrIndirectX()
+Word CCPU::_addrIndirectX()
 {
-    m_cycles--;
-    return ReadWord(FetchByte() + X);
+    _cycles--;
+    return _readWord(_fetchByte() + X);
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrIndirectY()
+Word CCPU::_addrIndirectY()
 {
-    Byte ZPAddress = FetchByte();
-    Word EffectiveAddr = ReadWord( ZPAddress );
+    Byte ZPAddress = _fetchByte();
+    Word EffectiveAddr = _readWord( ZPAddress );
     Word EffectiveAddrY = EffectiveAddr + Y;
     const bool CrossedPageBoundary = (EffectiveAddr ^ EffectiveAddrY) >> 8;
     if ( CrossedPageBoundary )
     {
-        m_cycles--;
+        _cycles--;
     }
     return EffectiveAddrY;
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrAbsoluteY_5()
+Word CCPU::_addrAbsoluteY_5()
 {
-    m_cycles--;
-    return FetchWord() + Y;
+    _cycles--;
+    return _fetchWord() + Y;
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrIndirectX_6()
+Word CCPU::_addrIndirectX_6()
 {
-    m_cycles--;
-    return ReadWord( FetchByte() ) + X;
+    _cycles--;
+    return _readWord( _fetchByte() ) + X;
 }
 
 /*****************************************************************************/
 
-Word CCPU::AddrIndirectY_6()
+Word CCPU::_addrIndirectY_6()
 {
-    m_cycles--;
-    return ReadWord( FetchByte() ) + Y;
+    _cycles--;
+    return _readWord( _fetchByte() ) + Y;
 }
 
 /*****************************************************************************/
 
-Word CCPU::LoadPrg( const Byte* pProgram, u32 NumBytes )
+Word CCPU::loadPrg( const Byte* pProgram, u32 NumBytes )
 {
     Word LoadAddress = 0;
     if ( pProgram && NumBytes > 2 )
@@ -1248,10 +1107,163 @@ Word CCPU::LoadPrg( const Byte* pProgram, u32 NumBytes )
         for ( Word Addr = LoadAddress; Addr < LoadAddress+NumBytes-2; Addr++ )
         {
             //TODO: mem copy?
-            Bus.WriteBusData(Addr, pProgram[At++]);
+            bus.writeBusData(Addr, pProgram[At++]);
         }
     }
     return LoadAddress;
 }
+
+/*****************************************************************************/
+
+void CCPU::_loadRegister(Word pAddress, Byte& pRegister)
+{
+    pRegister = _readByte ( pAddress );
+    _setZeroAndNegativeFlags( pRegister );
+}
+
+/*****************************************************************************/
+
+void CCPU::_and( Word pAddress )
+{
+    A &= _readByte( pAddress );
+    _setZeroAndNegativeFlags( A );
+}
+
+/*****************************************************************************/
+
+void CCPU::_ora( Word pAddress )
+{
+    A |= _readByte( pAddress );
+    _setZeroAndNegativeFlags( A );
+};
+
+/*****************************************************************************/
+
+void CCPU::_eor( Word pAddress )
+{
+    A ^= _readByte( pAddress );
+    _setZeroAndNegativeFlags( A );
+};
+
+/*****************************************************************************/
+
+void CCPU::_branchIf( bool pTest, bool pExpected )
+{
+    SByte Offset = _fetchSByte();
+    if ( pTest == pExpected )
+    {
+        const Word PCOld = PC;
+        PC += Offset;
+        _cycles--;
+
+        const bool PageChanged = (PC >> 8) != (PCOld >> 8);
+        if ( PageChanged )
+        {
+            _cycles--;
+        }
+    }
+};
+
+/*****************************************************************************/
+
+void CCPU::_ADC( Byte pOperand )
+{
+    ASSERT( Flags.D == false, "haven't handled decimal mode!" );
+    const bool AreSignBitsTheSame =
+        !((A ^ pOperand) & NegativeFlagBit);
+    Word Sum = static_cast<Word>(A);
+    Sum += pOperand;
+    Sum += Flags.C;
+    A = (Sum & 0xFF);
+    _setZeroAndNegativeFlags( A );
+    Flags.C = Sum > 0xFF;
+    Flags.V = AreSignBitsTheSame &&
+        ((A ^ pOperand) & NegativeFlagBit);
+};
+    
+/*****************************************************************************/
+
+void CCPU::_SBC( Byte pOperand )
+{
+    _ADC( ~pOperand );
+};
+
+/*****************************************************************************/
+
+void CCPU::_registerCompare( Byte pOperand, Byte pRegisterValue )
+{
+    Byte Temp = pRegisterValue - pOperand;
+    Flags.N = (Temp & NegativeFlagBit) > 0;
+    Flags.Z = pRegisterValue == pOperand;
+    Flags.C = pRegisterValue >= pOperand;
+};
+
+/*****************************************************************************/
+
+Byte CCPU::_ASL( Byte pOperand )
+{
+    Flags.C = (pOperand & NegativeFlagBit) > 0;
+    Byte Result = pOperand << 1;
+    _setZeroAndNegativeFlags( Result );
+    _cycles--;
+    return Result;
+};
+
+/*****************************************************************************/
+
+Byte CCPU::_LSR( Byte pOperand )
+{
+    Flags.C = (pOperand & ZeroBit) > 0;
+    Byte Result = pOperand >> 1;
+    _setZeroAndNegativeFlags( Result );
+    _cycles--;
+    return Result;
+};
+
+/*****************************************************************************/
+
+Byte CCPU::_ROL( Byte pOperand )
+{
+    Byte NewBit0 = Flags.C ? ZeroBit : 0;
+    Flags.C = (pOperand & NegativeFlagBit) > 0;
+    pOperand = pOperand << 1;
+    pOperand |= NewBit0;
+    _setZeroAndNegativeFlags( pOperand );
+    _cycles--;
+    return pOperand;
+};
+
+/*****************************************************************************/
+
+Byte CCPU::_ROR( Byte pOperand )
+{
+    bool OldBit0 = (pOperand & ZeroBit) > 0;
+    pOperand = pOperand >> 1;
+    if ( Flags.C )
+    {
+        pOperand |= NegativeFlagBit;
+    }
+    _cycles--;
+    Flags.C = OldBit0;
+    _setZeroAndNegativeFlags( pOperand );
+    return pOperand;
+};
+
+/*****************************************************************************/
+
+void CCPU::_pushPSToStack()
+{
+    Byte PSStack = PS | BreakFlagBit | UnusedFlagBit;		
+    _pushByteOntoStack( PSStack );
+};
+
+/*****************************************************************************/
+
+void CCPU::_popPSFromStack()
+{
+    PS = _popByteFromStack();
+    Flags.B = false;
+    Flags.Unused = false;
+};
 
 }

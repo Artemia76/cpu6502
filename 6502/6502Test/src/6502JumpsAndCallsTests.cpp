@@ -11,7 +11,7 @@ public:
 
     virtual void SetUp()
     {
-        cpu.Reset();
+        cpu.reset();
     }
 
     virtual void TearDown()
@@ -23,7 +23,7 @@ TEST_F( M6502JumpsAndCallsTests, CanJumpToASubroutineAndJumpBackAgain )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     mem[0xFF00] = opcode(Ins::JSR);
     mem[0xFF01] = 0x00;
     mem[0xFF02] = 0x80;
@@ -34,7 +34,7 @@ TEST_F( M6502JumpsAndCallsTests, CanJumpToASubroutineAndJumpBackAgain )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -46,7 +46,7 @@ TEST_F( M6502JumpsAndCallsTests, JSRDoesNotAffectTheProcessorStatus )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     mem[0xFF00] = opcode(Ins::JSR);
     mem[0xFF01] = 0x00;
     mem[0xFF02] = 0x80;
@@ -54,7 +54,7 @@ TEST_F( M6502JumpsAndCallsTests, JSRDoesNotAffectTheProcessorStatus )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -67,7 +67,7 @@ TEST_F( M6502JumpsAndCallsTests, RTSDoesNotAffectTheProcessorStatus )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     mem[0xFF00] = opcode(Ins::JSR);
     mem[0xFF01] = 0x00;
     mem[0xFF02] = 0x80;
@@ -76,7 +76,7 @@ TEST_F( M6502JumpsAndCallsTests, RTSDoesNotAffectTheProcessorStatus )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -88,7 +88,7 @@ TEST_F( M6502JumpsAndCallsTests, JumpAbsoluteCanJumpToAnNewLocationInTheProgram 
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     mem[0xFF00] = opcode(Ins::JMP_ABS);
     mem[0xFF01] = 0x00;
     mem[0xFF02] = 0x80;
@@ -96,7 +96,7 @@ TEST_F( M6502JumpsAndCallsTests, JumpAbsoluteCanJumpToAnNewLocationInTheProgram 
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -109,7 +109,7 @@ TEST_F( M6502JumpsAndCallsTests, JumpIndirectCanJumpToAnNewLocationInTheProgram 
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     mem[0xFF00] = opcode (Ins::JMP_IND);
     mem[0xFF01] = 0x00;
     mem[0xFF02] = 0x80;
@@ -119,7 +119,7 @@ TEST_F( M6502JumpsAndCallsTests, JumpIndirectCanJumpToAnNewLocationInTheProgram 
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );

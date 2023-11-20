@@ -11,7 +11,7 @@ public:
 
     virtual void SetUp()
     {
-        cpu.Reset();
+        cpu.reset();
     }
 
     virtual void TearDown()
@@ -53,7 +53,7 @@ public:
     {
         // given:
         using namespace m6502;
-        cpu.Reset( 0xFF00 );
+        cpu.reset( 0xFF00 );
         cpu.Flags.C = Test.Carry;
         cpu.A = Test.A;
         cpu.Flags.Z = !Test.ExpectZ;
@@ -69,7 +69,7 @@ public:
         CCPU CPUCopy = cpu;
 
         // when:
-        const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+        const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
         // then:
         EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -91,7 +91,7 @@ public:
     {
         // given:
         using namespace m6502;
-        cpu.Reset( 0xFF00 );
+        cpu.reset( 0xFF00 );
         cpu.Flags.C = Test.Carry;
         cpu.X = 0x10;
         cpu.A = Test.A;
@@ -108,7 +108,7 @@ public:
         CCPU CPUCopy = cpu;
 
         // when:
-        const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+        const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
         // then:
         EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -130,7 +130,7 @@ public:
     {
         // given:
         using namespace m6502;
-        cpu.Reset( 0xFF00 );
+        cpu.reset( 0xFF00 );
         cpu.Flags.C = Test.Carry;
         cpu.Y = 0x10;
         cpu.A = Test.A;
@@ -147,7 +147,7 @@ public:
         CCPU CPUCopy = cpu;
 
         // when:
-        const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+        const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
         // then:
         EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -169,7 +169,7 @@ public:
     {
         // given:
         using namespace m6502;
-        cpu.Reset( 0xFF00 );
+        cpu.reset( 0xFF00 );
         cpu.Flags.C = Test.Carry;
         cpu.A = Test.A;
         cpu.Flags.Z = !Test.ExpectZ;
@@ -183,7 +183,7 @@ public:
         CCPU CPUCopy = cpu;
 
         // when:
-        const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+        const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
         // then:
         EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -205,7 +205,7 @@ public:
     {
         // given:
         using namespace m6502;
-        cpu.Reset( 0xFF00 );
+        cpu.reset( 0xFF00 );
         cpu.Flags.C = Test.Carry;
         cpu.A = Test.A;
         cpu.Flags.Z = !Test.ExpectZ;
@@ -220,7 +220,7 @@ public:
         CCPU CPUCopy = cpu;
 
         // when:
-        const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+        const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
         // then:
         EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -242,7 +242,7 @@ public:
     {
         // given:
         using namespace m6502;
-        cpu.Reset( 0xFF00 );
+        cpu.reset( 0xFF00 );
         cpu.Flags.C = Test.Carry;
         cpu.X = 0x10;
         cpu.A = Test.A;
@@ -258,7 +258,7 @@ public:
         CCPU CPUCopy = cpu;
 
         // when:
-        const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+        const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
         // then:
         EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -280,7 +280,7 @@ public:
     {
         // given:
         using namespace m6502;
-        cpu.Reset( 0xFF00 );
+        cpu.reset( 0xFF00 );
         cpu.Flags.C = Test.Carry;
         cpu.X = 0x04;
         cpu.A = Test.A;
@@ -298,7 +298,7 @@ public:
         CCPU CPUCopy = cpu;
 
         // when:
-        const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+        const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
         // then:
         EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -320,7 +320,7 @@ public:
     {
         // given:
         using namespace m6502;
-        cpu.Reset( 0xFF00 );
+        cpu.reset( 0xFF00 );
         cpu.Flags.C = Test.Carry;
         cpu.Y = 0x04;
         cpu.A = Test.A;
@@ -338,7 +338,7 @@ public:
         CCPU CPUCopy = cpu;
 
         // when:
-        const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+        const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
         // then:
         EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );

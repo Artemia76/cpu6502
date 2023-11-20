@@ -52,83 +52,83 @@ struct SStatusFlags
  */
 class CRegisters
 {
-    public:
+public:
+    /**
+     * @brief Construct a new Registers object
+     * 
+     * @param copy 
+     */
+    CRegisters(const CRegisters& copy);
+
+    /**
+     * @brief Destroy the Registers object
+     * 
+     */
+    virtual ~CRegisters();
+
+    /**
+     * @brief program counter
+     * 
+     */
+    Word PC;
+    /**
+     * @brief stack pointer
+     * 
+     */
+    Byte SP;
+
+    /**
+     * @brief Accumulator Register
+     * 
+     */
+    Byte A;
+
+    /**
+     * @brief X Register
+     * 
+     */
+    Byte X;
+
+    /**
+     * @brief Y Register
+     * 
+     */
+    Byte Y;
+    union
+    {
         /**
-         * @brief Construct a new Registers object
+         * @brief Process Status as Word
          * 
-         * @param copy 
          */
-        CRegisters(const CRegisters& copy);
+        Byte PS;
 
         /**
-         * @brief Destroy the Registers object
+         * @brief Process Status as Flag
+         *        Struct
          * 
          */
-        virtual ~CRegisters();
-
-        /**
-         * @brief program counter
-         * 
-         */
-        Word PC;
-        /**
-         * @brief stack pointer
-         * 
-         */
-        Byte SP;
-
-        /**
-         * @brief Accumulator Register
-         * 
-         */
-        Byte A;
-
-        /**
-         * @brief X Register
-         * 
-         */
-        Byte X;
-
-        /**
-         * @brief Y Register
-         * 
-         */
-        Byte Y;
-        union
-        {
-            /**
-             * @brief Process Status as Word
-             * 
-             */
-            Byte PS;
-
-            /**
-             * @brief Process Status as Flag
-             *        Struct
-             * 
-             */
-            SStatusFlags Flags;
-        };
-        
-        /**
-         * @brief Significant bit
-         *        For status register
-         * 
-         */
-    static constexpr Byte
-        NegativeFlagBit = 0b10000000,
-        OverflowFlagBit = 0b01000000,
-        BreakFlagBit = 0b000010000,
-        UnusedFlagBit = 0b000100000,
-        InterruptDisableFlagBit = 0b000000100,
-        ZeroBit = 0b00000001;
-    protected:
-        /**
-         * @brief Construct a new Registers object
-         *        from derivated class
-         * 
-         */
-        CRegisters();
+        SStatusFlags Flags;
+    };
+    
+    /**
+     * @brief Significant bit
+     *        For status register
+     * 
+     */
+static constexpr Byte
+    NegativeFlagBit = 0b10000000,
+    OverflowFlagBit = 0b01000000,
+    BreakFlagBit = 0b000010000,
+    UnusedFlagBit = 0b000100000,
+    InterruptDisableFlagBit = 0b000000100,
+    ZeroBit = 0b00000001;
+protected:
+    /**
+     * @brief Construct a new Registers object
+     *        from derivated class
+     * 
+     */
+    CRegisters();
 };
 
 }

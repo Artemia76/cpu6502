@@ -73,27 +73,27 @@ class CBusChip
          * @brief Write Event from Bus
          * 
          */
-        virtual void OnWriteBusData(const Word&, const Byte&){};
+        virtual void onWriteBusData(const Word&, const Byte&){};
 
         /**
          * @brief Read Event from Bus
          * 
          * @return Byte 
          */
-        virtual Byte OnReadBusData(const Word&){return 0;};
+        virtual Byte onReadBusData(const Word&){return 0;};
 
         /**
          * @brief Bus Parent
          * 
          */
-        CBus& Bus;
+        CBus& bus;
 
         /**
          * @brief Mask used by bus to trigger R/W events
          *        0xFFFF value mean chip act as master (CPU)
          *        and not handle R/W operations
          */
-        Word Mask;
+        Word mask;
 
         /**
          * @brief Bank of Mask 
@@ -101,7 +101,7 @@ class CBusChip
          *        Start Addr = 0x4000
          *        End Addr  = 07FFF
          */
-        Word Bank;
+        Word bank;
 };
 
 typedef std::vector<CBusChip*> v_buschips;
@@ -134,14 +134,14 @@ class CBus
          * @brief Send Reset Signal to all chips
          * 
          */
-        void Reset();
+        void reset();
 
         /**
          * @brief Set the Ready flag
          * 
          * @param pFlag 
          */
-        void SetReady(const bool pFlag);
+        void setReady(const bool pFlag);
 
         /**
          * @brief Send data on bus
@@ -149,7 +149,7 @@ class CBus
          * @param pAddress 
          * @param pData 
          */
-        void WriteBusData(const Word& pAddress, const Byte& pData);
+        void writeBusData(const Word& pAddress, const Byte& pData);
 
         /**
          * @brief Read data from bus
@@ -157,28 +157,28 @@ class CBus
          * @param pAddress 
          * @return Byte 
          */
-        Byte ReadBusData(const Word& pAddress);
+        Byte readBusData(const Word& pAddress);
 
     private:
         /**
          * @brief Vector contain list of chips connected on bus
          * 
          */
-        v_buschips m_chips;
+        v_buschips _chips;
 
         /**
          * @brief Called by Chips to connect on bus events
          * 
          * @param pChip 
          */
-        void Subscribe( CBusChip* pChip);
+        void _subscribe( CBusChip* pChip);
 
         /**
          * @brief Called by Chips to disconnect from bus events
          * 
          * @param pChip 
          */
-        void UnSubscribe( CBusChip* pChip);
+        void _unSubscribe( CBusChip* pChip);
 
 };
 

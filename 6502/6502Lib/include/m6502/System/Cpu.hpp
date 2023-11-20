@@ -43,293 +43,397 @@ namespace m6502
  */
 class CCPU : public CRegisters, CBusChip
 {
-    public:
+public:
+    /**
+     * @brief Construct a new CPU object
+     * 
+     * @param pBus 
+     */
+    explicit CCPU(CBus& pBus);
 
-        /**
-         * @brief Construct a new CPU object
-         * 
-         * @param pMem 
-         */
-        explicit CCPU(CBus& pBus);
+    /**
+     * @brief Construct a new CPU object
+     * 
+     * @param pBus 
+     */
+    explicit CCPU(CBus&& pBus) = delete;
 
-        /**
-         * @brief Construct a new CPU object
-         * 
-         * @param memory 
-         */
-        explicit CCPU(CBus&& pBus) = delete;
+    /**
+     * @brief Construct a new CPU object
+     * 
+     * @param pCopy 
+     */
+    CCPU(const CCPU& pCopy);
 
-        /**
-         * @brief Construct a new CPU object
-         * 
-         * @param copy 
-         */
-        CCPU(const CCPU& pCopy);
+    /**
+     * @brief Destroy the CPU object
+     * 
+     */
+    ~CCPU() override;
 
-        /**
-         * @brief Destroy the CPU object
-         * 
-         */
-        ~CCPU() override;
+    /**
+     * @brief Reset the CPU object
+     * 
+     */
+    void reset( );
 
-        /**
-         * @brief Reset the CPU object
-         * 
-         */
-        void Reset( );
+    /**
+     * @brief Reset the CPU with the given start vector
+     * 
+     * @param pResetVector 
+     */
+    void reset( const Word& pResetVector );
 
-        /**
-         * @brief Reset the CPU with the given start vector
-         * 
-         * @param pResetVector 
-         */
-        void Reset( const Word& pResetVector );
+    /**
+     * @brief Load program in memory
+     * 
+     * @param Program 
+     * @param NumBytes 
+     * @return the address that the rogram was loading into, or 0 if no program 
+     * 
+     * This method handle a Byte array containing programm.
+     * The 2 first Bytes contain the memory address where
+     * Load the program
+     */
+    Word loadPrg( const Byte* pProgram, u32 pNumBytes);
 
-        /**
-         * @brief Load program in memory
-         * 
-         * @param Program 
-         * @param NumBytes 
-         * @return the address that the rogram was loading into, or 0 if no program 
-         * 
-         * This method handle a Byte array containing programm.
-         * The 2 first Bytes contain the memory address where
-         * Load the program
-         */
-        Word LoadPrg( const Byte* pProgram, u32 pNumBytes);
+    /**
+     * @brief Get the stack pointer
+     * 
+     * @return the stack pointer as a full 16-bit address (in the 1st page) 
+     */
+    Word SPToAddress() const;
 
-        /**
-         * @brief Get the stack pointer
-         * 
-         * @return the stack pointer as a full 16-bit address (in the 1st page) 
-         */
-        Word SPToAddress() const;
+    /**
+     * @brief Execute specified number of cycles
+     * 
+     * @param Cycles 
+     * @return The real numbers cycles excecuted
+     */
+    s64 execute( s64 pCycles);
 
-        /**
-         * @brief Execute specified number of cycles
-         * 
-         * @param Cycles 
-         * @return The real numbers cycles excecuted
-         */
-        s64 Execute( s64 pCycles);
+private:
 
-    private:
+    /**
+     * @brief Cycles counter down for Execution
+     *        process
+     * 
+     */
+    s64 _cycles;
 
-        /**
-         * @brief Cycles counter down for Execution
-         *        process
-         * 
-         */
-        s64 m_cycles;
+    /**
+     * @brief 
+     * 
+     * @return Byte 
+     */
+    Byte _fetchByte();
 
-        /**
-         * @brief 
-         * 
-         * @return Byte 
-         */
-        Byte FetchByte();
+    /**
+     * @brief 
+     * 
+     * @return Word 
+     */
+    Word _fetchWord();
 
-        /**
-         * @brief 
-         * 
-         * @return Word 
-         */
-        Word FetchWord();
+    /**
+     * @brief 
+     * 
+     * @return SByte 
+     */
+    SByte _fetchSByte();
 
-        /**
-         * @brief 
-         * 
-         * @return SByte 
-         */
-        SByte FetchSByte();
+    /**
+     * @brief 
+     * 
+     * @param Address 
+     * @return Byte 
+     */
+    Byte _readByte( const Word& Address );
 
-        /**
-         * @brief 
-         * 
-         * @param Address 
-         * @return Byte 
-         */
-        Byte ReadByte( const Word& Address );
+    /**
+     * @brief Read Word from memory at address
+     * 
+     * @param Address 
+     * @return Word 
+     */
+    Word _readWord( const Word& Address );
 
-        /**
-         * @brief Read Word from memory at address
-         * 
-         * @param Address 
-         * @return Word 
-         */
-        Word ReadWord( const Word& Address );
+    /**
+     * @brief Write 1 Byte to memory
+     * 
+     * @param Value 
+     * @param Address 
+     */
+    void _writeByte( const Byte& Value, const Word& Address );
 
-        /**
-         * @brief Write 1 Byte to memory
-         * 
-         * @param Value 
-         * @param Address 
-         */
-        void WriteByte( const Byte& Value, const Word& Address );
+    /**
+     * @brief Write 1 Word to memory
+     * 
+     * @param Value 
+     * @param Address 
+     */
+    void _writeWord(	const Word& Value, const Word& Address );
 
-        /**
-         * @brief Write 1 Word to memory
-         * 
-         * @param Value 
-         * @param Address 
-         */
-        void WriteWord(	const Word& Value, const Word& Address );
+    /**
+     * @brief Write 1 Word on to Stack
+     * 
+     * @param Value 
+     */
+    void _pushWordToStack( const Word& Value );
 
-        /**
-         * @brief Write 1 Word on to Stack
-         * 
-         * @param Value 
-         */
-        void PushWordToStack( const Word& Value );
+    /**
+     * @brief Push the PC-1 onto the stack
+     * 
+     */
+    void _pushPCMinusOneToStack();
 
-        /**
-         * @brief Push the PC-1 onto the stack
-         * 
-         */
-        void PushPCMinusOneToStack();
+    /**
+     * @brief Push the PC+1 onto the stack
+     * 
+     */
+    void _pushPCPlusOneToStack();
 
-        /**
-         * @brief Push the PC+1 onto the stack
-         * 
-         */
-        void PushPCPlusOneToStack();
+    /**
+     * @brief Push the PC onto the stack
+     * 
+     */
+    void _pushPCToStack();
 
-        /**
-         * @brief Push the PC onto the stack
-         * 
-         */
-        void PushPCToStack();
+    /**
+     * @brief Push a byte on to Stack
+     * 
+     * @param Value 
+     */
+    void _pushByteOntoStack( const Byte& Value );
 
-        /**
-         * @brief Push a byte on to Stack
-         * 
-         * @param Value 
-         */
-        void PushByteOntoStack( const Byte& Value );
+    /**
+     * @brief Pop a byte value from the stack
+     * 
+     * @return Byte 
+     */
+    Byte _popByteFromStack();
 
-        /**
-         * @brief Pop a byte value from the stack
-         * 
-         * @return Byte 
-         */
-        Byte PopByteFromStack();
+    /**
+     * @brief Pop a 16-bit value from the stack
+     * 
+     * @return Word 
+     */
+    Word _popWordFromStack();
 
-        /**
-         * @brief Pop a 16-bit value from the stack
-         * 
-         * @return Word 
-         */
-        Word PopWordFromStack();
+    /**
+     * @brief Sets the correct Process status after a load register instruction
+     * 
+     * @param Register 
+     * 
+     * Sets the correct Process status after a load register instruction
+     * - LDA, LDX, LDY
+     * @Register The A,X or Y Register
+     * 
+     */
+    void _setZeroAndNegativeFlags( const Byte& Register );
 
-        /**
-         * @brief Sets the correct Process status after a load register instruction
-         * 
-         * @param Register 
-         * 
-         * Sets the correct Process status after a load register instruction
-         * - LDA, LDX, LDY
-         * @Register The A,X or Y Register
-         * 
-         */
-        void SetZeroAndNegativeFlags( const Byte& Register );
+    /**
+     * @brief Addressing mode - Zero page
+     * 
+     * @return Word 
+     */
+    Word _addrZeroPage();
 
-        /**
-         * @brief Addressing mode - Zero page
-         * 
-         * @return Word 
-         */
-        Word AddrZeroPage();
+    /**
+     * @brief Addressing mode - Zero page with X offset
+     * 
+     * @return Word 
+     */
+    Word _addrZeroPageX();
 
-        /**
-         * @brief Addressing mode - Zero page with X offset
-         * 
-         * @return Word 
-         */
-        Word AddrZeroPageX();
+    /**
+     * @brief Addressing mode - Zero page with Y offset
+     * 
+     * @return Word 
+     */
+    Word _addrZeroPageY();
 
-        /**
-         * @brief Addressing mode - Zero page with Y offset
-         * 
-         * @return Word 
-         */
-        Word AddrZeroPageY();
+    /**
+     * @brief Addressing mode - Absolute
+     * 
+     * @return Word 
+     */
+    Word _addrAbsolute();
 
-        /**
-         * @brief Addressing mode - Absolute
-         * 
-         * @return Word 
-         */
-        Word AddrAbsolute();
+    /**
+     * @brief Addressing mode - Absolute with X offset
+     * 
+     * @return Word
+     * 
+     * Addressing mode - Absolute with X offset
+     * 
+     */
+    Word _addrAbsoluteX();
 
-        /**
-         * @brief Addressing mode - Absolute with X offset
-         * 
-         * @return Word
-         * 
-         * Addressing mode - Absolute with X offset
-         * 
-         */
-        Word AddrAbsoluteX();
+    /**
+     * @brief Addressing mode - Absolute with X offset
+     * 
+     * @return Word
+     * 
+     *  Addressing mode - Absolute with X offset
+     *  - Always takes a cycle for the X page boundary)
+     *  - See "STA Absolute,X"
+     * 
+     */
+    Word _addrAbsoluteX_5();
 
-        /**
-         * @brief Addressing mode - Absolute with X offset
-         * 
-         * @return Word
-         * 
-         *  Addressing mode - Absolute with X offset
-         *  - Always takes a cycle for the X page boundary)
-         *  - See "STA Absolute,X"
-         * 
-         */
-        Word AddrAbsoluteX_5();
+    /**
+     * @brief Addressing mode - Absolute with Y offset
+     * 
+     * @return Word 
+     */
+    Word _addrAbsoluteY();
 
-        /**
-         * @brief Addressing mode - Absolute with Y offset
-         * 
-         * @return Word 
-         */
-        Word AddrAbsoluteY();
+    /**
+     * @brief Addressing mode - Absolute with Y offset
+     * 
+     * @return Word 
+     * 
+     *  - Always takes a cycle for the Y page boundary)
+     *	- See "STA Absolute,Y"
+        *
+        */
+    Word _addrAbsoluteY_5();
 
-        /**
-         * @brief Addressing mode - Absolute with Y offset
-         * 
-         * @return Word 
-         * 
-         *  - Always takes a cycle for the Y page boundary)
-         *	- See "STA Absolute,Y"
-         *
-         */
-        Word AddrAbsoluteY_5();
+    /**
+     * @brief Addressing mode - Indirect X | Indexed Indirect
+     * 
+     * @return Word 
+     */
+    Word _addrIndirectX();
 
-        /**
-         * @brief Addressing mode - Indirect X | Indexed Indirect
-         * 
-         * @return Word 
-         */
-        Word AddrIndirectX();
+    /**
+     * @brief Addressing mode - Indirect Y | Indirect Indexed
+     * 
+     * @return Word 
+     */
+    Word _addrIndirectY();
 
-        /**
-         * @brief Addressing mode - Indirect Y | Indirect Indexed
-         * 
-         * @return Word 
-         */
-        Word AddrIndirectY();
+    /** Addressing mode - Indirect X | Indirect Indexed
+    *	- Always takes a cycle for the Y page boundary)
+    *	- See "STA (Indirect,Y) */
 
-        /** Addressing mode - Indirect X | Indirect Indexed
-        *	- Always takes a cycle for the Y page boundary)
-        *	- See "STA (Indirect,Y) */
+    Word _addrIndirectX_6();
 
-        Word AddrIndirectX_6();
+    /**
+     * @brief Addressing mode - Indirect Y | Indirect Indexed
+     * 
+     * @return Word 
+     * 
+     * - Always takes a cycle for the Y page boundary)
+     * - See "STA (Indirect,Y)
+     */
+    Word _addrIndirectY_6();
 
-        /**
-         * @brief Addressing mode - Indirect Y | Indirect Indexed
-         * 
-         * @return Word 
-         * 
-         * - Always takes a cycle for the Y page boundary)
-         * - See "STA (Indirect,Y)
-         */
-        Word AddrIndirectY_6();
+    /**
+     * @brief Load the specied Register with data in memory
+     * 
+     * @param pAddress 
+     * @param pRegister 
+     */
+    void _loadRegister(Word pAddress, Byte& pRegister);
+
+    /**
+     * @brief And the A Register with the value from the memory address
+     * 
+     * @param pAddress 
+     */
+    void _and( Word pAddress );
+
+    /**
+     * @brief Or the A Register with the value from the memory address
+     * 
+     * @param pAddress 
+     */
+    void _ora( Word pAddress );
+
+    /**
+     * @brief Eor the A Register with the value from the memory address
+     * 
+     * @param pAddress 
+     */
+    void _eor( Word pAddress );
+
+    /**
+     * @brief Conditional branch
+     * 
+     * @param pTest 
+     * @param pExpected 
+     */
+    void _branchIf( bool pTest, bool pExpected );
+
+    /**
+     * @brief Do add with carry given the the operand
+     * 
+     * @param pOperand 
+     */
+    void _ADC( Byte pOperand );
+    
+    /**
+     * @brief Do subtract with carry given the the operand
+     * 
+     * @param pOperand 
+     */
+    void _SBC( Byte pOperand );
+
+    /**
+     * @brief Sets the processor status for a CMP/CPX/CPY instruction
+     * 
+     * @param pOperand 
+     * @param pRegisterValue 
+     */
+    void _registerCompare( Byte pOperand, Byte pRegisterValue );
+
+    /**
+     * @brief Arithmetic shift left
+     * 
+     * @param Operand 
+     * @return Byte 
+     */
+    Byte _ASL( Byte Operand );
+
+    /**
+     * @brief Logical shift right
+     * 
+     * @param Operand 
+     * @return Byte 
+     */
+    Byte _LSR( Byte Operand );
+
+    /**
+     * @brief Rotate left
+     * 
+     * @param Operand 
+     * @return Byte 
+     */
+    Byte _ROL( Byte Operand );
+
+    /**
+     * @brief Rotate right
+     * 
+     * @param Operand 
+     * @return Byte 
+     */
+    Byte _ROR( Byte Operand );
+
+    /**
+     * @brief Push Processor status onto the stack
+     *        Setting bits 4 & 5 on the stack
+     * 
+     */
+    void _pushPSToStack();
+
+    /**
+     * @brief Pop Processor status from the stack
+     *        Clearing bits 4 & 5 (Break & Unused)
+     * 
+     */
+    void _popPSFromStack();
 };
 
 }

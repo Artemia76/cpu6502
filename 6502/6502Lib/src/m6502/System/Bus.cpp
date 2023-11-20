@@ -27,23 +27,23 @@
 namespace m6502
 {
 
-CBusChip::CBusChip (CBus& pBus, const Word& pMask, const Word& pBank) : Bus(pBus), Mask(pMask), Bank(pBank)
+CBusChip::CBusChip (CBus& pBus, const Word& pMask, const Word& pBank) : bus(pBus), mask(pMask), bank(pBank)
 {
-    Bus.Subscribe(this);
+    bus._subscribe(this);
 }
 
 /*****************************************************************************/
 
-CBusChip::CBusChip (const CBusChip& pCopy) : Bus(pCopy.Bus), Mask(pCopy.Mask), Bank(pCopy.Mask)
+CBusChip::CBusChip (const CBusChip& pCopy) : bus(pCopy.bus), mask(pCopy.mask), bank(pCopy.mask)
 {
-    Bus.Subscribe(this);
+    bus._subscribe(this);
 }
 
 /*****************************************************************************/
 
 CBusChip::~CBusChip()
 {
-    Bus.UnSubscribe(this);
+    bus._unSubscribe(this);
 }
 
 /*****************************************************************************/
@@ -71,40 +71,40 @@ CBusChip::~CBusChip()
 
 /*****************************************************************************/
 
-void CBus::SetReady(const bool)
+void CBus::setReady(const bool)
 {
 
 }
 
 /*****************************************************************************/
 
-void CBus::WriteBusData(const Word& pAddress, const Byte& pData)
+void CBus::writeBusData(const Word& pAddress, const Byte& pData)
 {
-    for (auto Chip : m_chips)
+    for (auto Chip : _chips)
     {
         // If chip on bus is a master (e.g. CPU, etc) we pass
-        if (Chip->Mask == 0xFFFF) continue;
+        if (Chip->mask == 0xFFFF) continue;
         // If chip is on range of address
-        if ((Chip->Mask & pAddress)==Chip->Bank)
+        if ((Chip->mask & pAddress)==Chip->bank)
         {
-            Chip->OnWriteBusData(pAddress-Chip->Bank,pData);
+            Chip->onWriteBusData(pAddress-Chip->bank,pData);
         }
     }
 }
 
 /*****************************************************************************/
 
-Byte CBus::ReadBusData(const Word& pAddress)
+Byte CBus::readBusData(const Word& pAddress)
 {
-    for (auto Chip : m_chips)
+    for (auto Chip : _chips)
     {
         // If chip on bus is a master (e.g. CPU, etc) we pass
-        if (Chip->Mask == 0xFFFF) continue;
+        if (Chip->mask == 0xFFFF) continue;
         // If chip is on range of address
         
-        if ((Chip->Mask & pAddress)==Chip->Bank)
+        if ((Chip->mask & pAddress)==Chip->bank)
         {
-            return Chip->OnReadBusData(pAddress-Chip->Bank);
+            return Chip->onReadBusData(pAddress-Chip->bank);
         }
     }
     return 0;
@@ -113,19 +113,19 @@ Byte CBus::ReadBusData(const Word& pAddress)
 
 /*****************************************************************************/
 
-void CBus::Subscribe( CBusChip* pChip)
+void CBus::_subscribe( CBusChip* pChip)
 {
-    if (std::find(m_chips.begin(), m_chips.end(),pChip) == m_chips.end())
+    if (std::find(_chips.begin(), _chips.end(),pChip) == _chips.end())
     {
-        m_chips.push_back(pChip);
+        _chips.push_back(pChip);
     }
 }
 
 /*****************************************************************************/
 
-void CBus::UnSubscribe( CBusChip* pChip)
+void CBus::_unSubscribe( CBusChip* pChip)
 {
-    m_chips.erase(std::remove(m_chips.begin(), m_chips.end(), pChip), m_chips.end());
+    _chips.erase(std::remove(_chips.begin(), _chips.end(), pChip), _chips.end());
 }
 
 }

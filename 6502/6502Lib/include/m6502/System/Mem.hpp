@@ -37,57 +37,58 @@ namespace m6502
  */
 class CMem : CBusChip
 {
-    public:
-        /**
-         * @brief Construct a new Mem object
-         * 
-         */
-        explicit CMem(CBus& pBus, const Word& pMask, const Word& pBank);
+public:
+    /**
+     * @brief Construct a new Mem object
+     * 
+     */
+    explicit CMem(CBus& pBus, const Word& pMask, const Word& pBank);
 
-        /**
-         * @brief Copy Contructor
-         * 
-         * @param pCopy 
-         */
-        explicit CMem(const CMem& pCopy);
+    /**
+     * @brief Copy Contructor
+     * 
+     * @param pCopy 
+     */
+    explicit CMem(const CMem& pCopy);
 
-        /**
-         * @brief Destroy the Mem object
-         * 
-         */
-        ~CMem();
+    /**
+     * @brief Destroy the Mem object
+     * 
+     */
+    ~CMem();
 
-        /**
-         * @brief 
-         * 
-         */
-        std::array<Byte,MAX_MEM> Data;
+    /**
+     * @brief 
+     * 
+     */
+    void initialise ();
 
-        /**
-         * @brief 
-         * 
-         */
-        void Initialise ();
+    /**
+     * @brief Read 1 Byte
+     * 
+     * @param Address 
+     * @return Byte 
+     */
+    Byte operator[]( const Word& Address) const;
 
-        /**
-         * @brief Read 1 Byte
-         * 
-         * @param Address 
-         * @return Byte 
-         */
-        Byte operator[]( const Word& Address) const;
+    /**
+     * @brief Write 1 Byte
+     * 
+     * @param Address 
+     * @return Byte& 
+     */
+    Byte& operator[]( const Word& Address);
 
-        /**
-         * @brief Write 1 Byte
-         * 
-         * @param Address 
-         * @return Byte& 
-         */
-        Byte& operator[]( const Word& Address);
+protected:
+    void onWriteBusData ( const Word& pAddress, const Byte& pData ) override;
+    Byte onReadBusData ( const Word& pAddress) override;
 
-    protected:
-        void OnWriteBusData ( const Word& pAddress, const Byte& pData );
-        Byte OnReadBusData ( const Word& pAddress);
+private:
+    /**
+     * @brief Memory container
+     * 
+     */
+    std::array<Byte,MAX_MEM> _data;
 };
 
 }

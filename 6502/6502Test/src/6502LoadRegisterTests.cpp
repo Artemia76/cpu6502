@@ -11,7 +11,7 @@ public:
 
     virtual void SetUp()
     {
-        cpu.Reset();
+        cpu.reset();
     }
 
     virtual void TearDown()
@@ -73,7 +73,7 @@ TEST_F( M6502LoadRegisterTests, TheCPUDoesNothingWhenWeExecuteZeroCycles )
     constexpr s64 NUM_CYCLES = 0;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( NUM_CYCLES );
+    s64 CyclesUsed = cpu.execute( NUM_CYCLES );
 
     //then:
     EXPECT_EQ( CyclesUsed, 0 );
@@ -89,7 +89,7 @@ TEST_F( M6502LoadRegisterTests, CPUCanExecuteMoreCyclesThanRequestedIfRequiredBy
     constexpr s32 NUM_CYCLES = 1;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( NUM_CYCLES );
+    s64 CyclesUsed = cpu.execute( NUM_CYCLES );
 
     //then:
     EXPECT_EQ( CyclesUsed, 2 );
@@ -106,7 +106,7 @@ void M6502LoadRegisterTests::TestLoadRegisterImmediate(
 
     //when:
     CCPU CPUCopy = cpu;
-    s64 CyclesUsed = cpu.Execute( 2 );
+    s64 CyclesUsed = cpu.execute( 2 );
 
     //then:
     EXPECT_EQ( cpu.*RegisterToTest, 0x84 );
@@ -146,7 +146,7 @@ void M6502LoadRegisterTests::TestLoadRegisterZeroPage(
 
     //when:
     CCPU CPUCopy = cpu;
-    s64 CyclesUsed = cpu.Execute( 3 );
+    s64 CyclesUsed = cpu.execute( 3 );
 
     //then:
     EXPECT_EQ( cpu.*RegisterToTest, 0x37 );
@@ -184,7 +184,7 @@ TEST_F( M6502LoadRegisterTests, LDAImmediateCanAffectTheZeroFlag )
     CCPU CPUCopy = cpu;
 
     //when:
-    cpu.Execute( 2 );
+    cpu.execute( 2 );
 
     //then:
     EXPECT_TRUE( cpu.Flags.Z );
@@ -205,7 +205,7 @@ void M6502LoadRegisterTests::TestLoadRegisterZeroPageX(
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( 4 );
+    s64 CyclesUsed = cpu.execute( 4 );
 
     //then:
     EXPECT_EQ( cpu.*RegisterToTest, 0x37 );
@@ -228,7 +228,7 @@ void M6502LoadRegisterTests::TestLoadRegisterZeroPageY(
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( 4 );
+    s64 CyclesUsed = cpu.execute( 4 );
 
     //then:
     EXPECT_EQ( cpu.*RegisterToTest, 0x37 );
@@ -267,7 +267,7 @@ TEST_F( M6502LoadRegisterTests, LDAZeroPageXCanLoadAValueIntoTheARegisterWhenItW
 
     //when:
     CCPU CPUCopy = cpu;
-    s64 CyclesUsed = cpu.Execute( 4 );
+    s64 CyclesUsed = cpu.execute( 4 );
 
     //then:
     EXPECT_EQ( cpu.A, 0x37 );
@@ -292,7 +292,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsolute(
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( cpu.*RegisterToTest, 0x37 );
@@ -336,7 +336,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsoluteX(
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( cpu.*RegisterToTest, 0x37 );
@@ -362,7 +362,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsoluteY(
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( cpu.*RegisterToTest, 0x37 );
@@ -405,7 +405,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsoluteXWhenCrossingPage(
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( cpu.*RegisterToTest, 0x37 );
@@ -448,7 +448,7 @@ void M6502LoadRegisterTests::TestLoadRegisterAbsoluteYWhenCrossingPage(
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( cpu.*RegisterToTest, 0x37 );
@@ -485,7 +485,7 @@ TEST_F( M6502LoadRegisterTests, LDAIndirectXCanLoadAValueIntoTheARegister )
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( cpu.A, 0x37 );
@@ -510,7 +510,7 @@ TEST_F( M6502LoadRegisterTests, LDAIndirectYCanLoadAValueIntoTheARegister )
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( cpu.A, 0x37 );
@@ -534,7 +534,7 @@ TEST_F( M6502LoadRegisterTests, LDAIndirectYCanLoadAValueIntoTheARegisterWhenItC
     CCPU CPUCopy = cpu;
 
     //when:
-    s64 CyclesUsed = cpu.Execute( EXPECTED_CYCLES );
+    s64 CyclesUsed = cpu.execute( EXPECTED_CYCLES );
 
     //then:
     EXPECT_EQ( cpu.A, 0x37 );

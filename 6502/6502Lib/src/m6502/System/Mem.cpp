@@ -31,12 +31,12 @@ namespace m6502
 
 CMem::CMem (CBus& pBus, const Word& pMask, const Word& pBank) : CBusChip(pBus,pMask,pBank)
 {
-    Initialise();
+    initialise();
 }
 
 /*****************************************************************************/
 
-CMem::CMem (const CMem& pCopy) : CBusChip(pCopy), Data(pCopy.Data)
+CMem::CMem (const CMem& pCopy) : CBusChip(pCopy), _data(pCopy._data)
 {
 }
 
@@ -46,9 +46,9 @@ CMem::~CMem() {}
 
 /*****************************************************************************/
 
-void CMem::Initialise ()
+void CMem::initialise ()
 {
-    Data.fill(0x00);
+    _data.fill(0x00);
 }
 
 /*****************************************************************************/
@@ -56,7 +56,7 @@ void CMem::Initialise ()
 Byte CMem::operator[]( const Word& pAddress) const
 {
     // assert here Address is < MAX_MEM
-    return Data[pAddress];
+    return _data[pAddress];
 }
 
 /*****************************************************************************/
@@ -64,17 +64,17 @@ Byte CMem::operator[]( const Word& pAddress) const
 Byte& CMem::operator[]( const Word& pAddress)
 {
     // assert here Address is < MAX_MEM
-    return Data[pAddress];
+    return _data[pAddress];
 }
 
-Byte CMem::OnReadBusData (const Word& pAddress)
+Byte CMem::onReadBusData (const Word& pAddress)
 {
-    return Data[pAddress];
+    return _data[pAddress];
 }
 
-void CMem::OnWriteBusData (const Word& pAddress, const Byte& pData)
+void CMem::onWriteBusData (const Word& pAddress, const Byte& pData)
 {
-   Data[pAddress]=pData;
+   _data[pAddress]=pData;
 }
 
 }

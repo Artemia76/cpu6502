@@ -11,7 +11,7 @@ public:
 
     virtual void SetUp()
     {
-        cpu.Reset();
+        cpu.reset();
     }
 
     virtual void TearDown()
@@ -23,14 +23,14 @@ TEST_F( M6502StatusFlagChangeTests, CLCWillClearTheCarryFlag )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00);
+    cpu.reset( 0xFF00);
     cpu.Flags.C = true;
     mem[0xFF00] = opcode(Ins::CLC);
     constexpr s64 EXPECTED_CYCLES = 2;
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -47,14 +47,14 @@ TEST_F( M6502StatusFlagChangeTests, SECWillSetTheCarryFlag )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00);
+    cpu.reset( 0xFF00);
     cpu.Flags.C = false;
     mem[0xFF00] = opcode(Ins::SEC);
     constexpr s64 EXPECTED_CYCLES = 2;
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -71,14 +71,14 @@ TEST_F( M6502StatusFlagChangeTests, CLDWillClearTheDecimalFlag )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00);
+    cpu.reset( 0xFF00);
     cpu.Flags.D = true;
     mem[0xFF00] = opcode(Ins::CLD);
     constexpr s64 EXPECTED_CYCLES = 2;
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -95,14 +95,14 @@ TEST_F( M6502StatusFlagChangeTests, SEDWillSetTheDecimalFlag )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00);
+    cpu.reset( 0xFF00);
     cpu.Flags.D = false;
     mem[0xFF00] = opcode(Ins::SED);
     constexpr s64 EXPECTED_CYCLES = 2;
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -119,14 +119,14 @@ TEST_F( M6502StatusFlagChangeTests, CLIWillClearTheInterruptFlag )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00);
+    cpu.reset( 0xFF00);
     cpu.Flags.I = true;
     mem[0xFF00] = opcode(Ins::CLI);
     constexpr s64 EXPECTED_CYCLES = 2;
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -143,14 +143,14 @@ TEST_F( M6502StatusFlagChangeTests, SEIWillSetTheInterruptFlag )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00);
+    cpu.reset( 0xFF00);
     cpu.Flags.I = false;
     mem[0xFF00] = opcode(Ins::SEI);
     constexpr s64 EXPECTED_CYCLES = 2;
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -167,14 +167,14 @@ TEST_F( M6502StatusFlagChangeTests, CLVWillClearTheOverflowFlag )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00);
+    cpu.reset( 0xFF00);
     cpu.Flags.V = true;
     mem[0xFF00] = opcode(Ins::CLV);
     constexpr s64 EXPECTED_CYCLES = 2;
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -191,13 +191,13 @@ TEST_F( M6502StatusFlagChangeTests, NOPWillDoNothingButConsumeACycle )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00);
+    cpu.reset( 0xFF00);
     mem[0xFF00] = opcode(Ins::NOP);
     constexpr s64 EXPECTED_CYCLES = 2;
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );

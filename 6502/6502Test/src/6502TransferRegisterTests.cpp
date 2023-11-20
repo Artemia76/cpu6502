@@ -11,7 +11,7 @@ public:
  
     virtual void SetUp()
     {
-        cpu.Reset();
+        cpu.reset();
     }
 
     virtual void TearDown()
@@ -32,7 +32,7 @@ TEST_F( M6502TransferRegisterTests, TAXCanTransferANonNegativeNonZeroValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.A = 0x42;
     cpu.X = 0x32;
     cpu.Flags.Z = true;
@@ -42,7 +42,7 @@ TEST_F( M6502TransferRegisterTests, TAXCanTransferANonNegativeNonZeroValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -57,7 +57,7 @@ TEST_F( M6502TransferRegisterTests, TAXCanTransferANonNegativeZeroValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.A = 0x00;
     cpu.X = 0x32;
     cpu.Flags.Z = false;
@@ -67,7 +67,7 @@ TEST_F( M6502TransferRegisterTests, TAXCanTransferANonNegativeZeroValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -82,7 +82,7 @@ TEST_F( M6502TransferRegisterTests, TAXCanTransferANegativeValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.A = 0b10001011;
     cpu.X = 0x32;
     cpu.Flags.Z = true;
@@ -92,7 +92,7 @@ TEST_F( M6502TransferRegisterTests, TAXCanTransferANegativeValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -107,7 +107,7 @@ TEST_F( M6502TransferRegisterTests, TAYCanTransferANonNegativeNonZeroValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.A = 0x42;
     cpu.Y = 0x32;
     cpu.Flags.Z = true;
@@ -117,7 +117,7 @@ TEST_F( M6502TransferRegisterTests, TAYCanTransferANonNegativeNonZeroValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -132,7 +132,7 @@ TEST_F( M6502TransferRegisterTests, TAYCanTransferANonNegativeZeroValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.A = 0x00;
     cpu.Y = 0x32;
     cpu.Flags.Z = false;
@@ -142,7 +142,7 @@ TEST_F( M6502TransferRegisterTests, TAYCanTransferANonNegativeZeroValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -157,7 +157,7 @@ TEST_F( M6502TransferRegisterTests, TAYCanTransferANegativeValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.A = 0b10001011;
     cpu.Y = 0x32;
     cpu.Flags.Z = true;
@@ -167,7 +167,7 @@ TEST_F( M6502TransferRegisterTests, TAYCanTransferANegativeValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -182,7 +182,7 @@ TEST_F( M6502TransferRegisterTests, TXACanTransferANonNegativeNonZeroValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.X = 0x42;
     cpu.A = 0x32;
     cpu.Flags.Z = true;
@@ -192,7 +192,7 @@ TEST_F( M6502TransferRegisterTests, TXACanTransferANonNegativeNonZeroValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -207,7 +207,7 @@ TEST_F( M6502TransferRegisterTests, TXACanTransferANonNegativeZeroValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.X = 0x00;
     cpu.A = 0x32;
     cpu.Flags.Z = false;
@@ -217,7 +217,7 @@ TEST_F( M6502TransferRegisterTests, TXACanTransferANonNegativeZeroValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -232,7 +232,7 @@ TEST_F( M6502TransferRegisterTests, TXACanTransferANegativeValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.X = 0b10001011;
     cpu.A = 0x32;
     cpu.Flags.Z = true;
@@ -242,7 +242,7 @@ TEST_F( M6502TransferRegisterTests, TXACanTransferANegativeValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -257,7 +257,7 @@ TEST_F( M6502TransferRegisterTests, TYACanTransferANonNegativeNonZeroValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.Y = 0x42;
     cpu.A = 0x32;
     cpu.Flags.Z = true;
@@ -267,7 +267,7 @@ TEST_F( M6502TransferRegisterTests, TYACanTransferANonNegativeNonZeroValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -282,7 +282,7 @@ TEST_F( M6502TransferRegisterTests, TYACanTransferANonNegativeZeroValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.Y = 0x00;
     cpu.A = 0x32;
     cpu.Flags.Z = false;
@@ -292,7 +292,7 @@ TEST_F( M6502TransferRegisterTests, TYACanTransferANonNegativeZeroValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -307,7 +307,7 @@ TEST_F( M6502TransferRegisterTests, TYACanTransferANegativeValue )
 {
     // given:
     using namespace m6502;
-    cpu.Reset( 0xFF00 );
+    cpu.reset( 0xFF00 );
     cpu.Y = 0b10001011;
     cpu.A = 0x32;
     cpu.Flags.Z = true;
@@ -317,7 +317,7 @@ TEST_F( M6502TransferRegisterTests, TYACanTransferANegativeValue )
     CCPU CPUCopy = cpu;
 
     // when:
-    const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+    const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
     // then:
     EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );

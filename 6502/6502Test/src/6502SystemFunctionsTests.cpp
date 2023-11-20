@@ -11,7 +11,7 @@ public:
 
 	virtual void SetUp()
 	{
-		cpu.Reset();
+		cpu.reset();
 	}
 
 	virtual void TearDown()
@@ -23,13 +23,13 @@ TEST_F( M6502SystemFunctionsTests, NOPWillDoNothingButConsumeACycle )
 {
 	// given:
 	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+	cpu.reset( 0xFF00 );
 	mem[0xFF00] = opcode(Ins::NOP);
 	constexpr s64 EXPECTED_CYCLES = 2;
 	CCPU CPUCopy = cpu;
 
 	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+	const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -45,7 +45,7 @@ TEST_F( M6502SystemFunctionsTests, BRKWillLoadTheProgramCounterFromTheInterruptV
 {
 	// given:
 	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+	cpu.reset( 0xFF00 );
 	mem[0xFF00] = opcode(Ins::BRK);
 	mem[0xFFFE] = 0x00;
 	mem[0xFFFF] = 0x80;
@@ -53,7 +53,7 @@ TEST_F( M6502SystemFunctionsTests, BRKWillLoadTheProgramCounterFromTheInterruptV
 	CCPU CPUCopy = cpu;
 
 	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+	const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -64,7 +64,7 @@ TEST_F( M6502SystemFunctionsTests, BRKWillLoadTheProgramCounterFromTheInterruptV
 {
 	// given:
 	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+	cpu.reset( 0xFF00 );
 	mem[0xFF00] = opcode(Ins::BRK);
 	mem[0xFFFE] = 0x00;
 	mem[0xFFFF] = 0x90;
@@ -72,7 +72,7 @@ TEST_F( M6502SystemFunctionsTests, BRKWillLoadTheProgramCounterFromTheInterruptV
 	CCPU CPUCopy = cpu;
 
 	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+	const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -83,14 +83,14 @@ TEST_F( M6502SystemFunctionsTests, BRKWillSetTheBreakFlag )
 {
 	// given:
 	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+	cpu.reset( 0xFF00 );
 	cpu.Flags.B = false;
 	mem[0xFF00] = opcode(Ins::BRK);
 	constexpr s64 EXPECTED_CYCLES = 7;
 	CCPU CPUCopy = cpu;
 
 	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+	const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -101,13 +101,13 @@ TEST_F( M6502SystemFunctionsTests, BRKWillPush3BytesOntoTheStack )
 {
 	// given:
 	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+	cpu.reset( 0xFF00 );
 	mem[0xFF00] = opcode(Ins::BRK);
 	constexpr s64 EXPECTED_CYCLES = 7;
 	CCPU CPUCopy = cpu;
 
 	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+	const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -118,14 +118,14 @@ TEST_F( M6502SystemFunctionsTests, BRKWillPushPCandPSOntoTheStack )
 {
 	// given:
 	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+	cpu.reset( 0xFF00 );
 	mem[0xFF00] = opcode(Ins::BRK);
 	constexpr s64 EXPECTED_CYCLES = 7;
 	CCPU CPUCopy = cpu;
 	Byte OldSP = CPUCopy.SP;
 
 	// when:
-	const s64 ActualCycles = cpu.Execute( EXPECTED_CYCLES );
+	const s64 ActualCycles = cpu.execute( EXPECTED_CYCLES );
 
 	// then:
 	EXPECT_EQ( ActualCycles, EXPECTED_CYCLES );
@@ -150,7 +150,7 @@ TEST_F( M6502SystemFunctionsTests, RTICanReturnFromAnInterruptLeavingTheCPUInThe
 {
 	// given:
 	using namespace m6502;
-	cpu.Reset( 0xFF00 );
+	cpu.reset( 0xFF00 );
 	mem[0xFF00] = opcode(Ins::BRK);
 	mem[0xFFFE] = 0x00;
 	mem[0xFFFF] = 0x80;
@@ -160,8 +160,8 @@ TEST_F( M6502SystemFunctionsTests, RTICanReturnFromAnInterruptLeavingTheCPUInThe
 	CCPU CPUCopy = cpu;
 
 	// when:
-	const s64 ActualCyclesBRK = cpu.Execute( EXPECTED_CYCLES_BRK );
-	const s64 ActualCyclesRTI = cpu.Execute( EXPECTED_CYCLES_RTI );
+	const s64 ActualCyclesBRK = cpu.execute( EXPECTED_CYCLES_BRK );
+	const s64 ActualCyclesRTI = cpu.execute( EXPECTED_CYCLES_RTI );
 
 	// then:
 	EXPECT_EQ( ActualCyclesBRK, EXPECTED_CYCLES_BRK );

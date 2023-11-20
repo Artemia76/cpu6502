@@ -137,13 +137,52 @@ protected:
     void unSubscribe (CProcessEvent* pSubscriber);
 
 private:
+    /**
+     * @brief Thread for loop
+     * 
+     */
     std::thread*    _thread;
+
+    /**
+     * @brief Start Loop Time
+     * 
+     */
     hrc::time_point _start;
+
+    /**
+     * @brief End Loop time
+     * 
+     */
     hrc::time_point _end;
+
+    /**
+     * @brief Loop Period Execution
+     * 
+     */
     period          _period;
+
+    /**
+     * @brief Time sleeping on last loop (Free Time)
+     * 
+     */
     period          _lastSleep;
+
+    /**
+     * @brief State of current loop Execution
+     * 
+     */
     std::atomic<bool> _running;
+
+    /**
+     * @brief Suscribers container for loop event
+     * 
+     */
     v_subscribers   _subscribers;
+
+    /**
+     * @brief 
+     * 
+     */
     std::mutex      _mutex;
 
     void            _mainLoop();
